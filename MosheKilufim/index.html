@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>משה קילופים | ירקות טריים קלופים וחתוכים למטבחים, עסקים, ומוסדות</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --cream: #fdfbf7;
+      --cream-dark: #f3eadc;
+      --olive: #3d4616;
+      --olive-light: #536025;
+      --gold: #c8965d;
+      --dark: #1a1a1a;
+      --muted: #666;
+      --white: #fff;
+      --glass: rgba(255,255,255,0.9);
+      --shadow: 0 18px 45px rgba(0,0,0,0.12);
+      --radius: 26px;
+      --font-heading: 'Rubik', 'Heebo', sans-serif;
+      --font-body: 'Heebo', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--dark);
+      background: linear-gradient(180deg, var(--cream), #fff);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      padding: 14px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--olive);
+      letter-spacing: -1.5px;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .logo span {
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      font-weight: 700;
+      color: var(--olive);
+    }
+
+    nav a:hover { color: var(--gold); }
+
+    .cart-container {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--olive);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      border: none;
+      transition: 0.25s;
+      white-space: nowrap;
+    }
+
+    .cart-container:hover { background: var(--olive-light); transform: translateY(-2px); }
+
+    .hero {
+      position: relative;
+      min-height: 86vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      background-image: url('moshe.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-color: var(--olive);
+      padding: 120px 20px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.52)),
+        radial-gradient(circle at center, rgba(200,150,93,0.18), transparent 55%);
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: 980px;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(3rem, 8vw, 6.2rem);
+      line-height: 1.02;
+      margin: 0;
+      text-shadow: 0 12px 28px rgba(0,0,0,0.5);
+    }
+
+    .hero h1 span { color: var(--gold); }
+
+    .hero p {
+      font-size: clamp(1.25rem, 2.3vw, 1.9rem);
+      margin: 24px auto 34px;
+      max-width: 840px;
+      text-shadow: 0 8px 20px rgba(0,0,0,0.55);
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 26px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .btn-primary { background: var(--gold); color: #171717; }
+    .btn-primary:hover { transform: translateY(-3px); filter: brightness(1.05); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.14);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.5);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-secondary:hover { background: rgba(255,255,255,0.24); transform: translateY(-3px); }
+
+    .trust-strip {
+      margin: -42px auto 0;
+      position: relative;
+      z-index: 2;
+      width: min(1180px, 92%);
+      background: var(--white);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .trust-item {
+      text-align: center;
+      padding: 10px;
+      border-left: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .trust-item:last-child { border-left: none; }
+    .trust-item i { color: var(--gold); font-size: 1.5rem; margin-bottom: 8px; }
+    .trust-item strong { display: block; color: var(--olive); font-size: 1.05rem; }
+    .trust-item span { color: var(--muted); font-size: 0.95rem; }
+
+    .section {
+      width: min(1240px, 92%);
+      margin: 70px auto;
+    }
+
+    .glass-panel {
+      background: var(--glass);
+      border: 1px solid rgba(255,255,255,0.65);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: clamp(28px, 5vw, 58px);
+      backdrop-filter: blur(12px);
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2.1rem, 4vw, 3.2rem);
+      color: var(--olive);
+      text-align: center;
+      margin: 0 0 34px;
+      letter-spacing: -1px;
+    }
+
+    .section-title::after {
+      content: "";
+      display: block;
+      width: 70px;
+      height: 5px;
+      background: var(--gold);
+      border-radius: 999px;
+      margin: 15px auto 0;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+      gap: 42px;
+    }
+
+    .about-grid p {
+      font-size: 1.18rem;
+      line-height: 1.9;
+      margin: 0 0 18px;
+      font-weight: 500;
+    }
+
+
+    .about-strong {
+      margin-top: 10px;
+      font-weight: 800;
+      color: var(--olive);
+    }
+
+    .badge-wrapper {
+      position: relative;
+      overflow: visible;
+    }
+
+    .badge-30 {
+      position: absolute;
+      bottom: -30px;
+      right: -30px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 42%, var(--gold));
+      border: 5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: var(--font-heading);
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: var(--olive);
+      line-height: 1.2;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.28);
+      transform: scale(0.7) rotate(-15deg);
+      z-index: 2;
+    }
+
+    .badge-30.reveal-strong {
+      opacity: 0;
+      transition: opacity 0.7s cubic-bezier(.2,.8,.2,1), transform 0.7s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .badge-30.reveal-strong.active {
+      opacity: 1;
+      transform: scale(1) rotate(-10deg);
+    }
+
+    @media (max-width: 980px) {
+      .badge-30 {
+        bottom: -24px;
+        right: 18px;
+        width: 118px;
+        height: 118px;
+        font-size: 0.98rem;
+      }
+    }
+
+    .about-image img {
+      width: 100%;
+      border-radius: 22px;
+      display: block;
+      box-shadow: var(--shadow);
+      object-fit: cover;
+    }
+
+    .opening-image {
+      width: 100%;
+      max-height: 520px;
+      object-fit: cover;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      display: block;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.05);
+      transition: 0.25s;
+      display: flex;
+      flex-direction: column;
+      min-height: 250px;
+    }
+
+    .product-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); }
+
+    .product-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: var(--cream-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.55rem;
+      color: var(--olive);
+      margin-bottom: 15px;
+    }
+
+    .product-card h3 {
+      font-family: var(--font-heading);
+      color: var(--olive);
+      margin: 0 0 8px;
+      font-size: 1.45rem;
+    }
+
+    .product-card p {
+      color: var(--muted);
+      line-height: 1.65;
+      margin: 0 0 18px;
+      flex: 1;
+    }
+
+    .qty-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .qty-row input {
+      width: 100%;
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 12px;
+      padding: 11px;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .btn-add {
+      background: var(--olive);
+      color: white;
+      border: none;
+      padding: 13px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.25s;
+      width: 100%;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .btn-add:hover { background: var(--olive-light); }
+
+    label { font-weight: 800; color: var(--olive); }
+
+    input, textarea, select {
+      border: 1px solid rgba(0,0,0,0.14);
+      border-radius: 14px;
+      padding: 13px 15px;
+      font-family: inherit;
+      font-size: 1rem;
+      background: white;
+      outline: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(200,150,93,0.15);
+    }
+
+    textarea { min-height: 110px; resize: vertical; }
+
+    .whatsapp-float {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #25D366;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.22);
+      z-index: 1000;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: 0.75s ease;
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    footer {
+      background: var(--olive);
+      color: rgba(255,255,255,0.78);
+      padding: 34px 5%;
+      text-align: center;
+      margin-top: 70px;
+    }
+
+
+    /* --- טיפוגרפיה ממותגת בסגנון עגול ונוכח --- */
+    body {
+      font-family: var(--font-body);
+      font-weight: 500;
+      letter-spacing: -0.15px;
+    }
+
+    h1, h2, h3,
+    .section-title,
+    .product-page-content h2,
+    .product-card h3 {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .hero h1 {
+      font-weight: 700;
+      letter-spacing: -2.5px;
+    }
+
+    .btn,
+    .btn-add,
+    .send-order,
+    .cart-container,
+    nav,
+    label,
+    .filter-btn {
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+
+    .quick-contact-panel {
+      text-align: center;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(253,251,247,0.94));
+      border: 1px solid rgba(200,150,93,0.18);
+    }
+
+    .contact-icons {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-top: 26px;
+      flex-wrap: wrap;
+    }
+
+    .contact-card {
+      width: 165px;
+      min-height: 150px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.10);
+      border: 1px solid rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: 0.25s;
+    }
+
+    .contact-card i {
+      font-size: 3.2rem;
+      line-height: 1;
+    }
+
+    .contact-card span {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--olive);
+    }
+
+    .contact-card small {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .contact-card:hover {
+      transform: translateY(-7px) scale(1.03);
+      box-shadow: var(--shadow);
+    }
+
+    .contact-card.whatsapp i { color: #25D366; }
+    .contact-card.phone i { color: var(--olive); }
+    .contact-card.mail i { color: var(--gold); }
+
+    @media (max-width: 640px) {
+      .contact-card {
+        width: 100%;
+        min-height: 125px;
+      }
+
+      .contact-card i {
+        font-size: 2.7rem;
+      }
+    }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 26px;
+    }
+
+    .audience-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px 18px;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.05);
+      transition: 0.25s;
+    }
+
+    .audience-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow);
+    }
+
+    .audience-card i {
+      font-size: 2.35rem;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+
+    .audience-card h3 {
+      margin: 0 0 8px;
+      font-family: var(--font-heading);
+      color: var(--olive);
+      font-size: 1.25rem;
+    }
+
+    .audience-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-weight: 600;
+    }
+
+    .price-note {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 7px;
+      background: rgba(61,70,22,0.09);
+      color: var(--olive);
+      border: 1px solid rgba(61,70,22,0.12);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-weight: 900;
+      font-size: 0.88rem;
+      margin: 0 0 14px;
+    }
+
+    .cart-price-note {
+      margin-top: 14px;
+      background: rgba(200,150,93,0.14);
+      color: var(--olive);
+      border-radius: 16px;
+      padding: 12px;
+      font-weight: 800;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .audience-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .audience-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    @media (max-width: 980px) {
+      nav { display: none; }
+      .trust-strip { grid-template-columns: repeat(2, 1fr); }
+      .about-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero { background-attachment: scroll; }
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 12px 4%; }
+      .logo { font-size: 1.65rem; letter-spacing: -1px; }
+      .cart-container { padding: 9px 12px; font-size: 0.9rem; }
+      .hero { min-height: 78vh; padding: 86px 16px; }
+      .trust-strip { grid-template-columns: 1fr; margin-top: -25px; }
+      .trust-item { border-left: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+      .trust-item:last-child { border-bottom: none; }
+      .products-grid { grid-template-columns: 1fr; }
+      .section { margin: 48px auto; }
+    }
+  
+    .section-subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin: -18px auto 28px;
+      max-width: 760px;
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .filter-btn {
+      border: 1px solid rgba(0,0,0,0.12);
+      background: #fff;
+      color: var(--olive);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--olive);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .catalog-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .product-card-click {
+      padding: 0;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .product-image-btn {
+      width: 100%;
+      height: 180px;
+      border: 0;
+      padding: 0;
+      background: var(--cream-dark);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-image-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: 0.35s;
+    }
+
+    .product-card-click:hover .product-image-btn img {
+      transform: scale(1.06);
+    }
+
+    .product-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      font-size: 4.2rem;
+      background: linear-gradient(135deg, #f7efe2, #fff);
+    }
+
+    .product-card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .product-category {
+      display: inline-flex;
+      width: fit-content;
+      background: rgba(200,150,93,0.15);
+      color: var(--olive);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .product-page {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.58);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+
+    .product-page.open { display: flex; }
+
+    .product-page-card {
+      background: #fff;
+      border-radius: 28px;
+      width: min(980px, 96vw);
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      position: relative;
+    }
+
+    .product-close {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 2;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+    }
+
+    .product-page-image {
+      min-height: 430px;
+      background: var(--cream-dark);
+    }
+
+    .product-page-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .product-detail-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+      min-height: 430px;
+      align-items: center;
+      justify-content: center;
+      font-size: 7rem;
+      background: linear-gradient(135deg, #f7efe2, #fff);
+    }
+
+    .product-page-content { padding: 44px; }
+
+    .product-page-content h2 {
+      font-family: var(--font-heading);
+      color: var(--olive);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      margin: 0 0 14px;
+      line-height: 1.05;
+    }
+
+    .product-page-content p {
+      color: var(--muted);
+      font-size: 1.15rem;
+      line-height: 1.8;
+      margin: 0 0 24px;
+    }
+
+    .detail-info {
+      display: grid;
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .detail-info div {
+      background: var(--cream);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .detail-info strong {
+      display: block;
+      color: var(--olive);
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+    }
+
+    .detail-order {
+      display: grid;
+      grid-template-columns: 1fr 130px;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .detail-order label { grid-column: 1 / -1; }
+
+    @media (max-width: 1180px) {
+      .catalog-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 780px) {
+      .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .product-page-card { grid-template-columns: 1fr; }
+      .product-page-image, .product-detail-fallback { min-height: 260px; }
+      .product-page-content { padding: 28px; }
+    }
+
+    @media (max-width: 520px) {
+      .catalog-grid { grid-template-columns: 1fr; }
+      .product-image-btn { height: 210px; }
+      .detail-order { grid-template-columns: 1fr; }
+    }
+
+    
+    #cart-page {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.94), rgba(253,251,247,0.96));
+      border: 1px solid rgba(200,150,93,0.20);
+    }
+
+    .cart-page-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(330px, 0.65fr);
+      gap: 26px;
+      align-items: start;
+    }
+
+    .cart-page-items {
+      display: grid;
+      gap: 18px;
+    }
+
+    .cart-empty {
+      background: #fff;
+      border-radius: 26px;
+      padding: 44px 28px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed rgba(61,70,22,0.24);
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+    }
+
+    .cart-page-item {
+      display: grid;
+      grid-template-columns: 150px 1fr 150px;
+      gap: 20px;
+      align-items: center;
+      background: #fff;
+      border-radius: 26px;
+      padding: 16px;
+      box-shadow: 0 16px 34px rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.06);
+      transition: 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cart-page-item::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--gold);
+      opacity: 0.9;
+    }
+
+    .cart-page-item:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .cart-page-item img {
+      width: 150px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 20px;
+      background: var(--cream-dark);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+
+    .cart-page-item h3 {
+      margin: 0 0 7px;
+      color: var(--olive);
+      font-family: var(--font-heading);
+      font-size: 1.42rem;
+      line-height: 1.15;
+    }
+
+    .cart-page-item p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .cart-page-item .pack-line {
+      display: inline-flex;
+      width: fit-content;
+      background: rgba(200,150,93,0.16);
+      color: var(--olive);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-weight: 900;
+      font-size: 0.92rem;
+    }
+
+    .cart-page-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .cart-qty-control {
+      display: grid;
+      grid-template-columns: 38px 1fr 38px;
+      align-items: center;
+      gap: 8px;
+      background: var(--cream);
+      padding: 8px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .cart-qty-control button,
+    .remove-cart-item {
+      border: none;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .cart-qty-control button {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--olive);
+      font-size: 1.25rem;
+      font-weight: 900;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+
+    .cart-qty-control button:hover {
+      background: var(--gold);
+      color: #171717;
+      transform: translateY(-1px);
+    }
+
+    .cart-qty-control strong {
+      text-align: center;
+      color: var(--olive);
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    .remove-cart-item {
+      background: #f5f3ef;
+      color: #555;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .remove-cart-item:hover {
+      background: #ece7df;
+      color: #222;
+    }
+
+    .cart-summary-box {
+      background:
+        linear-gradient(180deg, #ffffff, #fbf7ef);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(200,150,93,0.20);
+      position: sticky;
+      top: 100px;
+    }
+
+    .cart-summary-box h3 {
+      margin: 0 0 14px;
+      color: var(--olive);
+      font-family: var(--font-heading);
+      font-size: 1.55rem;
+    }
+
+    .cart-summary-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      font-weight: 800;
+      color: var(--dark);
+    }
+
+    .cart-summary-line span:last-child {
+      color: var(--olive);
+      font-weight: 900;
+    }
+
+    .quote-form {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .quote-form input,
+    .quote-form textarea {
+      width: 100%;
+      border-radius: 15px;
+      padding: 13px 14px;
+      font-family: inherit;
+      border: 1px solid rgba(0,0,0,0.13);
+      background: #fff;
+    }
+
+    .quote-form textarea {
+      min-height: 88px;
+    }
+
+    .quote-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .quote-whatsapp,
+    .quote-phone,
+    .quote-mail {
+      width: 100%;
+      min-height: 52px;
+      border: none;
+      border-radius: 17px;
+      padding: 14px 16px;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      text-align: center;
+    }
+
+    .quote-whatsapp {
+      background: #25D366;
+      color: #fff;
+    }
+
+    .quote-phone {
+      background: var(--olive);
+      color: #fff;
+    }
+
+    .quote-mail {
+      background: var(--gold);
+      color: #171717;
+    }
+
+    .quote-whatsapp:hover,
+    .quote-phone:hover,
+    .quote-mail:hover {
+      transform: translateY(-2px);
+      filter: brightness(0.97);
+    }
+
+    .quote-help-text {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    @media (max-width: 940px) {
+      .cart-page-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-summary-box {
+        position: static;
+      }
+
+      .cart-page-item {
+        grid-template-columns: 120px 1fr;
+      }
+
+      .cart-page-actions {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .cart-page-item {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-page-item img {
+        width: 100%;
+        height: 200px;
+      }
+
+      .cart-page-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
+    /* --- התאמות מובייל בלבד: לא משפיע על מחשב --- */
+    @media (max-width: 768px) {
+      .hero {
+        background-image: url('opening.png') !important;
+        background-size: cover;
+        background-position: center;
+        background-attachment: scroll;
+      }
+
+      .opening-image {
+        display: none !important;
+      }
+    }
+
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <a class="logo" href="#">משה <span>קילופים</span></a>
+
+    <nav>
+      <a href="#about">מי אנחנו</a>
+      <a href="#products">המוצרים שלנו</a>
+      <a href="#cart-page">עגלה</a>
+      <a href="#quick-contact">יצירת קשר</a>
+    </nav>
+
+    <button class="cart-container" onclick="document.getElementById('cart-page').scrollIntoView({ behavior: 'smooth' })">
+      <i class="fas fa-shopping-basket"></i>
+      <span id="cartCount">סל הזמנות (0)</span>
+    </button>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content reveal">
+      <div class="hero-badge">
+        <i class="fa-solid fa-truck-fast"></i>
+        אספקה יומית למטבחים מוסדיים
+      </div>
+  <h1>
+  טרי, נקי<br>
+  <span>מוכן לבישול</span>
+</h1>
+      <p>ירקות טריים קלופים, שטופים וחתוכים — מוכנים לשימוש, באריזה מסודרת ולפי דרישת הלקוח.</p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#products"><i class="fa-solid fa-list"></i> לצפייה בקטלוג</a>
+        <a class="btn btn-secondary" href="#cart-page"><i class="fa-solid fa-cart-shopping"></i> לעגלת הצעת מחיר</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-strip reveal">
+    <div class="trust-item">
+      <i class="fa-solid fa-certificate"></i>
+      <strong> כשרות  הרבנות ושארית ישראל </strong>
+      <span>מענה למטבחים מוסדיים</span>
+    </div>
+    <div class="trust-item">
+      <i class="fa-solid fa-snowflake"></i>
+      <strong>קירור מבוקר</strong>
+      <span>שמירה על טריות המוצר</span>
+    </div>
+    <div class="trust-item">
+      <i class="fa-solid fa-clock"></i>
+      <strong>אספקה יומית</strong>
+      <span>לפי זמני המטבח</span>
+    </div>
+    <div class="trust-item">
+      <i class="fa-solid fa-kitchen-set"></i>
+      <strong>חיתוך לפי דרישה</strong>
+      <span>קוביות, דסקיות, קצוץ ועוד</span>
+    </div>
+  </section>
+
+ <main>
+  <section class="section glass-panel reveal" id="about">
+    <div class="about-grid">
+
+      <div>
+        <h2 class="section-title" style="text-align:right;">הסדר במטבח שלך</h2>
+
+        <p>
+          ב״משה קילופים״ אנחנו מספקים ירקות קלופים וחתוכים למטבחים מקצועיים,
+          קייטרינגים, מוסדות ועסקים שצריכים סחורה טרייה, נקייה, אחידה ומוכנה לעבודה.
+        </p>
+
+        <p>
+          עובדים עם החברות הגדולות במשק, בפיקוח כשרות בד״ץ,
+          ומספקים מוצרים שנכנסים ישירות לתהליך העבודה — בלי בזבוז זמן ובלי פחת.
+        </p>
+
+        <p class="about-strong">
+          מוכן לעבודה. מהרגע הראשון.
+        </p>
+      </div>
+
+      <div class="about-image badge-wrapper">
+        <img src="seder.png" alt="ירקות חתוכים ומופרדים במגש" onerror="this.src='moshe.jpg'">
+
+        <div class="badge-30 reveal-strong">
+          30+<br>שנות ניסיון
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+    <section class="section glass-panel reveal" id="audience">
+      <h2 class="section-title">למי אנחנו מספקים?</h2>
+      <p class="section-subtitle">פתרון קבוע למטבחים שצריכים סחורה נקייה, אחידה ומוכנה לעבודה.</p>
+
+      <div class="audience-grid">
+        <div class="audience-card">
+          <i class="fa-solid fa-utensils"></i>
+          <h3>מסעדות</h3>
+          <p>חיתוך אחיד ועבודה מהירה במטבח.</p>
+        </div>
+
+        <div class="audience-card">
+          <i class="fa-solid fa-truck-fast"></i>
+          <h3>קייטרינגים</h3>
+          <p>מוצרים מוכנים להזמנות בכמויות גדולות.</p>
+        </div>
+
+        <div class="audience-card">
+          <i class="fa-solid fa-building-columns"></i>
+          <h3>מוסדות וארגונים</h3>
+          <p>אספקה מסודרת למטבחים מוסדיים.</p>
+        </div>
+
+        <div class="audience-card">
+          <i class="fa-solid fa-hospital"></i>
+          <h3>בתי חולים</h3>
+          <p>טריות, ניקיון ועמידה בסטנדרט מקצועי.</p>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section reveal" id="quick-contact">
+      <div class="glass-panel quick-contact-panel">
+        <h2 class="section-title">צור קשר ונדאג לך</h2>
+        <p class="section-subtitle">זמינים לכל שאלה</p>
+
+        <div class="contact-icons">
+          <a href="https://wa.me/972527495162" target="_blank" class="contact-card whatsapp" aria-label="יצירת קשר בוואטסאפ">
+            <i class="fab fa-whatsapp"></i>
+            <span>וואטסאפ</span>
+            <small>שליחת הודעה</small>
+          </a>
+
+          <a href="tel:098911191" class="contact-card phone" aria-label="התקשרות טלפונית">
+            <i class="fas fa-phone"></i>
+            <span>טלפון</span>
+            <small>חיוג מהיר</small>
+          </a>
+
+          <a href="mailto:Mk.orders3@gmail.com" class="contact-card mail" aria-label="שליחת אימייל">
+            <i class="fas fa-envelope"></i>
+            <span>אימייל</span>
+            <small>שליחת מייל</small>
+          </a>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section class="section reveal">
+      <img class="opening-image" src="opening.png" alt="תפוחי אדמה, גזר, בצל וסלק חתוכים ומופרדים" onerror="this.style.display='none'">
+    </section>
+    <section class="section glass-panel reveal" id="products">
+      <h2 class="section-title"> המוצרים שלנו</h2>
+      <p class="section-subtitle">לחצו על מוצר כדי לפתוח עמוד מוצר עם פירוט, צורת אריזה והוספה לסל.</p>
+
+      <div class="filters">
+        <button class="filter-btn active" onclick="filterProducts('all', this)">הכול</button>
+<button class="filter-btn" onclick="filterProducts('שום', this)">שום</button>
+<button class="filter-btn" onclick="filterProducts('תפוחי אדמה', this)">תפוחי אדמה</button>
+<button class="filter-btn" onclick="filterProducts('ירקות מבושלים', this)">ירקות מבושלים</button>
+<button class="filter-btn" onclick="filterProducts('ירקות קצוצים', this)">ירקות קצוצים</button>
+<button class="filter-btn" onclick="filterProducts('גזר', this)">גזר</button>
+<button class="filter-btn" onclick="filterProducts('בצל', this)">בצל</button>
+<button class="filter-btn" onclick="filterProducts('בטטה', this)">בטטה</button>
+      </div>
+
+      <div class="products-grid catalog-grid" id="productsGrid">
+        
+        <article class="product-card product-card-click" data-category="שום">
+          <button class="product-image-btn" onclick="openProduct(0)" aria-label="פתיחת מוצר שיני שום קלופות">
+            <img src="shum.png" alt="שיני שום קלופות" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🧄</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">שום</span>
+            <h3>שיני שום קלופות</h3>
+            <p>מארז 1 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(0)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="שום">
+          <button class="product-image-btn" onclick="openProduct(1)" aria-label="פתיחת מוצר שום כתוש">
+            <img src="shum_katush.png" alt="שום כתוש" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🧄</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">שום</span>
+            <h3>שום כתוש</h3>
+            <p>מארז 3 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(1)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(2)" aria-label="פתיחת מוצר תפוח אדמה ענק">
+            <img src="bigpotteto.png" alt="תפוח אדמה ענק" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה ענק</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(2)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(3)" aria-label="פתיחת מוצר תפוח אדמה נייר כסף">
+            <img src="kesefpotteto.png" alt="תפוח אדמה נייר כסף" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה נייר כסף</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(3)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(4)" aria-label="פתיחת מוצר תפוח אדמה לבן">
+            <img src="ragilpotteto.png" alt="תפוח אדמה לבן" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה לבן</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(4)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(5)" aria-label="פתיחת מוצר תפוח אדמה אדום">
+            <img src="redpotteto.png" alt="תפוח אדמה אדום" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה אדום</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(5)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(6)" aria-label="פתיחת מוצר תפוח אדמה פרוס">
+            <img src="prusotpotteto.png" alt="תפוח אדמה פרוס" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה פרוס</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(6)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(7)" aria-label="פתיחת מוצר תפוח אדמה גולש">
+            <img src="gulashpotteto.png" alt="תפוח אדמה גולש" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה גולש</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(7)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(8)" aria-label="פתיחת מוצר תפוח אדמה הום פרייז">
+            <img src="homefries.png" alt="תפוח אדמה הום פרייז" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה הום פרייז</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(8)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(9)" aria-label="פתיחת מוצר תפוח אדמה קוביות קטנות 10/10">
+            <img src="kubiotpotteto.png" alt="תפוח אדמה קוביות קטנות 10/10" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה קוביות קטנות 10/10</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(9)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(10)" aria-label="פתיחת מוצר צ׳יפס">
+            <img src="fries.png" alt="צ׳יפס" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🍟</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>צ׳יפס</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(10)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(11)" aria-label="פתיחת מוצר תפוח אדמה פריזיאן">
+            <img src="farezian.png" alt="תפוח אדמה פריזיאן" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>תפוח אדמה פריזיאן</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(11)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="ירקות מבושלים">
+          <button class="product-image-btn" onclick="openProduct(12)" aria-label="פתיחת מוצר סלק מבושל בוואקום">
+            <img src="selekvacoum.png" alt="סלק מבושל בוואקום" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🟥</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">ירקות מבושלים</span>
+            <h3>סלק מבושל בוואקום</h3>
+            <p> מארז 2.8 ק״ג </p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(12)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="תפוחי אדמה">
+          <button class="product-image-btn" onclick="openProduct(13)" aria-label="פתיחת מוצר סירות תפוח אדמה">
+            <img src="sirot.png" alt="סירות תפוח אדמה" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥔</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">תפוחי אדמה</span>
+            <h3>סירות תפוח אדמה</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(13)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="ירקות קצוצים">
+          <button class="product-image-btn" onclick="openProduct(14)" aria-label="פתיחת מוצר כרוב לבן קצוץ">
+            <img src="kruvlavan.png" alt="כרוב לבן קצוץ" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥬</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">ירקות קצוצים</span>
+            <h3>כרוב לבן קצוץ</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(14)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="ירקות קצוצים">
+          <button class="product-image-btn" onclick="openProduct(15)" aria-label="פתיחת מוצר כרוב אדום קצוץ">
+            <img src="kruvadom.png" alt="כרוב אדום קצוץ" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥬</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">ירקות קצוצים</span>
+            <h3>כרוב אדום קצוץ</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(15)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="ירקות קצוצים">
+          <button class="product-image-btn" onclick="openProduct(16)" aria-label="פתיחת מוצר חסה קצוצה">
+            <img src="hasa.png" alt="חסה קצוצה" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥬</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">ירקות קצוצים</span>
+            <h3>חסה קצוצה</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(16)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="גזר">
+          <button class="product-image-btn" onclick="openProduct(17)" aria-label="פתיחת מוצר גזר מקולף">
+            <img src="carrot.png" alt="גזר מקולף" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥕</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">גזר</span>
+            <h3>גזר מקולף</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(17)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="גזר">
+          <button class="product-image-btn" onclick="openProduct(18)" aria-label="פתיחת מוצר גזר קוביות">
+            <img src="kubiot.png" alt="גזר קוביות" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥕</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">גזר</span>
+            <h3>גזר קוביות</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(18)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="גזר">
+          <button class="product-image-btn" onclick="openProduct(19)" aria-label="פתיחת מוצר גזר טבעות">
+            <img src="diskiot.png" alt="גזר טבעות" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🥕</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">גזר</span>
+            <h3>גזר טבעות</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(19)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="בצל">
+          <button class="product-image-btn" onclick="openProduct(20)" aria-label="פתיחת מוצר בצל מקולף">
+            <img src="onion.png" alt="בצל מקולף" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🧅</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">בצל</span>
+            <h3>בצל מקולף</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(20)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="בצל">
+          <button class="product-image-btn" onclick="openProduct(21)" aria-label="פתיחת מוצר בצל סגול מקולף">
+            <img src="redonion.png" alt="בצל סגול מקולף" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🧅</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">בצל</span>
+            <h3>בצל סגול מקולף</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(21)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+        <article class="product-card product-card-click" data-category="בטטה">
+          <button class="product-image-btn" onclick="openProduct(22)" aria-label="פתיחת מוצר בטטה מקולפת">
+            <img src="batata.png" alt="בטטה מקולפת" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="product-fallback">🍠</span>
+          </button>
+          <div class="product-card-body">
+            <span class="product-category">בטטה</span>
+            <h3>בטטה מקולפת</h3>
+            <p>מארז 10 ק״ג</p>
+            <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
+            <button class="btn-add" onclick="openProduct(22)">לפרטים והוספה לסל</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="product-page" id="productPage" aria-hidden="true">
+      <div class="product-page-card">
+        <button class="product-close" onclick="closeProduct()" aria-label="סגירה">×</button>
+        <div class="product-page-image">
+          <img id="productDetailImage" src="" alt="" onerror="this.style.display='none'; document.getElementById('productDetailFallback').style.display='flex';">
+          <span id="productDetailFallback" class="product-detail-fallback">🥔</span>
+        </div>
+        <div class="product-page-content">
+          <span id="productDetailCategory" class="product-category"></span>
+          <h2 id="productDetailName"></h2>
+          <p id="productDetailDesc"></p>
+
+          <div class="detail-info">
+            <div>
+              <strong>איך המוצר מגיע?</strong>
+              <span id="productDetailPack"></span>
+            </div>
+            <div>
+              <strong>מתאים ל:</strong>
+              <span>מסעדות, קייטרינגים, מוסדות ומטבחים מקצועיים</span>
+            </div>
+          </div>
+
+          <div class="detail-order">
+            <label for="detailQty">כמות מארזים</label>
+            <input id="detailQty" type="number" min="1" value="1">
+            <button class="btn-add" onclick="addCurrentProductToCart()">הוסף לסל</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section glass-panel reveal" id="cart-page">
+      <h2 class="section-title">עגלת הקניות</h2>
+      <p class="section-subtitle">כאן אפשר לראות את כל המוצרים שבחרת, לעדכן כמויות ולקבל הצעת מחיר בטלפון, במייל או בוואטסאפ.</p>
+
+      <div class="cart-page-layout">
+        <div class="cart-page-items" id="cartPageItems">
+          <div class="cart-empty">
+  <i class="fa-solid fa-cart-shopping"></i>
+
+  <h3>העגלה עדיין ריקה</h3>
+  <p>הוסיפו מוצרים מהקטלוג ונכין לכם הצעת מחיר במהירות</p>
+
+  <a href="#products" class="btn btn-primary">
+    לצפייה במוצרים
+  </a>
+</div>
+        </div>
+
+        <aside class="cart-summary-box">
+          <h3>סיכום הזמנה</h3>
+          <div class="cart-summary-line">
+            <span>סוגי מוצרים</span>
+            <span id="summaryProducts">0</span>
+          </div>
+          <div class="cart-summary-line">
+            <span>סה״כ מארזים</span>
+            <span id="summaryQty">0</span>
+          </div>
+
+          <p class="cart-price-note">המחיר נקבע לפי סוג המוצר והכמות הרצויה </p>
+
+          <div class="quote-form">
+            <input id="quoteName" placeholder="שם מלא">
+            <input id="quotePhone" placeholder="טלפון">
+            <input id="quoteBusiness" placeholder="שם עסק / מוסד">
+            <input id="quoteCity" placeholder="עיר אספקה">
+            <textarea id="quoteNotes" placeholder="הערות להצעת מחיר"></textarea>
+          </div>
+
+          <div class="quote-actions">
+            <button class="quote-whatsapp" onclick="sendQuoteWhatsApp()">
+              <i class="fa-brands fa-whatsapp"></i>
+              קבלת הצעה בוואטסאפ
+            </button>
+
+            <a class="quote-phone" href="tel:098911191">
+              <i class="fas fa-phone"></i>
+              קבלת הצעה בטלפון
+            </a>
+
+            <button class="quote-mail" onclick="sendQuoteEmail()">
+              <i class="fas fa-envelope"></i>
+              קבלת הצעה במייל
+            </button>
+          </div>
+
+          <p class="quote-help-text">נחזור אליך עם הצעת מחיר מסודרת לפי הכמויות שבחרת.</p>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <a class="whatsapp-float" href="https://wa.me/972527495162" target="_blank" aria-label="וואטסאפ">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <footer id="contact">
+    <strong>משה קילופים</strong><br>
+    ירקות קלופים וחתוכים למטבחים מוסדיים · © 2026 כל הזכויות שמורות
+  </footer>
+
+  <script>
+    const WHATSAPP_NUMBER = "972527495162";
+    const BUSINESS_EMAIL = "Mk.orders3@gmail.com";
+    const BUSINESS_PHONE = "098911191";
+    const products = [{"name": "שיני שום קלופות", "pack": "מארז 1 ק״ג", "category": "שום", "desc": "שיני שום קלופות, נקיות ומוכנות לשימוש במטבח מקצועי.", "image": "shum.png", "emoji": "🧄"}, {"name": "שום כתוש", "pack": "מארז 3 ק״ג", "category": "שום", "desc": "שום כתוש מוכן לשימוש, מתאים לתיבול, בישול והכנות בכמות גדולה.", "image": "shum_katush.png", "emoji": "🧄"}, {"name": "תפוח אדמה ענק", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "תפוחי אדמה גדולים במיוחד, מתאימים לאפייה, מילוי ומנות גדולות.", "image": "bigpotteto.png", "emoji": "🥔"}, {"name": "תפוח אדמה נייר כסף", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "תפוחי אדמה המתאימים לאפייה בנייר כסף, שטופים ומוכנים לעבודה.", "image": "kesefpotteto.png", "emoji": "🥔"}, {"name": "תפוח אדמה לבן", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "תפוח אדמה לבן קלוף ומוכן לשימוש, מתאים לבישול, פירה ותוספות.", "image": "ragilpotteto.png", "emoji": "🥔"}, {"name": "תפוח אדמה אדום", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "תפוח אדמה אדום, מתאים לתבשילים, אפייה ותוספות.", "image": "redpotteto.png", "emoji": "🥔"}, {"name": "תפוח אדמה פרוס", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "תפוח אדמה פרוס בחיתוך אחיד, מתאים לתנור, גרטן ומטבחים מוסדיים.", "image": "prusotpotteto.png", "emoji": "🥔"}, {"name": "תפוח אדמה גולש", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "תפוח אדמה חתוך לגולש, מתאים לתבשילים ומנות חמות.", "image": "gulashpotteto.png", "emoji": "🥔"}, {"name": "תפוח אדמה הום פרייז", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "חיתוך הום פרייז, מוכן לטיגון/אפייה ולשימוש מהיר במטבח.", "image": "homefries.png", "emoji": "🥔"}, {"name": "תפוח אדמה קוביות קטנות 10/10", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "קוביות תפוח אדמה קטנות בחיתוך 10/10, אחידות ומוכנות לבישול.", "image": "kubiotpotteto.png", "emoji": "🥔"}, {"name": "צ׳יפס", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "תפוח אדמה חתוך לצ׳יפס, מתאים למטבחים מוסדיים, מסעדות וקייטרינג.", "image": "fries.png", "emoji": "🍟"}, {"name": "תפוח אדמה פריזיאן", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "תפוח אדמה פריזיאן, חיתוך עגול ומוכן לבישול/צלייה.", "image": "farezian.png", "emoji": "🥔"}, {"name": "סלק מבושל בוואקום", "pack": "מארז 2.8 ק״ג · 5 שקיות בקרטון", "category": "ירקות מבושלים", "desc": "סלק מבושל באריזות וואקום, מוכן לשימוש לסלטים, תוספות ומטבחים מוסדיים.", "image": "selekvacoum.png", "emoji": "🟥"}, {"name": "סירות תפוח אדמה", "pack": "מארז 10 ק״ג", "category": "תפוחי אדמה", "desc": "סירות תפוח אדמה בחיתוך אחיד, מתאימות לתנור, תוספות והגשה.", "image": "sirot.png", "emoji": "🥔"}, {"name": "כרוב לבן קצוץ", "pack": "מארז 10 ק״ג", "category": "ירקות קצוצים", "desc": "כרוב לבן קצוץ ומוכן לשימוש לסלטים, מוקפצים ותוספות.", "image": "kruvlavan.png", "emoji": "🥬"}, {"name": "כרוב אדום קצוץ", "pack": "מארז 10 ק״ג", "category": "ירקות קצוצים", "desc": "כרוב אדום קצוץ, מתאים לסלטים, חמוצים ותוספות.", "image": "kruvadom.png", "emoji": "🥬"}, {"name": "חסה קצוצה", "pack": "מארז 10 ק״ג", "category": "ירקות קצוצים", "desc": "חסה קצוצה ומוכנה לשימוש, מתאימה לסלטים והגשה מהירה.", "image": "hasa.png", "emoji": "🥬"}, {"name": "גזר מקולף", "pack": "מארז 10 ק״ג", "category": "גזר", "desc": "גזר מקולף, שטוף ומוכן לחיתוך, בישול או הגשה.", "image": "carrot.png", "emoji": "🥕"}, {"name": "גזר קוביות", "pack": "מארז 10 ק״ג", "category": "גזר", "desc": "גזר חתוך לקוביות, מתאים למרקים, תבשילים ומטבח מוסדי.", "image": "kubiot.png", "emoji": "🥕"}, {"name": "גזר טבעות", "pack": "מארז 10 ק״ג", "category": "גזר", "desc": "טבעות גזר אחידות, מתאימות לקוסקוס, מרקים ותבשילים.", "image": "diskiot.png", "emoji": "🥕"}, {"name": "בצל מקולף", "pack": "מארז 10 ק״ג", "category": "בצל", "desc": "בצל לבן מקולף, נקי ומוכן לחיתוך או בישול.", "image": "onion.png", "emoji": "🧅"}, {"name": "בצל סגול מקולף", "pack": "מארז 10 ק״ג", "category": "בצל", "desc": "בצל סגול מקולף, מתאים לסלטים, בישול והכנות מטבח.", "image": "redonion.png", "emoji": "🧅"}, {"name": "בטטה מקולפת", "pack": "מארז 10 ק״ג", "category": "בטטה", "desc": "בטטה מקולפת, נקייה ומוכנה לחיתוך, אפייה ובישול.", "image": "batata.png", "emoji": "🍠"}];
+    let currentProductIndex = null;
+    const cart = [];
+
+    function addToCart(productName, qtyInputIdOrQty) {
+      let qty = 1;
+
+      if (typeof qtyInputIdOrQty === "number") {
+        qty = qtyInputIdOrQty;
+      } else {
+        const qtyInput = document.getElementById(qtyInputIdOrQty);
+        qty = Math.max(1, Number(qtyInput?.value || 1));
+      }
+
+      const existing = cart.find(item => item.name === productName);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        cart.push({ name: productName, qty });
+      }
+
+      renderCart();
+      document.getElementById("cart-page").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+
+    function openProduct(index) {
+      currentProductIndex = index;
+      const product = products[index];
+
+      const img = document.getElementById("productDetailImage");
+      const fallback = document.getElementById("productDetailFallback");
+
+      img.style.display = "block";
+      fallback.style.display = "none";
+      img.src = product.image;
+      img.alt = product.name;
+      fallback.textContent = product.emoji;
+
+      document.getElementById("productDetailCategory").textContent = product.category;
+      document.getElementById("productDetailName").textContent = product.name;
+      document.getElementById("productDetailDesc").textContent = product.desc;
+      document.getElementById("productDetailPack").textContent = product.pack;
+      document.getElementById("detailQty").value = 1;
+
+      const page = document.getElementById("productPage");
+      page.classList.add("open");
+      page.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeProduct() {
+      const page = document.getElementById("productPage");
+      page.classList.remove("open");
+      page.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function addCurrentProductToCart() {
+      if (currentProductIndex === null) return;
+      const product = products[currentProductIndex];
+      const qty = Math.max(1, Number(document.getElementById("detailQty").value || 1));
+      addToCart(product.name, qty);
+      closeProduct();
+    }
+
+    function filterProducts(category, btn) {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      document.querySelectorAll(".product-card-click").forEach(card => {
+        const show = category === "all" || card.dataset.category === category;
+        card.style.display = show ? "flex" : "none";
+      });
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeProduct();
+    });
+
+    document.addEventListener("click", (event) => {
+      const page = document.getElementById("productPage");
+      if (event.target === page) closeProduct();
+    });
+
+    function renderCart() {
+      const cartCount = document.getElementById("cartCount");
+      const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+
+      cartCount.textContent = `עגלה (${totalQty})`;
+      renderCartPage();
+    }
+
+    function renderCartPage() {
+      const cartPageItems = document.getElementById("cartPageItems");
+      const summaryProducts = document.getElementById("summaryProducts");
+      const summaryQty = document.getElementById("summaryQty");
+
+      if (!cartPageItems || !summaryProducts || !summaryQty) return;
+
+      const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+      summaryProducts.textContent = cart.length;
+      summaryQty.textContent = totalQty;
+
+      if (cart.length === 0) {
+        cartPageItems.innerHTML = '<div class="cart-empty">העגלה עדיין ריקה. אפשר להוסיף מוצרים מתוך הקטלוג.</div>';
+        return;
+      }
+
+      cartPageItems.innerHTML = "";
+
+      cart.forEach((item, index) => {
+        const product = products.find(p => p.name === item.name) || {};
+        const div = document.createElement("div");
+        div.className = "cart-page-item";
+
+        div.innerHTML = `
+          <img src="${product.image || ''}" alt="${item.name}" onerror="this.style.display='none'">
+
+          <div>
+            <h3>${item.name}</h3>
+            <p>${product.desc || ""}</p>
+            <span class="pack-line">${product.pack || ""}</span>
+          </div>
+
+          <div class="cart-page-actions">
+            <div class="cart-qty-control">
+              <button onclick="changeCartQty(${index}, -1)" aria-label="הפחתת כמות">−</button>
+              <strong>${item.qty}</strong>
+              <button onclick="changeCartQty(${index}, 1)" aria-label="הגדלת כמות">+</button>
+            </div>
+
+            <button class="remove-cart-item" onclick="removeFromCart(${index})">הסר מוצר</button>
+          </div>
+        `;
+
+        cartPageItems.appendChild(div);
+      });
+    }
+
+    function changeCartQty(index, delta) {
+      if (!cart[index]) return;
+
+      cart[index].qty += delta;
+
+      if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+      }
+
+      renderCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      renderCart();
+    }
+
+
+    function sendQuoteWhatsApp() {
+      if (cart.length === 0) {
+        alert("העגלה ריקה. הוסיפו מוצרים לפני קבלת הצעת מחיר.");
+        return;
+      }
+
+      const name = document.getElementById("quoteName").value.trim();
+      const phone = document.getElementById("quotePhone").value.trim();
+      const business = document.getElementById("quoteBusiness").value.trim();
+      const city = document.getElementById("quoteCity").value.trim();
+      const notes = document.getElementById("quoteNotes").value.trim();
+
+      const productsText = cart.map(item => {
+        const product = products.find(p => p.name === item.name);
+        const pack = product ? product.pack : "";
+        return `• ${item.name} - ${item.qty} מארזים (${pack})`;
+      }).join("\n");
+
+      const message =
+`שלום, אשמח לקבל הצעת מחיר ממשה קילופים:
+
+פרטי לקוח:
+שם: ${name || "-"}
+טלפון: ${phone || "-"}
+עסק/מוסד: ${business || "-"}
+עיר אספקה: ${city || "-"}
+הערות: ${notes || "-"}
+
+מוצרים:
+${productsText}
+
+`;
+
+      const encoded = encodeURIComponent(message);
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, "_blank");
+    }
+
+
+    function sendQuoteEmail() {
+      if (cart.length === 0) {
+        alert("העגלה ריקה. הוסיפו מוצרים לפני קבלת הצעת מחיר.");
+        return;
+      }
+
+      const name = document.getElementById("quoteName").value.trim();
+      const phone = document.getElementById("quotePhone").value.trim();
+      const business = document.getElementById("quoteBusiness").value.trim();
+      const city = document.getElementById("quoteCity").value.trim();
+      const notes = document.getElementById("quoteNotes").value.trim();
+
+      const productsText = cart.map(item => {
+        const product = products.find(p => p.name === item.name);
+        const pack = product ? product.pack : "";
+        return `• ${item.name} - ${item.qty} מארזים (${pack})`;
+      }).join("\n");
+
+      const subject = encodeURIComponent("בקשה להצעת מחיר - משה קילופים");
+      const body = encodeURIComponent(
+`שלום, אשמח לקבל הצעת מחיר ממשה קילופים:
+
+מוצרים:
+${productsText}
+
+פרטי לקוח:
+שם: ${name || "-"}
+טלפון: ${phone || "-"}
+עסק/מוסד: ${business || "-"}
+עיר אספקה: ${city || "-"}
+הערות: ${notes || "-"}`
+      );
+
+      window.location.href = `mailto:${BUSINESS_EMAIL}?subject=${subject}&body=${body}`;
+    }
+
+
+    function revealStrong() {
+      document.querySelectorAll(".reveal-strong").forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight - 80) {
+          el.classList.add("active");
+        }
+      });
+    }
+
+    function revealOnScroll() {
+      document.querySelectorAll(".reveal").forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight - 60) {
+          el.classList.add("active");
+        }
+      });
+    }
+
+    window.addEventListener("scroll", () => { revealOnScroll(); revealStrong(); });
+    window.addEventListener("load", () => { revealOnScroll(); revealStrong(); renderCart(); });
+  </script>
+</body>
+</html>
