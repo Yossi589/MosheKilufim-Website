@@ -94,7 +94,6 @@
     .hero-content { position: relative; max-width: 980px; z-index: 1; }
     .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 9px 18px; font-weight: 700; backdrop-filter: blur(8px); margin-bottom: 22px; color: #fff; }
     
-    /* צבעי כותרת ופסקת הפתיח */
     .hero h1 { font-family: var(--font-heading); font-size: clamp(3rem, 8vw, 6.2rem); line-height: 1.02; margin: 0; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.3); }
     .hero h1 span { color: var(--gold); } 
     .hero p { font-size: clamp(1.25rem, 2.3vw, 1.9rem); margin: 24px auto 34px; max-width: 840px; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.4); font-weight: 700; }
@@ -287,7 +286,7 @@
     /* --- הגדרות סדר אזורים (Flex Order) --- */
     main { display: flex; flex-direction: column; }
     
-    /* סדר אתר רגיל (אורח) */
+    /* סדר אתר רגיל (אורח) - מי אנחנו > מוצרים > עגלה > צור קשר */
     #vip-welcome-banner { order: 0; display: none; }
     #about-wrapper { order: 1; }
     #audience-wrapper { order: 2; }
@@ -295,15 +294,15 @@
     #cart-wrapper { order: 4; }
     #contact-wrapper { order: 5; }
 
-    /* עיצוב כרטיסיית ה-VIP החדשה */
+    /* עיצוב כרטיסיית ה-VIP החדשה - ללא אימוג'י, אותיות גדולות יותר ויפות */
     #vip-welcome-banner { width: min(1240px, 92%); margin: 25px auto 10px; }
     #vip-welcome-banner .vip-card { background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.06); border-radius: 18px; padding: 22px 28px; box-shadow: 0 6px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: flex-start; gap: 12px; border-right: 4px solid var(--gold); }
     .vip-card-header { display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .vip-card-title { font-family: var(--font-heading); color: var(--olive); font-size: 2.2rem; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
-    .vip-card-text { color: var(--dark); font-size: 1.1rem; margin: 0; font-weight: 500; }
+    .vip-card-title { font-family: var(--font-heading); color: var(--olive); font-size: 2.5rem; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
+    .vip-card-text { color: var(--dark); font-size: 1.15rem; margin: 0; font-weight: 500; }
     .vip-card-text strong { color: var(--gold); }
     
-    /* סדר אתר VIP */
+    /* סדר אתר VIP - שלום > הזמנת סחורה (עגלה) > מוצרים > צור קשר */
     body.vip-mode #vip-welcome-banner { display: block !important; order: 1; }
     body.vip-mode #cart-wrapper { order: 2; margin-top: -10px; }
     body.vip-mode #products-wrapper { order: 3; }
@@ -328,14 +327,16 @@
 
     /* הגדרות חכמות למובייל */
     @media (max-width: 768px) {
-      /* תמונת רקע קבועה לאורחים בנייד והחזרת צבע כותרת ללבן בולט */
-      .hero { background-image: url('opening.png') !important; }
-      .hero h1, .hero p { color: #fff !important; text-shadow: 0 4px 10px rgba(0,0,0,0.5) !important; }
-      .hero h1 span { color: var(--gold) !important; }
+      .hero { 
+        background-image: url('opening.png') !important; 
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: scroll !important;
+      }
     }
 
     @media (max-width: 640px) {
-      /* האדר לבן ונקי בנייד (הסרנו את הרקע הצהוב המציק) */
+      /* האדר לבן ונקי בנייד (ללא הרקע הצהוב המציק) */
       header { padding: 12px 4%; background: rgba(255,255,255,0.95); border-bottom: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
       .logo { font-size: 1.65rem; letter-spacing: -1px; }
       .cart-container { padding: 9px 12px; font-size: 0.9rem; background: var(--olive); color: white; }
@@ -355,55 +356,51 @@
       .audience-card i { font-size: 1.8rem; }
       .audience-card h3 { font-size: 1.1rem; }
 
-      .filters {
-        position: sticky; top: 55px; z-index: 900;
-        background: rgba(253,251,247,0.95); backdrop-filter: blur(8px);
-        padding: 12px 0 16px; flex-wrap: nowrap; overflow-x: auto;
-        justify-content: flex-start; -webkit-overflow-scrolling: touch; 
-        scrollbar-width: none; border-bottom: 1px solid rgba(0,0,0,0.05);
-      }
+      /* הגדלת כפתורי הסינון בנייד */
+      .filters { position: sticky; top: 55px; z-index: 900; background: rgba(253,251,247,0.95); backdrop-filter: blur(8px); padding: 12px 0 16px; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-bottom: 1px solid rgba(0,0,0,0.05); }
       .filters::-webkit-scrollbar { display: none; }
-      .filter-btn { flex-shrink: 0; }
+      .filter-btn { flex-shrink: 0; font-size: 1.05rem; padding: 10px 20px; }
 
       .catalog-grid { display: flex; flex-direction: column; gap: 12px; }
       .product-card { flex-direction: row; min-height: auto; padding: 12px; align-items: stretch; margin-bottom: 0; }
       
-      /* תמונות במובייל ממלאות את כל הריבוע (cover) */
-      .product-image-btn { width: 100px; height: 100px; border-radius: 12px; flex-shrink: 0; background: transparent; display: flex; align-items: center; justify-content: center; margin-bottom: 0; margin-left: 15px; overflow: hidden; }
+      /* הגדלה קלה של התמונה במובייל (ל-110px) כדי לשבת טוב עם הטקסט המוגדל, cover */
+      .product-image-btn { width: 110px; height: 110px; border-radius: 12px; flex-shrink: 0; background: transparent; display: flex; align-items: center; justify-content: center; margin-bottom: 0; margin-left: 15px; overflow: hidden; }
       .product-image-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; padding: 0; background: transparent; display: block; }
       
       .product-card-body { padding: 0; display: flex; flex-direction: column; justify-content: center; flex: 1; }
-      .product-card h3 { font-size: 1.15rem; margin-bottom: 4px; line-height: 1.2; }
-      .product-card p { font-size: 0.9rem; margin-bottom: 8px; }
+      .product-card h3 { font-size: 1.3rem; margin-bottom: 4px; line-height: 1.2; }
+      .product-card p { font-size: 1rem; margin-bottom: 8px; }
       .product-category, .price-note { display: none; }
       
       .desk-btn { display: none; }
-      .mobile-btn { display: inline-flex; background: rgba(200,150,93,0.18); color: var(--olive); padding: 8px 16px; font-size: 0.9rem; width: max-content; align-self: flex-start; white-space: nowrap; }
+      /* הגדלת כפתור "הוסף" במובייל */
+      .mobile-btn { display: inline-flex; background: rgba(200,150,93,0.18); color: var(--olive); padding: 10px 20px; font-size: 1.05rem; width: max-content; align-self: flex-start; white-space: nowrap; font-weight: 800; border-radius: 14px;} 
       .mobile-btn:active { background: var(--gold); color: #fff; }
 
       body.cart-active .floating-contact { bottom: 90px; }
 
-      .mobile-cart-bar {
-        display: flex; position: fixed; bottom: 0; left: 0; width: 100%;
-        background: var(--olive); color: white; justify-content: space-between;
-        align-items: center; padding: 14px 20px; padding-bottom: max(14px, env(safe-area-inset-bottom));
-        box-shadow: 0 -5px 20px rgba(0,0,0,0.15); z-index: 2000;
-        transform: translateY(100%); transition: transform 0.3s ease-in-out;
-      }
+      .mobile-cart-bar { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; background: var(--olive); color: white; justify-content: space-between; align-items: center; padding: 14px 20px; padding-bottom: max(14px, env(safe-area-inset-bottom)); box-shadow: 0 -5px 20px rgba(0,0,0,0.15); z-index: 2000; transform: translateY(100%); transition: transform 0.3s ease-in-out; }
       .mobile-cart-bar.active { transform: translateY(0); }
-      .cart-bar-info { display: flex; align-items: center; gap: 10px; font-family: var(--font-heading); font-weight: 700; font-size: 1.15rem; }
-      .cart-bar-btn { background: var(--gold); color: #171717; border: none; border-radius: 999px; padding: 8px 18px; font-weight: 700; font-family: inherit; }
+      .cart-bar-info { display: flex; align-items: center; gap: 10px; font-family: var(--font-heading); font-weight: 700; font-size: 1.3rem; }
+      .cart-bar-btn { background: var(--gold); color: #171717; border: none; border-radius: 999px; padding: 10px 22px; font-weight: 700; font-family: inherit; font-size: 1.1rem; }
     }
     
     @media (max-width: 560px) {
       .cart-page-item { grid-template-columns: 80px 1fr !important; gap: 12px; padding: 14px; align-items: start; }
-      .cart-page-item img { width: 80px !important; height: 80px !important; object-fit: contain !important; border-radius: 12px; }
+      .cart-page-item img { width: 80px !important; height: 80px !important; object-fit: cover !important; border-radius: 12px; }
       .cart-page-item p { display: none; }
-      .cart-page-item h3 { font-size: 1.15rem; margin-bottom: 4px; }
-      .cart-page-item .pack-line { font-size: 0.85rem; padding: 5px 10px; margin-bottom: 0; }
+      .cart-page-item h3 { font-size: 1.3rem; margin-bottom: 4px; }
+      .cart-page-item .pack-line { font-size: 0.95rem; padding: 5px 10px; margin-bottom: 0; }
       .cart-page-actions { grid-column: 1 / -1; display: flex !important; flex-direction: row !important; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px; margin-top: 4px; }
       .cart-qty-control { margin: 0; padding: 4px; }
-      .remove-cart-item { background: transparent; padding: 8px; font-size: 1rem; }
+      .cart-qty-control button { width: 34px; height: 34px; font-size: 1.3rem; }
+      .remove-cart-item { background: transparent; padding: 8px; font-size: 1.1rem; }
+      
+      .cart-summary-box h3 { font-size: 1.7rem; }
+      .cart-summary-line { font-size: 1.1rem; }
+      .quote-actions button, .quote-actions a { font-size: 1.15rem; padding: 16px; }
+      
       .detail-order { grid-template-columns: 1fr; }
     }
   </style>
@@ -464,7 +461,7 @@
           <span class="vip-card-title">שלום <span id="vipTopName"></span></span>
           <button onclick="clearUserDetails()" style="background: none; border: none; color: var(--muted); text-decoration: underline; font-weight: 600; font-family: inherit; cursor: pointer; font-size: 0.95rem; padding: 0;">החלף משתמש</button>
         </div>
-        <p class="vip-card-text">תוכל ללחוץ על <strong>״שחזור הזמנה״</strong> בהזמנת הסחורה, והמוצרים מההזמנה הקודמת יופיעו שם מיד.</p>
+        <p class="vip-card-text">תוכל ללחוץ על <strong>״שחזור הזמנה״</strong> והמוצרים מההזמנה הקודמת יופיעו בעגלת הקניות.</p>
       </div>
     </div>
 
@@ -554,7 +551,7 @@
 
             <div class="quote-actions">
               <button id="mainOrderBtn" class="quote-whatsapp" onclick="sendQuoteWhatsApp()"><i class="fa-brands fa-whatsapp"></i> קבלת הצעה בוואטסאפ</button>
-              <a id="phoneOrderBtn" class="quote-phone" href="tel:098911191"><i class="fas fa-phone"></i> קבלת הצעה בטלפון</a>
+              <a id="phoneOrderBtn" class="quote-phone" href="tel:098911191" onclick="handlePhoneOrder()"><i class="fas fa-phone"></i> קבלת הצעה בטלפון</a>
               <button id="mailOrderBtn" class="quote-mail" onclick="sendQuoteEmail()"><i class="fas fa-envelope"></i> קבלת הצעה במייל</button>
             </div>
             <p class="quote-help-text">נחזור אליך עם הצעת מחיר מסודרת לפי הכמויות שבחרת.</p>
@@ -614,7 +611,7 @@
       <i class="fa-solid fa-basket-shopping"></i>
       <span id="cartBarText">עגלה (0)</span>
     </div>
-    <button class="cart-bar-btn" onclick="document.getElementById('cart-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' })">להזמנת סחורה</button>
+    <button class="cart-bar-btn" onclick="document.getElementById('cart-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' })">לעגלת הזמנה</button>
   </div>
   
   <footer id="contact">
@@ -641,7 +638,7 @@
       if (savedUser) {
         const user = JSON.parse(savedUser);
         
-        // מדליק את מצב ה-VIP - מסדר מחדש את האתר ומעלים שיווק
+        // מדליק את מצב ה-VIP - מסדר מחדש את האתר
         document.body.classList.add('vip-mode');
         
         document.getElementById("newUserForm").style.display = "none";
@@ -656,7 +653,6 @@
       } else {
         // מכבה את מצב ה-VIP
         document.body.classList.remove('vip-mode');
-        
         document.getElementById("newUserForm").style.display = "grid";
         
         // שחזור כותרת העגלה למצב רגיל
@@ -847,7 +843,7 @@
             <p>הוסיפו מוצרים מהקטלוג ונכין לכם הצעת מחיר במהירות</p>
         `;
         
-        // התניה למניעת הבאג: כפתור השחזור יופיע רק אם יש היסטוריה *וגם* מדובר בלקוח רשום (VIP)
+        // כפתור השחזור יופיע אך ורק אם יש היסטוריה *וגם* מדובר בלקוח רשום (VIP)
         const lastOrder = localStorage.getItem("mosheLastOrder");
         const savedUser = localStorage.getItem("mosheUserDetails");
         if (lastOrder && JSON.parse(lastOrder).length > 0 && savedUser) {
@@ -952,7 +948,6 @@
       let userDetails = {};
       const savedUser = localStorage.getItem("mosheUserDetails");
 
-      // אם לקוח חדש, בודק את הטופס ושומר פרטים
       if (!savedUser) {
         if (!validateOrderForm()) return;
         
@@ -981,6 +976,11 @@
       const encoded = encodeURIComponent(message);
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, "_blank");
       
+      cart.length = 0;
+      saveCartToStorage();
+      renderCart();
+      updateQuickAddButtons();
+
       checkUserStatus(); // הפיכת המשתמש ל-VIP מיד לאחר שליחה מוצלחת
     }
     
@@ -1016,6 +1016,37 @@
       const body = encodeURIComponent(`שלום, אשמח לקבל הצעת מחיר ממשה קילופים:\n\nמוצרים:\n${productsText}\n\nפרטי לקוח:\nשם: ${userDetails.name}\nטלפון: ${userDetails.phone}\nעסק/מוסד: ${userDetails.business || "-"}\nעיר אספקה: ${userDetails.city || "-"}\n${notes ? '\nהערות להזמנה:\n' + notes : ''}`);
       window.location.href = `mailto:${BUSINESS_EMAIL}?subject=${subject}&body=${body}`;
       
+      cart.length = 0;
+      saveCartToStorage();
+      renderCart();
+      updateQuickAddButtons();
+
+      checkUserStatus();
+    }
+
+    function handlePhoneOrder(event) {
+      if (cart.length === 0) return;
+      
+      let savedUser = localStorage.getItem("mosheUserDetails");
+      if (!savedUser) {
+        if (!validateOrderForm()) {
+          event.preventDefault(); 
+          return;
+        }
+        let userDetails = {
+          name: document.getElementById("quoteName").value.trim(),
+          phone: document.getElementById("quotePhone").value.trim(),
+          business: document.getElementById("quoteBusiness").value.trim(),
+          city: document.getElementById("quoteCity").value.trim()
+        };
+        localStorage.setItem("mosheUserDetails", JSON.stringify(userDetails));
+      }
+
+      localStorage.setItem("mosheLastOrder", JSON.stringify(cart));
+      cart.length = 0;
+      saveCartToStorage();
+      renderCart();
+      updateQuickAddButtons();
       checkUserStatus();
     }
     
@@ -1024,9 +1055,7 @@
     
     window.addEventListener("scroll", () => { revealOnScroll(); revealStrong(); });
     window.addEventListener("load", () => { 
-      // טעינת המוצרים הראשונית
       filterProducts('all', document.querySelector('.filter-btn'));
-      
       loadCartFromStorage();
       renderCart(); 
       updateQuickAddButtons();
