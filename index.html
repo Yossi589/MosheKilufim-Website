@@ -3,8 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>משה קילופים | ירקות טריים קלופים וחתוכים למטבחים, עסקים, ומוסדות</title>
+  <meta name="description" content="משה קילופים מספקת ירקות טריים קלופים, שטופים וחתוכים למסעדות, קייטרינגים ומוסדות. אספקה יומית, כשרות מהודרת (מקומית ושארית ישראל), ואפס פחת במטבח.">
+  <meta name="keywords" content="ירקות קלופים, ירקות חתוכים, תפוח אדמה קלוף, בצל קלוף, ירקות למסעדות, ספק ירקות מוסדי, חיתוך ירקות, משה קילופים">
+  
+  <meta property="og:title" content="משה קילופים | ירקות חתוכים למטבחים">
+  <meta property="og:description" content="פתרון קבוע למטבחים שצריכים סחורה נקייה, אחידה ומוכנה לעבודה מהרגע הראשון.">
+  <meta property="og:image" content="moshe-logo.png">
+  <meta property="og:type" content="website">
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3d4616">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
@@ -475,7 +491,7 @@
             <p class="about-strong">מוכן לעבודה. מהרגע הראשון.</p>
           </div>
           <div class="about-image badge-wrapper">
-            <img src="seder.png" alt="ירקות חתוכים ומופרדים במגש" onerror="this.src='moshe.jpg'">
+            <img src="seder.png" alt="ירקות חתוכים ומופרדים במגש למסעדות" loading="lazy" decoding="async" onerror="this.src='moshe.jpg'">
             <div class="badge-30 reveal-strong">30+<br>שנות ניסיון</div>
           </div>
         </div>
@@ -581,7 +597,7 @@
     <div class="product-page-card">
       <button class="product-close" onclick="closeProduct()" aria-label="סגירה">×</button>
       <div class="product-page-image">
-        <img id="productDetailImage" src="" alt="" onerror="this.style.display='none'; document.getElementById('productDetailFallback').style.display='flex';">
+        <img id="productDetailImage" src="" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'; document.getElementById('productDetailFallback').style.display='flex';">
         <span id="productDetailFallback" class="product-detail-fallback">🥔</span>
       </div>
       <div class="product-page-content">
@@ -791,9 +807,11 @@
       
       products.forEach((p, idx) => {
         if (category !== 'all' && p.category !== category) return;
+        
+        // שדרוג SEO ומהירות: הטמעת Lazy Loading ו-Alt Text מותאם בתוך כרטיסיות המוצרים
         productsHtml.innerHTML += `
           <article class="product-card product-card-click" data-category="${p.category}">
-            <button class="product-image-btn" onclick="openProduct(${idx})"><img loading="lazy" src="${p.image}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><span class="product-fallback">${p.emoji}</span></button>
+            <button class="product-image-btn" onclick="openProduct(${idx})"><img loading="lazy" decoding="async" src="${p.image}" alt="מארז ${p.name} למסעדות ומוסדות" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><span class="product-fallback">${p.emoji}</span></button>
             <div class="product-card-body"><span class="product-category">${p.category}</span><h3>${p.name}</h3><p>${p.pack}</p><span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
             <button class="btn-add desk-btn" onclick="openProduct(${idx})">לפרטים והוספה לסל</button><button class="btn-add mobile-btn" onclick="quickAdd(event, '${p.name}')">הוסף +</button></div>
           </article>
@@ -1063,6 +1081,15 @@
       revealStrong(); 
       checkUserStatus();
     });
+  </script>
+  
+  <script>
+    // PWA: רישום Service Worker לאפליקציה (כדי שיפעל כמו אפליקציה מותקנת מהירה)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed', err));
+      });
+    }
   </script>
 </body>
 </html>
