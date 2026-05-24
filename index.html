@@ -37,7 +37,7 @@
     .mobile-menu a { font-family: var(--font-heading); font-size: 2rem; color: var(--olive); font-weight: 700; }
     .close-menu { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 3rem; color: var(--olive); cursor: pointer; }
 
-    .hero { position: relative; min-height: 86vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background-image: url('moshe.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: var(--olive); padding: 120px 20px; }
+    .hero { position: relative; min-height: 86vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background-image: url('opening.png'); background-size: cover; background-position: center; background-attachment: fixed; background-color: var(--olive); padding: 120px 20px; }
     .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.65)); }
     .hero-content { position: relative; max-width: 980px; z-index: 1; }
     .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 9px 18px; font-weight: 700; backdrop-filter: blur(8px); margin-bottom: 22px; color: #fff; }
@@ -374,6 +374,8 @@
       .mob-ocr-img { width: 46px; height: 46px; border-radius: 10px; object-fit: cover; background: var(--cream-dark); flex-shrink: 0; }
       .mob-ocr-name { flex: 1; font-size: 0.92rem; font-weight: 700; color: var(--olive); }
       .mob-ocr-qty-ctrl { display: flex; align-items: center; border: 1.5px solid var(--olive); border-radius: 9px; overflow: hidden; }
+      .mob-ocr-remove { background: #fdf5f5; color: #dc3545; border: none; border-radius: 10px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 1.1rem; margin-right: 6px; }
+      .mob-ocr-remove:active { background: #fce4e4; }
       .mob-ocr-qty-ctrl button { width: 28px; height: 30px; border: none; background: var(--olive); color: #fff; font-size: 0.9rem; font-weight: 900; cursor: pointer; font-family: inherit; }
       .mob-ocr-qty-ctrl strong { min-width: 24px; text-align: center; font-size: 0.9rem; font-weight: 900; color: var(--olive); background: #fff; height: 30px; display: flex; align-items: center; justify-content: center; }
 
@@ -859,7 +861,7 @@
           <p class="about-strong">מוכן לעבודה. מהרגע הראשון.</p>
         </div>
         <div class="about-image badge-wrapper">
-          <img src="seder.png" alt="ירקות חתוכים ומופרדים במגש למסעדות" loading="lazy" onerror="this.src='moshe.jpg'">
+          <img src="seder.png" alt="ירקות חתוכים ומופרדים במגש למסעדות" loading="lazy" onerror="this.src='opening.png'">
           <div class="badge-30" id="badge30">30+<br>שנות ניסיון</div>
         </div>
       </div>
@@ -1005,7 +1007,27 @@
 
   <div id="pwaInstallBanner" class="pwa-install-banner">...</div>
   
-  <div class="success-overlay" id="iosInstallModal">...</div>
+  <!-- מודל הסבר התקנה (iOS / Android) -->
+<div class="success-overlay" id="installGuideModal">
+  <div class="success-card" style="max-width: 420px; padding: 40px 24px; position: relative;">
+    <button class="product-close" style="top: 14px; left: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onclick="document.getElementById('installGuideModal').classList.remove('open'); document.body.style.overflow='';">×</button>
+    
+    <div class="success-icon" style="background: linear-gradient(135deg, var(--olive), var(--olive-light)); box-shadow: 0 12px 25px rgba(61,70,22,0.3); margin-bottom: 20px;">
+      <i class="fas fa-download"></i>
+    </div>
+    
+    <h2 style="font-size: 1.7rem; margin-bottom: 12px; font-family: var(--font-heading); color: var(--olive);">התקנת האפליקציה</h2>
+    <p style="color: var(--muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
+      לגישה מהירה להזמנות הבאות, שמרו את האתר על מסך הבית:
+    </p>
+    
+    <div id="installGuideSteps" style="display: flex; justify-content: center; gap: 12px; align-items: center; font-weight: 800; color: var(--olive); background: rgba(200,150,93,0.15); padding: 18px 10px; border-radius: 16px; font-size: 0.95rem;">
+      <!-- השלבים יוזרקו לכאן בהתאם לסוג המכשיר -->
+    </div>
+    
+    <button class="btn-close-success" style="margin-top: 24px; width: 100%;" onclick="document.getElementById('installGuideModal').classList.remove('open'); document.body.style.overflow='';">הבנתי, תודה</button>
+  </div>
+</div>
 
 
   <a class="floating-contact" href="https://wa.me/972527495162" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
@@ -1354,14 +1376,15 @@ function mobRefreshOrderScreen(){
       rowsEl.innerHTML=cart.map((item,index)=>{
         const p=products.find(p=>p.name===item.name)||{};
         return `<div class="mob-order-cart-row">
-          <img class="mob-ocr-img" src="${p.image||''}" alt="${item.name}" onerror="this.style.display='none'">
-          <div class="mob-ocr-name">${item.name}</div>
-          <div class="mob-ocr-qty-ctrl">
-            <button onclick="mobOrderCartChange(${index},-1)">−</button>
-            <strong id="mobOCR-qty-${index}">${item.qty}</strong>
-            <button onclick="mobOrderCartChange(${index},1)">+</button>
-          </div>
-        </div>`;
+            <img class="mob-ocr-img" src="${p.image||''}" alt="${item.name}" onerror="this.style.display='none'">
+            <div class="mob-ocr-name">${item.name}</div>
+            <div class="mob-ocr-qty-ctrl">
+              <button onclick="mobOrderCartChange(${index},-1)">−</button>
+              <strong id="mobOCR-qty-${index}">${item.qty}</strong>
+              <button onclick="mobOrderCartChange(${index},1)">+</button>
+            </div>
+            <button class="mob-ocr-remove" onclick="mobRemoveFromCart(${index})"><i class="fa-solid fa-trash-can"></i></button>
+          </div>`;
       }).join('');
     }
   }
@@ -1403,6 +1426,14 @@ function mobOrderCartChange(index,delta){
   saveCartToStorage(); renderCart(); mobRenderProducts(); mobRefreshOrderScreen();
 }
 
+function mobRemoveFromCart(index){
+  cart.splice(index,1);
+  saveCartToStorage(); 
+  renderCart(); 
+  mobRenderProducts(); 
+  mobRefreshOrderScreen();
+}
+
 function mobRestoreAndStay(){
   const h=getOrderHistory();
   if(!h.length){ alert("אין הזמנות קודמות לשחזור."); return; }
@@ -1421,9 +1452,7 @@ function mobOrderHandlePhone(event){ if(cart.length===0){ event.preventDefault()
 function mobRefreshPersonal(){
   const saved=localStorage.getItem("mosheUserDetails");
   const h=getOrderHistory();
-const totalPacks=h.reduce((s,e)=>s+e.items.reduce((ss,i)=>ss+i.qty,0),0);
-document.getElementById('mobStatOrders').textContent=h.length;
-document.getElementById('mobStatPacks').textContent=totalPacks;
+  
   if(saved){
     const u=JSON.parse(saved);
     document.getElementById('mobAvatar').textContent=(u.business||u.name||'?').charAt(0);
@@ -1521,6 +1550,79 @@ window.addEventListener('resize',()=>{
 });
 
 if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+/* ── SMART INSTALLATION SYSTEM (PWA) ── */
+let deferredPrompt;
+const pwaBanner = document.getElementById('pwaInstallBanner');
+
+// יצירה והצגה של הבאנר התחתון
+function renderPwaBanner(isIOS) {
+  pwaBanner.innerHTML = `
+    <div class="pwa-banner-content">
+      <img src="icon-192.png" class="pwa-banner-logo" alt="לוגו">
+      <div class="pwa-banner-text">
+        <strong>משה קילופים</strong>
+        <span>התקן לגישה מהירה להזמנות</span>
+      </div>
+    </div>
+    <button class="pwa-install-btn" onclick="openInstallGuide(${isIOS})">התקן</button>
+    <button class="pwa-close-btn" onclick="document.getElementById('pwaInstallBanner').style.display='none'">×</button>
+  `;
+  pwaBanner.style.display = 'flex';
+}
+
+// תפיסת האירוע באנדרואיד (Chrome)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  renderPwaBanner(false);
+});
+
+// בדיקה לאייפון (iOS) אחרי טעינת העמוד
+window.addEventListener('load', () => {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  
+  // אם מדובר באייפון וזה עדיין לא מותקן כמרכזייה - נציג את הבאנר התחתון
+  if (isIOS && !isStandalone) {
+    setTimeout(() => { renderPwaBanner(true); }, 2500); // עיכוב קל לחווית משתמש טובה
+  }
+});
+
+// פתיחת בועית ההסבר המפורטת
+async function openInstallGuide(isIOS) {
+  // אם זה אנדרואיד שהצליח לתפוס את ההתקנה המובנית - פשוט נפעיל אותה
+  if (!isIOS && deferredPrompt) {
+    pwaBanner.style.display = 'none';
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    return;
+  }
+  
+  // אחרת, נפתח את המודל המעוצב שלנו עם ההסבר
+  pwaBanner.style.display = 'none';
+  const stepsEl = document.getElementById('installGuideSteps');
+  
+  if (isIOS) {
+    // הוראות לאייפון
+    stepsEl.innerHTML = `
+      <div style="text-align:center"><i class="fas fa-arrow-up-from-bracket" style="font-size:1.6rem;color:var(--gold);margin-bottom:8px;"></i><br>1. שתף</div>
+      <i class="fas fa-chevron-left" style="color:rgba(0,0,0,0.2)"></i>
+      <div style="text-align:center"><i class="fas fa-plus-square" style="font-size:1.6rem;color:var(--gold);margin-bottom:8px;"></i><br>2. למסך הבית</div>
+    `;
+  } else {
+    // הוראות לאנדרואיד (לדפדפנים שלא תומכים בהתקנה אוטומטית מלאה)
+    stepsEl.innerHTML = `
+      <div style="text-align:center"><i class="fas fa-ellipsis-v" style="font-size:1.6rem;color:var(--gold);margin-bottom:8px;"></i><br>1. תפריט</div>
+      <i class="fas fa-chevron-left" style="color:rgba(0,0,0,0.2)"></i>
+      <div style="text-align:center"><i class="fas fa-mobile-screen" style="font-size:1.6rem;color:var(--gold);margin-bottom:8px;"></i><br>2. הוסף למסך הבית</div>
+    `;
+  }
+  
+  // מציגים את המודל
+  document.getElementById('installGuideModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 </script>
 </body>
 </html>
