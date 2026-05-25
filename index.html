@@ -663,6 +663,27 @@
   .mob-qty-ctrl button { font-size: 1.15rem; }
   .mob-qty-ctrl strong { font-size: 1.15rem; }
 }
+
+.mobile-header-login {
+      display: none;
+      background: rgba(200, 150, 93, 0.15);
+      color: var(--gold);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .mobile-header-login:active {
+      background: rgba(200, 150, 93, 0.3);
+    }
+    @media (max-width: 980px) {
+      .mobile-header-login.show { display: flex; }
+    }
   </style>
 </head>
 <body>
@@ -886,11 +907,15 @@
   <a href="#products-wrapper" onclick="toggleMenu()">המוצרים שלנו</a>
   <a href="#cart-wrapper" onclick="toggleMenu()">סל הזמנות</a>
   <a href="#contact-wrapper" onclick="toggleMenu()">יצירת קשר</a>
+  <a href="#" onclick="toggleMenu(); openRegisterModal(); return false;" id="mobMenuLoginBtn" style="color: var(--gold);">התחברות / הרשמה</a>
 </div>
 
 <header>
   <div style="display:flex;align-items:center;gap:15px;">
     <button class="hamburger" onclick="toggleMenu()">☰</button>
+    <button class="mobile-header-login show" id="mobHeaderLoginBtn" onclick="openRegisterModal()" aria-label="הרשמה">
+      <i class="fas fa-user"></i>
+    </button>
     <a class="logo" href="#">משה <span>קילופים</span></a>
   </div>
   <nav>
@@ -898,6 +923,7 @@
     <a href="#products-wrapper">המוצרים שלנו</a>
     <a href="#cart-wrapper">עגלה</a>
     <a href="#contact-wrapper">יצירת קשר</a>
+    <a href="#" onclick="openRegisterModal(); return false;" id="navLoginBtn" style="color: var(--gold);">התחברות / הרשמה</a>
   </nav>
   <button class="cart-container" onclick="document.getElementById('cart-wrapper').scrollIntoView({behavior:'smooth'})">
     <i class="fas fa-shopping-basket"></i>
@@ -911,6 +937,9 @@
     <h1>טרי, נקי<br><span>מוכן לבישול</span></h1>
     <p>ירקות טריים קלופים, שטופים וחתוכים — מוכנים לשימוש, באריזה מסודרת ולפי דרישת הלקוח.</p>
     <div class="hero-actions">
+      <button class="btn btn-primary" onclick="openRegisterModal()" id="heroLoginBtn" style="background: var(--white); color: var(--olive); box-shadow: 0 4px 15px rgba(255,255,255,0.2);">
+        <i class="fas fa-user-plus"></i> התחברות / הרשמה
+      </button>
       <a class="btn btn-primary" href="#products-wrapper"><i class="fa-solid fa-list"></i> לצפייה בקטלוג</a>
       <a class="btn btn-secondary" href="#cart-wrapper"><i class="fa-solid fa-cart-shopping"></i> לעגלת הקניות</a>
     </div>
@@ -1122,6 +1151,28 @@
   <div class="cart-bar-info"><i class="fa-solid fa-basket-shopping"></i><span id="cartBarText">עגלה (0)</span></div>
   <button class="cart-bar-btn" onclick="document.getElementById('cart-wrapper').scrollIntoView({behavior:'smooth',block:'start'})">לעגלת הזמנה</button>
 </div>
+<div class="success-overlay" id="registerModal">
+  <div class="success-card" style="max-width: 400px; padding: 40px 24px; position: relative;">
+    <button class="product-close" onclick="closeRegisterModal()" style="top: 14px; left: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">×</button>
+    
+    <div class="success-icon" style="background: linear-gradient(135deg, var(--gold), #dcb27f); box-shadow: 0 12px 25px rgba(200,150,93,0.3); margin-bottom: 20px;">
+      <i class="fas fa-user-plus"></i>
+    </div>
+    
+    <h2 style="font-size: 1.7rem; margin-bottom: 12px; font-family: var(--font-heading); color: var(--olive);">הרשמה למערכת</h2>
+    <p style="color: var(--muted); font-size: 1rem; line-height: 1.5; margin-bottom: 24px; font-weight: 600;">
+      הזן פרטים כדי שנוכל לשמור את העדפות ההזמנה שלך.
+    </p>
+    
+    <div class="quote-form" style="text-align: right;">
+      <input id="regName" placeholder="שם מלא (חובה)" autocomplete="name">
+      <input id="regPhone" placeholder="טלפון (חובה)" inputmode="tel" autocomplete="tel">
+      <input id="regBiz" placeholder="שם עסק / מוסד" autocomplete="organization">
+      <input id="regCity" placeholder="עיר אספקה">
+      <button class="btn-add" style="margin-top: 15px; font-size: 1.1rem; padding: 14px;" onclick="submitRegistration()">הרשם ושמור פרטים</button>
+    </div>
+  </div>
+</div>
 
 <footer><strong>משה קילופים</strong><br>ירקות קלופים וחתוכים למטבחים מוסדיים · © 2026 כל הזכויות שמורות</footer>
 
@@ -1180,6 +1231,52 @@ function saveOrderToHistory(snap){
 /* ── USER ── */
 function validatePhone(p){ return /^0[2-9]\d{7,8}$/.test(p.replace(/[-\s]/g,'')); }
 function clearUserDetails(){ localStorage.removeItem("mosheUserDetails"); location.reload(); }
+/* ── REGISTRATION SYSTEM ── */
+function openRegisterModal() {
+  document.getElementById('registerModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRegisterModal() {
+  document.getElementById('registerModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function submitRegistration() {
+  const name = document.getElementById('regName').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const biz = document.getElementById('regBiz').value.trim();
+  const city = document.getElementById('regCity').value.trim();
+
+  const nameEl = document.getElementById('regName');
+  const phoneEl = document.getElementById('regPhone');
+  
+  // איפוס שגיאות
+  nameEl.style.border = "1.5px solid rgba(0,0,0,0.12)";
+  phoneEl.style.border = "1.5px solid rgba(0,0,0,0.12)";
+
+  let ok = true;
+  if (!name) { nameEl.style.border = "2px solid #dc3545"; ok = false; }
+  if (!phone || !validatePhone(phone)) { phoneEl.style.border = "2px solid #dc3545"; ok = false; }
+
+  if (!ok) {
+    alert("אנא מלאו שם וטלפון תקין.");
+    return;
+  }
+
+  // שמירה ל-LocalStorage
+  const u = { name, phone, business: biz, city };
+  localStorage.setItem("mosheUserDetails", JSON.stringify(u));
+
+  closeRegisterModal();
+  
+  // רענון הממשק
+  checkUserStatus();
+  if (typeof mobRefreshPersonal === 'function') mobRefreshPersonal();
+  if (typeof mobRefreshOrderScreen === 'function') mobRefreshOrderScreen();
+
+  alert("ברוך הבא! הפרטים שלך נשמרו במערכת.");
+}
 
 /* ── SHARED CART ── */
 function addToCart(name,qty,scroll=false){
@@ -1258,6 +1355,13 @@ function checkUserStatus(){
   const phoneBtn=document.getElementById("phoneOrderBtn");
   const mailBtn=document.getElementById("mailOrderBtn");
   const title=document.getElementById("cartSectionTitle");
+  
+  // 1. הגדרת כפתורי ההרשמה שיצרנו בשלבים הקודמים
+  const navBtn = document.getElementById("navLoginBtn");
+  const mobBtn = document.getElementById("mobMenuLoginBtn");
+  const mobHeaderBtn = document.getElementById("mobHeaderLoginBtn");
+  const heroBtn = document.getElementById("heroLoginBtn");
+
   if(saved){
     const u=JSON.parse(saved);
     document.body.classList.add('vip-mode');
@@ -1267,6 +1371,13 @@ function checkUserStatus(){
     if(mainBtn) mainBtn.innerHTML='<i class="fa-brands fa-whatsapp"></i> הזמנה ב-WhatsApp';
     if(phoneBtn) phoneBtn.innerHTML='<i class="fas fa-phone"></i> הזמנה טלפונית';
     if(mailBtn) mailBtn.innerHTML='<i class="fas fa-envelope"></i> הזמנה במייל';
+    
+    // 2. הלקוח מחובר: אנחנו מסתירים את כפתורי ההרשמה
+    if(navBtn) navBtn.style.display = "none";
+    if(mobBtn) mobBtn.style.display = "none";
+    if(mobHeaderBtn) mobHeaderBtn.classList.remove("show");
+    if(heroBtn) heroBtn.style.display = "none";
+    
     renderOrderHistory();
   } else {
     document.body.classList.remove('vip-mode');
@@ -1275,6 +1386,12 @@ function checkUserStatus(){
     if(mainBtn) mainBtn.innerHTML='<i class="fa-brands fa-whatsapp"></i> קבלת הצעה בוואטסאפ';
     if(phoneBtn) phoneBtn.innerHTML='<i class="fas fa-phone"></i> קבלת הצעה בטלפון';
     if(mailBtn) mailBtn.innerHTML='<i class="fas fa-envelope"></i> קבלת הצעה במייל';
+    
+    // 3. הלקוח חדש: אנחנו מציגים את כפתורי ההרשמה
+    if(navBtn) navBtn.style.display = "inline-block";
+    if(mobBtn) mobBtn.style.display = "block";
+    if(mobHeaderBtn) mobHeaderBtn.classList.add("show");
+    if(heroBtn) heroBtn.style.display = "inline-flex";
   }
 }
 
