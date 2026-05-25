@@ -759,7 +759,13 @@
         </div>
         <div style="padding-bottom:16px">
           <button class="mob-logout-btn" onclick="clearUserDetails()">
-            <i class="fas fa-right-from-bracket"></i> החלף משתמש
+            <i class="fas fa-right-from-bracket"></i> התנתק
+          </button>
+          <button 
+            onclick="handleInstallClick()" 
+            style="background-color: var(--olive); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 15px;"
+          >
+            <i class="fas fa-download"></i> התקן אפליקציה
           </button>
         </div>
         <div id="mobPersonalHistory" style="display:none" class="mob-personal-history-section">
@@ -958,7 +964,7 @@
     <div class="vip-card">
       <div class="vip-card-header">
         <span class="vip-card-title">שלום <span id="vipTopName"></span></span>
-        <button onclick="clearUserDetails()" style="background:none;border:none;color:var(--muted);text-decoration:underline;font-weight:600;font-family:inherit;cursor:pointer;font-size:0.95rem;">החלף משתמש</button>
+        <button onclick="clearUserDetails()" style="background:none;border:none;color:var(--muted);text-decoration:underline;font-weight:600;font-family:inherit;cursor:pointer;font-size:0.95rem;">התנתק</button>
       </div>
       <p class="vip-card-text">תוכל ללחוץ על <strong>״הזמנה חוזרת״</strong> על כל הזמנה קודמת — והמוצרים יופיעו מיד בעגלה.</p>
     </div>
@@ -1797,6 +1803,32 @@ window.addEventListener('load', () => {
     setTimeout(() => { renderPwaBanner(true); }, 2500); // עיכוב קל לחווית משתמש טובה
   }
 });
+
+// ═══ ניהול התקנת אפליקציה ═══
+
+// משתנה ששומר את חלונית ההתקנה הרשמית של אנדרואיד
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // מונע מהחלונית המקורית לקפוץ לבד
+  e.preventDefault();
+  // שומר את האירוע להפעלה בלחיצת כפתור
+  deferredPrompt = e;
+});
+
+// הפונקציה שמופעלת בלחיצה על כפתור ההתקנה באזור האישי
+async function handleInstallClick() {
+  if (deferredPrompt) {
+    // 1. אנדרואיד: התקנה מהירה בקליק אחד
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null; // איפוס
+  } else {
+    // 2. אייפון (או דפדפן שלא תומך בקליק אחד): הקפצת בועית ההדרכה
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    openInstallGuide(isIOS);
+  }
+}
 
 // פתיחת בועית ההסבר המפורטת
 async function openInstallGuide(isIOS) {
