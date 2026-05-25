@@ -814,6 +814,19 @@
     @media (max-width: 980px) {
       .mobile-header-login.show { display: flex; }
     }
+    /* ביטול דיליי של 300ms ומניעת זום בלחיצות מהירות במובייל */
+button, 
+.mob-add-btn, 
+.mob-qty-ctrl button, 
+.inline-qty-ctrl button, 
+.mob-ocr-qty-ctrl button,
+.cart-qty-control button {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
   </style>
 </head>
 <body>
