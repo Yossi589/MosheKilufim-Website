@@ -1416,7 +1416,7 @@ function submitRegistration() {
   if (typeof mobRefreshPersonal === 'function') mobRefreshPersonal();
   if (typeof mobRefreshOrderScreen === 'function') mobRefreshOrderScreen();
 
-  alert("ברוך הבא! הפרטים שלך נשמרו במערכת.");
+  showSuccess('register');
 }
 
 /* ── SHARED CART ── */
@@ -1640,7 +1640,38 @@ function sendQuoteWhatsApp(){ if(cart.length===0){ alert("העגלה ריקה.")
 function sendQuoteEmail(){ if(cart.length===0){ alert("העגלה ריקה."); return; } const u=collectUser(); if(!u) return; const notes=document.getElementById("quoteNotes").value.trim(); const date=document.getElementById("quoteDeliveryDate")?.value||''; window.location.href=`mailto:${BUSINESS_EMAIL}?subject=${encodeURIComponent("בקשה להצעת מחיר - משה קילופים")}&body=${encodeURIComponent(buildOrderText(u,notes,date))}`; clearAfterOrder(); showSuccess('mail'); }
 function handlePhoneOrder(event){ if(cart.length===0) return; const u=collectUser(); if(!u){ event.preventDefault(); return; } clearAfterOrder(); showSuccess('phone'); }
 
-function showSuccess(type){ const icon=document.getElementById("successIcon"); const iconEl=document.getElementById("successIconEl"); icon.className="success-icon"; if(type==='whatsapp'){ icon.classList.add('wa'); iconEl.className='fa-brands fa-whatsapp'; document.getElementById("successTitle").textContent="ההזמנה נשלחה!"; document.getElementById("successMsg").textContent="ההודעה נפתחה בוואטסאפ. לאחר השליחה נחזור אליכם עם הצעת מחיר מסודרת."; document.getElementById("successTimeText").textContent=" נודיע לך שקיבלנו את ההזמנה"; } else if(type==='phone'){ icon.classList.add('ph'); iconEl.className='fas fa-phone'; document.getElementById("successTitle").textContent="מתקשרים אלינו!"; document.getElementById("successMsg").textContent="אנחנו ממתינים לשיחתך כדי לתאם את ההזמנה."; document.getElementById("successTimeText").textContent="שעות פעילות: א-ה 7:00-17:00"; } else{ icon.classList.add('ml'); iconEl.className='fas fa-envelope'; document.getElementById("successTitle").textContent="המייל נפתח!"; document.getElementById("successMsg").textContent="לאחר שליחת המייל נחזור אליכם עם הצעת מחיר מסודרת."; document.getElementById("successTimeText").textContent="נחזור אליך תוך יום עסקים"; } document.getElementById("successOverlay").classList.add("open"); document.body.style.overflow="hidden"; }
+function showSuccess(type){ 
+  const icon=document.getElementById("successIcon"); 
+  const iconEl=document.getElementById("successIconEl"); 
+  icon.className="success-icon"; 
+  if(type==='whatsapp'){ 
+    icon.classList.add('wa'); 
+    iconEl.className='fa-brands fa-whatsapp'; 
+    document.getElementById("successTitle").textContent="ההזמנה נשלחה!"; 
+    document.getElementById("successMsg").textContent="ההודעה נפתחה בוואטסאפ. לאחר השליחה נחזור אליכם עם הצעת מחיר מסודרת."; 
+    document.getElementById("successTimeText").textContent=" נודיע לך שקיבלנו את ההזמנה"; 
+  } else if(type==='phone'){ 
+    icon.classList.add('ph'); 
+    iconEl.className='fas fa-phone'; 
+    document.getElementById("successTitle").textContent="מתקשרים אלינו!"; 
+    document.getElementById("successMsg").textContent="אנחנו ממתינים לשיחתך כדי לתאם את ההזמנה."; 
+    document.getElementById("successTimeText").textContent="שעות פעילות: א-ה 7:00-17:00"; 
+  } else if(type==='register'){ 
+    icon.classList.add('wa'); 
+    iconEl.className='fas fa-user-check'; 
+    document.getElementById("successTitle").textContent="ברוך הבא!"; 
+    document.getElementById("successMsg").textContent="הפרטים שלך נשמרו במערכת בהצלחה."; 
+    document.getElementById("successTimeText").textContent="עכשיו אפשר להזמין בקליק";
+  } else{ 
+    icon.classList.add('ml'); 
+    iconEl.className='fas fa-envelope'; 
+    document.getElementById("successTitle").textContent="המייל נפתח!"; 
+    document.getElementById("successMsg").textContent="לאחר שליחת המייל נחזור אליכם עם הצעת מחיר מסודרת."; 
+    document.getElementById("successTimeText").textContent="נחזור אליך תוך יום עסקים"; 
+  } 
+  document.getElementById("successOverlay").classList.add("open"); 
+  document.body.style.overflow="hidden"; 
+}
 function closeSuccess(){ document.getElementById("successOverlay").classList.remove("open"); document.body.style.overflow=""; }
 
 function revealOnScroll(){ document.querySelectorAll(".reveal").forEach(el=>{ if(el.getBoundingClientRect().top<window.innerHeight-60) el.classList.add("active"); }); const b=document.getElementById("badge30"); if(b&&b.getBoundingClientRect().top<window.innerHeight-80) b.classList.add("active"); }
