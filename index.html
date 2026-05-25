@@ -597,10 +597,90 @@
   @keyframes pulsing { to { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); } }
   .icon-wrapper { position: relative; display: inline-block; }
 
+  /* ── SPLASH SCREEN ── */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--olive), #2a300f);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+}
+.splash-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+.splash-content {
+  text-align: center;
+  color: white;
+  animation: splashPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: clamp(3rem, 10vw, 4rem);
+  font-weight: 900;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+.splash-logo span {
+  color: var(--gold);
+}
+.splash-loader {
+  width: 46px;
+  height: 46px;
+  border: 4px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  animation: splashSpin 1s linear infinite;
+}
+.splash-text {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
+}
+
+@keyframes splashPop {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes splashSpin {
+  to { transform: rotate(360deg); }
+}
+/* ── הגדלת פונטים לאפליקציית מובייל ── */
+@media (max-width: 767px) {
+  .mob-prod-name { font-size: 1.15rem; } 
+  .mob-prod-pack { font-size: 0.95rem; } 
+  .mob-ocr-name { font-size: 1.05rem; } 
+  .mob-chip { font-size: 1.05rem; } 
+  .mob-screen-title { font-size: 1.6rem; } 
+  .mob-screen-sub { font-size: 0.95rem; } 
+  .nav-tab span { font-size: 11px; } 
+  .nav-fab-label { font-size: 11px; } 
+  .mob-qty-ctrl button { font-size: 1.15rem; }
+  .mob-qty-ctrl strong { font-size: 1.15rem; }
+}
   </style>
 </head>
 <body>
 
+  <div id="splashScreen" class="splash-screen">
+  <div class="splash-content">
+    <div class="splash-logo">משה <span>קילופים</span></div>
+    <div class="splash-loader"></div>
+    <div class="splash-text">מכינים את המטבח...</div>
+  </div>
+</div>
+
+<script>
+  // בדיקה מיידית: אם המסך רחב (מחשב) או שאין משתמש שמור (לקוח חדש) - נעלים את הפתיח מיד
+  if (!(window.innerWidth < 768 && localStorage.getItem("mosheUserDetails"))) {
+    document.getElementById('splashScreen').style.display = 'none';
+  }
+</script>
 <!-- ═══ MOBILE APP OVERLAY ═══ -->
 <div class="mobile-app-overlay" id="mobileApp">
   <div class="app-topbar" id="appTopbar">
@@ -1508,6 +1588,15 @@ function mobReorderAndGo(idx){ const h=getOrderHistory(); const items=(h[idx]||{
 /* ── Init ── */
 /* ── Init ── */
 window.addEventListener("load",()=>{
+  // הסרת מסך הטעינה אחרי 2.2 שניות
+  setTimeout(() => {
+    const splash = document.getElementById('splashScreen');
+    if (splash) {
+      splash.classList.add('fade-out');
+      // הסרה מוחלטת מה-DOM כדי לא להפריע ללחיצות באתר
+      setTimeout(() => splash.remove(), 600);
+    }
+  }, 2200);
   loadCartFromStorage();
   const isMobile = window.innerWidth < 768;
   const isVip = !!localStorage.getItem("mosheUserDetails"); // בודק האם יש פרטי משתמש שמורים
@@ -1608,41 +1697,55 @@ async function openInstallGuide(isIOS) {
   const stepsEl = document.getElementById('installGuideSteps');
   
  if (isIOS) {
-    // הוראות לאייפון (עיגול מהבהב בשני השלבים)
+    // הוראות מפורטות מאוד לאייפון
     stepsEl.innerHTML = `
-      <div style="text-align:center">
-        <div class="icon-wrapper">
-          <i class="fas fa-arrow-up-from-bracket" style="font-size:1.6rem;color:var(--gold);margin-bottom:8px;"></i>
-          <span class="pulse-dot"></span>
+      <div style="display:flex; flex-direction:column; gap:18px; text-align:right; width:100%;">
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div class="icon-wrapper" style="flex-shrink:0; margin-top:4px;">
+            <i class="fas fa-arrow-up-from-bracket" style="font-size:1.8rem;color:var(--gold);"></i>
+            <span class="pulse-dot"></span>
+          </div>
+          <div>
+            <strong style="color:var(--olive); font-size:1.1rem;">שלב 1: פתיחת אפשרויות השיתוף</strong>
+            <p style="margin:4px 0 0; color:var(--muted); font-size:0.95rem; line-height:1.4; font-weight:600;">ודאו שאתם גולשים בדפדפן ספארי (Safari). בתחתית המסך, חפשו את כפתור השיתוף – אייקון של ריבוע עם חץ שפונה כלפי מעלה, ולחצו עליו.</p>
+          </div>
         </div>
-        <br>1. לחץ על שיתוף
-      </div>
-      <i class="fas fa-chevron-left" style="color:rgba(0,0,0,0.2)"></i>
-      <div style="text-align:center">
-        <div class="icon-wrapper">
-          <i class="fas fa-plus-square" style="font-size:1.6rem;color:var(--gold);margin-bottom:8px;"></i>
-          <span class="pulse-dot"></span>
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div class="icon-wrapper" style="flex-shrink:0; margin-top:4px;">
+            <i class="fas fa-plus-square" style="font-size:1.8rem;color:var(--gold);"></i>
+            <span class="pulse-dot"></span>
+          </div>
+          <div>
+            <strong style="color:var(--olive); font-size:1.1rem;">שלב 2: הוספה לאייפון שלכם</strong>
+            <p style="margin:4px 0 0; color:var(--muted); font-size:0.95rem; line-height:1.4; font-weight:600;">בתפריט שנפתח, גללו מעט למטה ולחצו על השורה ״הוסף למסך הבית״ (Add to Home Screen). לאחר מכן, לחצו על ״הוסף״ בפינה העליונה לאישור.</p>
+          </div>
         </div>
-        <br>2. מסך הבית
       </div>
     `;
   } else {
-    // הוראות לאנדרואיד (עיגול מהבהב בשני השלבים)
+    // הוראות מפורטות מאוד לאנדרואיד
     stepsEl.innerHTML = `
-      <div style="text-align:center">
-        <div class="icon-wrapper">
-          <i class="fas fa-ellipsis-v" style="font-size:1.6rem;color:var(--gold);margin-bottom:8px;"></i>
-          <span class="pulse-dot"></span>
+      <div style="display:flex; flex-direction:column; gap:18px; text-align:right; width:100%;">
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div class="icon-wrapper" style="flex-shrink:0; margin-top:4px;">
+            <i class="fas fa-ellipsis-v" style="font-size:1.8rem;color:var(--gold);"></i>
+            <span class="pulse-dot"></span>
+          </div>
+          <div>
+            <strong style="color:var(--olive); font-size:1.1rem;">שלב 1: פתיחת תפריט הדפדפן</strong>
+            <p style="margin:4px 0 0; color:var(--muted); font-size:0.95rem; line-height:1.4; font-weight:600;">ודאו שאתם גולשים בדפדפן כרום (Chrome). בפינה העליונה של המסך, לחצו על כפתור התפריט המורכב משלוש נקודות אנכיות.</p>
+          </div>
         </div>
-        <br>1. פתח תפריט
-      </div>
-      <i class="fas fa-chevron-left" style="color:rgba(0,0,0,0.2)"></i>
-      <div style="text-align:center">
-        <div class="icon-wrapper">
-          <i class="fas fa-mobile-screen" style="font-size:1.6rem;color:var(--gold);margin-bottom:8px;"></i>
-          <span class="pulse-dot"></span>
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div class="icon-wrapper" style="flex-shrink:0; margin-top:4px;">
+            <i class="fas fa-mobile-screen" style="font-size:1.8rem;color:var(--gold);"></i>
+            <span class="pulse-dot"></span>
+          </div>
+          <div>
+            <strong style="color:var(--olive); font-size:1.1rem;">שלב 2: התקנה על מסך הבית</strong>
+            <p style="margin:4px 0 0; color:var(--muted); font-size:0.95rem; line-height:1.4; font-weight:600;">בתפריט שנפתח, חפשו את האפשרות ״הוסף למסך הבית״ או ״התקן אפליקציה״ ולחצו עליה. אשרו את הפעולה בחלונית שתקפוץ.</p>
+          </div>
         </div>
-        <br>2. מסך הבית
       </div>
     `;
   }
