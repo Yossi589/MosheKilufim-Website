@@ -1978,26 +1978,70 @@ function renderPwaBanner(isIOS) {
       </div>
     </div>
     <button class="pwa-install-btn" onclick="openInstallGuide(${isIOS})">התקן</button>
-    <button class="pwa-close-btn" onclick="document.getElementById('pwaInstallBanner').style.display='none'">×</button>
+    <button class="pwa-close-btn" onclick="dismissPwaBanner()">×</button>
   `;
   pwaBanner.style.display = 'flex';
 }
 
-// תפיסת האירוע באנדרואיד (Chrome)
+// פונקציית סגירה: שומרים את הזמן הנוכחי במילישניות כדי שנדע מתי לחשב את השבוע
+function dismissPwaBanner() {
+  document.getElementById('pwaInstallBanner').style.display = 'none';
+  localStorage.setItem('moshePwaDismissedTime', Date.now()); 
+}
+
+// פונקציה חכמה שבודקת אם צריך להסתיר את הבאנר
+
+function shouldHideBanner() {
+  // הסתרה מוחלטת במסכים גדולים (מחשב/טאבלט גדול)
+  if (window.innerWidth >= 768) return true;
+
+  // אם הוא כבר התקין את האפליקציה - מסתירים לתמיד
+  if (localStorage.getItem('mosheAppInstalled') === 'true') return true;
+  
+  // בודקים מתי הוא סגר את הבאנר בפעם האחרונה
+  const dismissedTime = localStorage.getItem('moshePwaDismissedTime');
+  if (dismissedTime) {
+    const twoWeeksInMs = 14 * 24 * 60 * 60 * 1000; // 14 ימים בדיוק במילישניות
+    const timePassed = Date.now() - parseInt(dismissedTime);
+    
+    if (timePassed < twoWeeksInMs) {
+      return true; // עדיין לא עברו שבועיים, להסתיר את הבאנר
+    } else {
+      localStorage.removeItem('moshePwaDismissedTime'); // עברו שבועיים, מאפסים כדי שיקפוץ שוב
+    }
+  }
+  return false; // צריך להציג את הבאנר
+}
+
+// 1. תפיסת אירוע התקנה: ברגע שהמשתמש התקין בהצלחה, נשמור זיכרון לתמיד
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('mosheAppInstalled', 'true');
+  document.getElementById('pwaInstallBanner').style.display = 'none';
+  deferredPrompt = null;
+});
+
+// 2. תפיסת האירוע באנדרואיד (Chrome)
 window.addEventListener('beforeinstallprompt', (e) => {
+  // בודקים מול הפונקציה החכמה אם להסתיר
+  if (shouldHideBanner()) return;
+  
   e.preventDefault();
   deferredPrompt = e;
   renderPwaBanner(false);
 });
 
-// בדיקה לאייפון (iOS) אחרי טעינת העמוד
+// 3. בדיקה לאייפון (iOS) ומצב אפליקציה כללי אחרי טעינת העמוד
 window.addEventListener('load', () => {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  // בודק אם אנחנו גולשים עכשיו מתוך האפליקציה המותקנת (מסך מלא)
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   
-  // אם מדובר באייפון וזה עדיין לא מותקן כמרכזייה - נציג את הבאנר התחתון
-  if (isIOS && !isStandalone) {
-    setTimeout(() => { renderPwaBanner(true); }, 2500); // עיכוב קל לחווית משתמש טובה
+  // אם אנחנו באפליקציה, או שהפונקציה החכמה החליטה שצריך להסתיר - עוצרים כאן.
+  if (isStandalone || shouldHideBanner()) return; 
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  
+  if (isIOS) {
+    setTimeout(() => { renderPwaBanner(true); }, 2500); 
   }
 });
 
