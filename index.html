@@ -27,6 +27,34 @@
     header { position: sticky; top: 0; z-index: 1000; background: rgba(255,255,255,0.95); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(0,0,0,0.07); padding: 14px 5%; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
     .logo { font-family: var(--font-heading); font-size: 2.6rem; font-weight: 700; color: var(--olive); letter-spacing: -1.5px; white-space: nowrap; line-height: 1; }
     .logo span { color: var(--gold); font-weight: 800; }
+    .logo { font-family: var(--font-heading); font-size: 2.6rem; font-weight: 700; color: var(--olive); letter-spacing: -1.5px; white-space: nowrap; line-height: 1; }
+    .logo span { color: var(--gold); font-weight: 800; }
+    
+    /* הנה הקוד שהדבקת: */
+    .header-user-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--olive), var(--olive-light));
+      color: white;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 800;
+      box-shadow: 0 4px 10px rgba(61,70,22,0.15);
+      flex-shrink: 0;
+      border: 2px solid white;
+    }
+
+    .header-greeting {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    nav { display: flex; align-items: center; gap: 26px; font-weight: 700; color: var(--olive); }
     nav { display: flex; align-items: center; gap: 26px; font-weight: 700; color: var(--olive); }
     nav a:hover { color: var(--gold); }
     .cart-container { cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--olive); color: white; padding: 10px 20px; border-radius: 999px; font-weight: 700; border: none; transition: 0.25s; white-space: nowrap; font-family: inherit; font-size: 1rem; }
@@ -203,11 +231,112 @@
     .btn-close-success:hover { background: var(--olive-light); transform: translateY(-2px); }
 
     #vip-welcome-banner { width: min(1240px,92%); margin: 25px auto 10px; display: none; }
-    .vip-card { background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.06); border-radius: 18px; padding: 22px 28px; box-shadow: 0 6px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: flex-start; gap: 12px; border-right: 4px solid var(--gold); }
-    .vip-card-header { display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .vip-card-title { font-family: var(--font-heading); color: var(--olive); font-size: 2.5rem; font-weight: 900; margin: 0; }
-    .vip-card-text { color: var(--dark); font-size: 1.15rem; margin: 0; font-weight: 500; }
-    .vip-card-text strong { color: var(--gold); }
+    
+    .vip-card {
+      background: rgba(253,251,247,0.95);
+      border: 1px solid rgba(200,150,93,0.25);
+      border-radius: 24px;
+      padding: 24px 30px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.06);
+      border-right: 5px solid var(--gold);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .vip-card-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .vip-user-info {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .vip-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--olive), var(--olive-light));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 800;
+      box-shadow: 0 6px 15px rgba(61,70,22,0.2);
+    }
+
+    .vip-welcome-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .vip-greet {
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .vip-name {
+      font-family: var(--font-heading);
+      color: var(--olive);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .btn-vip-logout {
+      background: white;
+      border: 1px solid rgba(0,0,0,0.08);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    .btn-vip-logout:hover {
+      background: #fdf5f5;
+      color: #dc3545;
+      border-color: rgba(220,53,69,0.2);
+      transform: translateY(-2px);
+    }
+
+    .vip-card-footer {
+      background: rgba(200,150,93,0.08);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+
+    .vip-card-footer i {
+      color: var(--gold);
+      font-size: 1.3rem;
+    }
+
+    .vip-card-footer strong {
+      color: var(--olive);
+      font-weight: 800;
+    }
 
     .quick-contact-panel { text-align: center; background: linear-gradient(135deg,rgba(255,255,255,0.96),rgba(253,251,247,0.94)); border: 1px solid rgba(200,150,93,0.18); }
     .contact-icons { display: flex; justify-content: center; gap: 28px; margin-top: 26px; flex-wrap: wrap; }
@@ -234,11 +363,12 @@
     #products-wrapper { order: 3; }
     #cart-wrapper { order: 4; }
     #contact-wrapper { order: 5; }
-    body.vip-mode #vip-welcome-banner { display: block !important; order: 1; }
-    body.vip-mode #cart-wrapper { order: 2; margin-top: -10px; }
+    
+    body.vip-mode #vip-welcome-banner { display: block !important; order: 1; margin-top: 20px; }
+    body.vip-mode #cart-wrapper { order: 2; margin-top: 20px; }
     body.vip-mode #products-wrapper { order: 3; }
     body.vip-mode #contact-wrapper { order: 4; }
-    body.vip-mode #about-wrapper,body.vip-mode #audience-wrapper,body.vip-mode .hero,body.vip-mode .trust-strip { display: none !important; }
+    body.vip-mode #about-wrapper, body.vip-mode #audience-wrapper { display: none !important; }
 
     /* ════ MOBILE APP ════ */
     .mobile-app-overlay { display: none; }
@@ -922,8 +1052,13 @@
     <button class="mobile-header-login show" id="mobHeaderLoginBtn" onclick="openRegisterModal()" aria-label="הרשמה">
       <i class="fas fa-user"></i>
     </button>
-    <a class="logo" href="#">משה <span>קילופים</span></a>
+        <div class="header-user-avatar" id="headerAvatar" style="display: none;"></div>
+    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+      <a class="logo" href="#">משה <span>קילופים</span></a>
+      <span id="headerGreeting" class="header-greeting" style="display: none;"></span>
+    </div>
   </div>
+  
   <nav>
     <a href="#about-wrapper">מי אנחנו</a>
     <a href="#products-wrapper">המוצרים שלנו</a>
@@ -962,11 +1097,21 @@
 <main>
   <div id="vip-welcome-banner">
     <div class="vip-card">
-      <div class="vip-card-header">
-        <span class="vip-card-title">שלום <span id="vipTopName"></span></span>
-        <button onclick="clearUserDetails()" style="background:none;border:none;color:var(--muted);text-decoration:underline;font-weight:600;font-family:inherit;cursor:pointer;font-size:0.95rem;">התנתק</button>
+      <div class="vip-card-main">
+        <div class="vip-user-info">
+          <div class="vip-avatar" id="vipAvatar">?</div>
+          <div class="vip-welcome-text">
+            <span class="vip-name" id="vipTopName"></span>
+          </div>
+        </div>
+        <button onclick="clearUserDetails()" class="btn-vip-logout">
+          <i class="fas fa-right-from-bracket"></i> התנתק
+        </button>
       </div>
-      <p class="vip-card-text">תוכל ללחוץ על <strong>״הזמנה חוזרת״</strong> על כל הזמנה קודמת — והמוצרים יופיעו מיד בעגלה.</p>
+      <div class="vip-card-footer">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span>לחץ על <strong>״הזמנה חוזרת״</strong> על כל הזמנה קודמת — והמוצרים יופיעו מיד בעגלה.</span>
+      </div>
     </div>
   </div>
 
@@ -1363,6 +1508,17 @@ function checkUserStatus(){
     document.body.classList.add('vip-mode');
     document.getElementById("newUserForm").style.display="none";
     document.getElementById("vipTopName").textContent=u.business||u.name;
+    document.getElementById("vipAvatar").textContent = (u.business || u.name || "?").charAt(0);
+    const headerAvatar = document.getElementById("headerAvatar");
+    if(headerAvatar) {
+        headerAvatar.textContent = (u.business || u.name || "?").charAt(0);
+        headerAvatar.style.display = "flex";
+    }
+    const headerGreeting = document.getElementById("headerGreeting");
+    if(headerGreeting) {
+        headerGreeting.textContent = "ברוך הבא, " + (u.business || u.name);
+        headerGreeting.style.display = "block";
+    }
     if(title) title.textContent="הזמנת סחורה";
     if(mainBtn) mainBtn.innerHTML='<i class="fa-brands fa-whatsapp"></i> הזמנה ב-WhatsApp';
     if(phoneBtn) phoneBtn.innerHTML='<i class="fas fa-phone"></i> הזמנה טלפונית';
@@ -1376,6 +1532,10 @@ function checkUserStatus(){
     
     renderOrderHistory();
   } else {
+    const headerGreeting = document.getElementById("headerGreeting");
+    if(headerGreeting) headerGreeting.style.display = "none";
+    const headerAvatar = document.getElementById("headerAvatar");
+    if(headerAvatar) headerAvatar.style.display = "none";
     document.body.classList.remove('vip-mode');
     document.getElementById("newUserForm").style.display="grid";
     if(title) title.textContent="עגלת הקניות";
@@ -1398,7 +1558,8 @@ function renderOrderHistory(){
   const h=getOrderHistory();
   if(!h.length){ if(panel) panel.style.display="none"; return; }
   if(panel) panel.style.display="block";
-  if(list) list.innerHTML=h.map((e,i)=>{
+  // ההגבלה מתבצעת כאן באמצעות h.slice(0, 2)
+  if(list) list.innerHTML=h.slice(0, 2).map((e,i)=>{
     const total=e.items.reduce((s,x)=>s+x.qty,0);
     const names=e.items.slice(0,3).map(x=>x.name).join(", ")+(e.items.length>3?` ועוד ${e.items.length-3}`:"");
     return `<div class="order-history-item">
@@ -1646,6 +1807,7 @@ function mobOrderSendMail(){ if(cart.length===0){ alert("העגלה ריקה.");
 function mobOrderHandlePhone(event){ if(cart.length===0){ event.preventDefault(); return; } const u=mobCollectUser(); if(!u){ event.preventDefault(); return; } clearAfterOrder(); showSuccess('phone'); }
 
 /* ── Mobile personal ── */
+
 function mobRefreshPersonal(){
   const saved=localStorage.getItem("mosheUserDetails");
   const h=getOrderHistory();
@@ -1673,7 +1835,7 @@ function mobRefreshPersonal(){
   const histList=document.getElementById('mobPersonalHistoryList');
   if(h.length>0&&saved){
     histPanel.style.display='block';
-    histList.innerHTML=h.map((e,i)=>`
+    histList.innerHTML=h.slice(0, 2).map((e,i)=>`
       <div class="mob-order-card">
         <div class="mob-order-head"><span class="mob-order-date"><i class="fas fa-calendar"></i> ${e.date}</span><span class="mob-order-count">${e.items.reduce((s,x)=>s+x.qty,0)} מארזים</span></div>
         <div class="mob-order-tags">${e.items.slice(0,4).map(x=>`<span class="mob-tag">${x.name}</span>`).join('')}</div>
@@ -1681,6 +1843,7 @@ function mobRefreshPersonal(){
       </div>`).join('');
   } else { histPanel.style.display='none'; }
 }
+
 function mobToggleEdit(){ const f=document.getElementById('mobEditForm'); f.classList.toggle('open'); document.getElementById('mobEditToggle').innerHTML=f.classList.contains('open')?'<i class="fas fa-times"></i> סגור עריכה':'<i class="fas fa-pen"></i> עדכון פרטים'; }
 function mobSaveEdit(){ const name=document.getElementById('mobEName').value.trim(); const phone=document.getElementById('mobEPhone').value.trim(); const biz=document.getElementById('mobEBiz').value.trim(); const city=document.getElementById('mobECity').value.trim(); if(!name||!phone){ alert("שם וטלפון הם שדות חובה."); return; } const u={name,phone,business:biz,city}; localStorage.setItem("mosheUserDetails",JSON.stringify(u)); mobToggleEdit(); mobRefreshPersonal(); checkUserStatus(); mobRefreshOrderScreen(); }
 
@@ -1689,7 +1852,7 @@ function mobRefreshHistory(){
   const list=document.getElementById('mobHistoryList'); if(!list) return;
   const h=getOrderHistory();
   if(!h.length){ list.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--muted);font-weight:700"><i class="fas fa-clipboard-list" style="font-size:2.5rem;color:var(--gold);display:block;margin-bottom:12px"></i>אין עדיין הזמנות</div>`; return; }
-  list.innerHTML=h.map((e,i)=>`
+  list.innerHTML=h.slice(0, 2).map((e,i)=>`
     <div class="mob-order-card">
       <div class="mob-order-head"><span class="mob-order-date"><i class="fas fa-calendar"></i> ${e.date}</span><span class="mob-order-count">${e.items.reduce((s,x)=>s+x.qty,0)} מארזים</span></div>
       <div class="mob-order-tags">${e.items.map(x=>`<span class="mob-tag">${x.name}</span>`).join('')}</div>
@@ -1796,15 +1959,7 @@ window.addEventListener('load', () => {
 
 // ═══ ניהול התקנת אפליקציה ═══
 
-// משתנה ששומר את חלונית ההתקנה הרשמית של אנדרואיד
-let deferredPrompt;
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  // מונע מהחלונית המקורית לקפוץ לבד
-  e.preventDefault();
-  // שומר את האירוע להפעלה בלחיצת כפתור
-  deferredPrompt = e;
-});
 
 // הפונקציה שמופעלת בלחיצה על כפתור ההתקנה באזור האישי
 async function handleInstallClick() {
