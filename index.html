@@ -55,9 +55,31 @@
       margin-top: 1px;
     }
 
-    nav { display: flex; align-items: center; gap: 26px; font-weight: 700; color: var(--olive); }
-    nav { display: flex; align-items: center; gap: 26px; font-weight: 700; color: var(--olive); }
+   nav { display: flex; align-items: center; gap: 26px; font-weight: 700; color: var(--olive); }
     nav a:hover { color: var(--gold); }
+    
+    /* העיצוב החדש של כפתור ההתקנה */
+    .nav-install-btn {
+      background: rgba(200,150,93,0.15);
+      color: var(--olive) !important;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(200,150,93,0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.25s;
+      font-size: 1.05rem;
+    }
+    .nav-install-btn:hover {
+      background: var(--gold);
+      color: #171717 !important;
+      transform: translateY(-2px);
+    }
+    body.is-pwa .hide-in-pwa {
+      display: none !important;
+    }
+    
     .cart-container { cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--olive); color: white; padding: 10px 20px; border-radius: 999px; font-weight: 700; border: none; transition: 0.25s; white-space: nowrap; font-family: inherit; font-size: 1rem; }
     .cart-container:hover { background: var(--olive-light); transform: translateY(-2px); }
     .hamburger { display: none; background: none; border: none; font-size: 1.8rem; color: var(--olive); cursor: pointer; padding: 5px; }
@@ -65,7 +87,6 @@
     .mobile-menu.open { transform: translateY(0); display: flex; }
     .mobile-menu a { font-family: var(--font-heading); font-size: 2rem; color: var(--olive); font-weight: 700; }
     .close-menu { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 3rem; color: var(--olive); cursor: pointer; }
-
     .hero { position: relative; min-height: 86vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background-image: url('opening.png'); background-size: cover; background-position: center; background-attachment: fixed; background-color: var(--olive); padding: 120px 20px; }
     .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.65)); }
     .hero-content { position: relative; max-width: 980px; z-index: 1; }
@@ -1107,6 +1128,7 @@ button,
   <a href="#products-wrapper" onclick="toggleMenu()">המוצרים שלנו</a>
   <a href="#cart-wrapper" onclick="toggleMenu()">סל הזמנות</a>
   <a href="#contact-wrapper" onclick="toggleMenu()">יצירת קשר</a>
+  <a href="#" onclick="toggleMenu(); handleInstallClick(); return false;" class="hide-in-pwa nav-install-btn" style="font-size: 1.5rem; padding: 12px 24px;"><i class="fas fa-mobile-screen-button"></i> שמור למסך הבית</a>
   <a href="#" onclick="toggleMenu(); openRegisterModal(); return false;" id="mobMenuLoginBtn" style="color: var(--gold);">התחברות / הרשמה</a>
 </div>
 
@@ -1146,12 +1168,8 @@ button,
         <i class="fas fa-user-plus"></i> התחברות / הרשמה
       </button>
       <a class="btn btn-primary" href="#products-wrapper"><i class="fa-solid fa-list"></i> לצפייה בקטלוג</a>
-      <button class="btn btn-secondary hide-in-pwa" onclick="handleInstallClick()" style="background: rgba(200,150,93,0.85); color: #171717; border: none; font-weight: 900;">
-        <i class="fas fa-download"></i> הורד אפליקציה
-      </button>
       <a class="btn btn-secondary" href="#cart-wrapper"><i class="fa-solid fa-cart-shopping"></i> לעגלת הקניות</a>
     </div>
-  </div>
 </section>
 
 <section class="trust-strip reveal">
@@ -2083,6 +2101,11 @@ function mobReorderAndGo(idx){ const h=getOrderHistory(); const items=(h[idx]||{
 
 /* ── Init ── */
 window.addEventListener("load",()=>{
+
+  // הוספת מזהה ל-body כדי להעלים כפתורי התקנה מתוך האפליקציה
+  if (isRunningAsPWA()) {
+      document.body.classList.add('is-pwa');
+  }
 
   // הסתרת מסך הטעינה (בלי למחוק אותו) אלא אם אנחנו בתהליך הרשמה ראשוני
   setTimeout(() => {
