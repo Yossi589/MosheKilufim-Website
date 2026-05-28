@@ -1948,8 +1948,8 @@ function mobRenderProducts(){
     </div>`;
   }).join('');
 }
-function mobAddProd(idx){ const p=products[idx]; if(!p) return; addToCart(p.name,1,false); mobUpdateProdCtrl(idx); }
-function mobIncProd(idx){ const p=products[idx]; if(!p) return; const ex=cart.find(i=>i.name===p.name); if(ex){ ex.qty++; saveCartToStorage(); renderCart(); updateCartBadge(); } mobUpdateProdQtyDisplay(idx); }
+function mobAddProd(idx){ const p=products[idx]; if(!p) return; addToCart(p.name,1,false); mobUpdateProdCtrl(idx); playAddAnimation(); }
+function mobIncProd(idx){ const p=products[idx]; if(!p) return; const ex=cart.find(i=>i.name===p.name); if(ex){ ex.qty++; saveCartToStorage(); renderCart(); updateCartBadge(); playAddAnimation(); } mobUpdateProdQtyDisplay(idx); }
 function mobDecProd(idx){ const p=products[idx]; if(!p) return; const ex=cart.find(i=>i.name===p.name); if(!ex) return; ex.qty--; if(ex.qty<=0){ cart.splice(cart.indexOf(ex),1); mobUpdateProdCtrl(idx); } else { mobUpdateProdQtyDisplay(idx); } saveCartToStorage(); renderCart(); updateCartBadge(); mobRefreshOrderScreen(); }
 function mobUpdateProdQtyDisplay(idx){ const p=products[idx]; if(!p) return; const ci=cart.find(i=>i.name===p.name); const qEl=document.getElementById(`mob-qty-${idx}`); if(qEl&&ci) qEl.textContent=ci.qty; }
 function mobUpdateProdCtrl(idx){ const p=products[idx]; if(!p) return; const ci=cart.find(i=>i.name===p.name); const wrap=document.getElementById(`mob-ctrl-wrap-${idx}`); if(!wrap) return; if(ci){ wrap.innerHTML=`<div class="mob-qty-ctrl" id="mob-ctrl-${idx}"><button onclick="mobDecProd(${idx})">−</button><strong id="mob-qty-${idx}">${ci.qty}</strong><button onclick="mobIncProd(${idx})">+</button></div>`; } else { wrap.innerHTML=`<button class="mob-add-btn" id="mob-ctrl-${idx}" onclick="mobAddProd(${idx})"><i class="fas fa-plus"></i></button>`; } updateCartBadge(); mobRefreshOrderScreen(); }
@@ -2118,38 +2118,39 @@ function playAddAnimation() {
     msg.classList.add('run-anim');
   }
   
-  // 2. אנימציה לעגלה למעלה
-  // אנחנו תופסים את העגלה לפי הקלאס שלה
-  const topCart = document.querySelector('.cart-container'); 
-  if(topCart) {
-    topCart.classList.remove('cart-wiggle');
-    void topCart.offsetWidth;
-    topCart.classList.add('cart-wiggle');
-    setTimeout(() => topCart.classList.remove('cart-wiggle'), 400);
-  }
+  // 2. אנימציה לעגלה למעלה (מותאם למובייל ולדסקטופ)
+  const topCartMobile = document.getElementById('appCartBadge');
+  const topCartDesktop = document.querySelector('.cart-container');
+  
+  [topCartMobile, topCartDesktop].forEach(cartEl => {
+    if(cartEl) {
+      cartEl.classList.remove('cart-wiggle');
+      void cartEl.offsetWidth;
+      cartEl.classList.add('cart-wiggle');
+      setTimeout(() => cartEl.classList.remove('cart-wiggle'), 400);
+    }
+  });
 
-  // 3. עדכון כפתור ההזמנה למטה (כדי שישתנה ל"סיכום הזמנה")
+  // 3. עדכון כפתור ההזמנה למטה
   updateOrderButtonState();
 }
 
-// פונקציה חדשה: בודקת אם יש מוצרים, ומשנה את הכפתור בהתאם
 function updateOrderButtonState() {
-  // חפש את הכפתור האמצעי בתפריט המובייל - בהנחה שה-ID שלו הוא navTabCart
-  // אם קראת לו אחרת, שנה את השם פה:
-  const navOrderBtn = document.getElementById('navTabCart'); 
+  const navOrderBtn = document.getElementById('navFabWrap'); 
   if(!navOrderBtn) return;
 
-  // בודקים אם יש מוצרים בעגלה
   const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+  const fabIcon = document.querySelector('#navFabWrap .nav-fab');
+  const fabLabel = document.querySelector('#navFabWrap .nav-fab-label');
 
   if(totalItems > 0) {
-    navOrderBtn.classList.add('btn-has-items');
-    // משנים את הטקסט והאייקון לסיכום הזמנה
-    navOrderBtn.innerHTML = '<i class="fa-solid fa-cart-shopping"></i><br><span style="font-size:0.75rem; font-family:var(--font-heading);">סיכום הזמנה</span>';
+    navOrderBtn.classList.add('nav-pop-active', 'active');
+    if(fabIcon) fabIcon.innerHTML = '<i class="fa-solid fa-cart-shopping"></i>';
+    if(fabLabel) fabLabel.textContent = 'סיכום הזמנה';
   } else {
-    navOrderBtn.classList.remove('btn-has-items');
-    // מחזירים למצב הרגיל (הפלוס)
-    navOrderBtn.innerHTML = '<i class="fas fa-plus"></i>';
+    navOrderBtn.classList.remove('nav-pop-active', 'active');
+    if(fabIcon) fabIcon.innerHTML = '<i class="fas fa-plus"></i>';
+    if(fabLabel) fabLabel.textContent = 'הזמנה';
   }
 }
 
