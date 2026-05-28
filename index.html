@@ -383,6 +383,8 @@
     body.mobile-app-mode main,
     body.mobile-app-mode .floating-contact,
     body.mobile-app-mode #mobileCartBar { display: none !important; }
+    body.mobile-app-mode .hide-in-pwa { display: none !important; }
+    
 
       .mobile-app-overlay {
         display: flex; flex-direction: column; position: fixed; inset: 0;
@@ -1139,11 +1141,14 @@ button,
     <div class="hero-badge"><i class="fa-solid fa-truck-fast"></i> אספקה יומית למטבחים מוסדיים</div>
     <h1>טרי, נקי<br><span>מוכן לבישול</span></h1>
     <p>ירקות טריים קלופים, שטופים וחתוכים — מוכנים לשימוש, באריזה מסודרת ולפי דרישת הלקוח.</p>
-    <div class="hero-actions">
-      <button class="btn btn-primary" onclick="openRegisterModal()" id="heroLoginBtn" style="background: var(--white); color: var(--olive); box-shadow: 0 4px 15px rgba(255,255,255,0.2);">
+ <div class="hero-actions">
+      <button class="btn btn-primary hide-in-pwa" onclick="openRegisterModal()" id="heroLoginBtn" style="background: var(--white); color: var(--olive); box-shadow: 0 4px 15px rgba(255,255,255,0.2);">
         <i class="fas fa-user-plus"></i> התחברות / הרשמה
       </button>
       <a class="btn btn-primary" href="#products-wrapper"><i class="fa-solid fa-list"></i> לצפייה בקטלוג</a>
+      <button class="btn btn-secondary hide-in-pwa" onclick="handleInstallClick()" style="background: rgba(200,150,93,0.85); color: #171717; border: none; font-weight: 900;">
+        <i class="fas fa-download"></i> הורד אפליקציה
+      </button>
       <a class="btn btn-secondary" href="#cart-wrapper"><i class="fa-solid fa-cart-shopping"></i> לעגלת הקניות</a>
     </div>
   </div>
