@@ -858,6 +858,44 @@ button,
     display: inline-block;
     object-fit: contain;
   }
+/* אנימציית הבועה "נוסף להזמנה" שצפה למעלה ונעלמת */
+    @keyframes floatUpFade {
+      0% { opacity: 0; transform: translate(-50%, 20px); }
+      15% { opacity: 1; transform: translate(-50%, 0); }
+      85% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -20px); }
+    }
+    
+    .floating-add-msg {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--olive);
+      color: var(--gold);
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      z-index: 9999;
+      pointer-events: none;
+      display: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    }
+    
+    .floating-add-msg.run-anim {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: floatUpFade 1.5s forwards;
+    }
+
+    /* קלאס להקפצת כפתור הניווט */
+    .nav-pop-active {
+      transform: scale(1.3) !important;
+      color: var(--gold) !important;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
 
   </style>
 </head>
@@ -931,9 +969,8 @@ button,
       <div class="mob-products-list" id="mobProductsList"></div>
     </div>
 
-  <!-- SCREEN 2: Personal -->
-    <div class="app-screen" id="appScreenPersonal" data-title="אזור אישי">
-      <!-- חלק עליון: ברכה + גלגל שיניים -->
+ <!-- SCREEN 2: personal erea -->
+ <div class="app-screen" id="appScreenPersonal" data-title="אזור אישי">
       <div style="display:flex; justify-content:space-between; align-items:center; padding: 20px 16px 10px;">
         <div>
           <div class="mob-screen-title" id="mobGreetingTitle" style="padding:0; margin-bottom:4px;">שלום</div>
@@ -946,7 +983,6 @@ button,
 
       <div class="mob-section-pad">
         
-        <!-- חלונית הגדרות (מוסתרת כברירת מחדל, נפתחת בגלגל השיניים) -->
         <div id="mobSettingsPanel" style="display:none; background:#fff; border-radius:22px; padding:18px; margin-bottom:16px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 4px 14px rgba(0,0,0,0.06);">
           <h4 style="margin:0 0 14px; font-family:var(--font-heading); color:var(--olive); font-size:1.1rem;"><i class="fas fa-user-edit"></i> עדכון פרטים</h4>
           <div class="mob-edit-form open" style="margin-bottom:16px;">
@@ -961,17 +997,25 @@ button,
           </button>
         </div>
 
-        <!-- אזור "המוצרים שלי" (מומלצים) -->
         <div id="mobMyProductsSection" style="margin-bottom: 20px; display:none;">
           <div class="mob-section-label" style="font-family:var(--font-heading); font-size:1.1rem; color:var(--olive); margin-bottom:12px; font-weight:700;">
             <i class="fas fa-star" style="color:var(--gold);"></i> המוצרים שלי
           </div>
           <div id="mobMyProductsList" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
-            <!-- יאוכלס אוטומטית ע"י ג'אווה-סקריפט -->
-          </div>
+            </div>
         </div>
 
-        <!-- היסטוריית הזמנות -->
+        <div id="mobNewUserRecommendations" style="display:none; margin-bottom: 20px;">
+          <div class="mob-section-label" style="font-family:var(--font-heading); font-size:1.1rem; color:var(--olive); margin-bottom:12px; font-weight:700;">
+            <i class="fas fa-fire" style="color:var(--gold);"></i> המלצות השף
+          </div>
+          <div style="background:rgba(200,150,93,0.08); border-radius:18px; padding:16px; margin-bottom:12px; font-size:0.95rem; color:var(--olive); border:1px dashed rgba(200,150,93,0.3);">
+            עדיין לא ביצעת הזמנות. הנה כמה מהמוצרים הכי פופולריים שלנו כדי להתחיל:
+          </div>
+          <div id="mobNewUserList" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
+            </div>
+        </div>
+
         <div id="mobPersonalHistory" style="display:none" class="mob-personal-history-section">
           <div class="mob-section-label" style="font-family:var(--font-heading); font-size:1.1rem; color:var(--olive); margin-bottom:12px; font-weight:700;">
             <i class="fas fa-clock-rotate-left"></i> הזמנות אחרונות
@@ -981,7 +1025,6 @@ button,
 
       </div>
     </div>
-
     <!-- SCREEN 3: Order (FAB) — all-in-one -->
     <div class="app-screen" id="appScreenOrder" data-title="הזמנה">
       <div class="mob-screen-title">הזמנה חדשה</div>
@@ -1163,6 +1206,7 @@ button,
     <div class="hero-badge"><i class="fa-solid fa-truck-fast"></i> אספקה יומית למטבחים מוסדיים</div>
     <h1>טרי, נקי<br><span>מוכן לבישול</span></h1>
     <p>ירקות טריים קלופים, שטופים וחתוכים — מוכנים לשימוש, באריזה מסודרת ולפי דרישת הלקוח.</p>
+    
  <div class="hero-actions">
       <button class="btn btn-primary hide-in-pwa" onclick="openRegisterModal()" id="heroLoginBtn" style="background: var(--white); color: var(--olive); box-shadow: 0 4px 15px rgba(255,255,255,0.2);">
         <i class="fas fa-user-plus"></i> התחברות / הרשמה
@@ -1170,7 +1214,10 @@ button,
       <a class="btn btn-primary" href="#products-wrapper"><i class="fa-solid fa-list"></i> לצפייה בקטלוג</a>
       <a class="btn btn-secondary" href="#cart-wrapper"><i class="fa-solid fa-cart-shopping"></i> לעגלת הקניות</a>
     </div>
+
 </section>
+
+
 
 <section class="trust-strip reveal">
   <div class="trust-item"><img src="sherit.png" alt="לוגו כשרות שארית ישראל" class="kashrut-logo"><strong>כשרות מקומית ושארית ישראל</strong><span>מענה למטבחים מוסדיים</span></div>
@@ -1401,6 +1448,10 @@ button,
 </div>
 
 <footer><strong>משה קילופים</strong><br>ירקות קלופים וחתוכים למטבחים מוסדיים · © 2026 כל הזכויות שמורות</footer>
+
+<div id="floatingAddMsg" class="floating-add-msg">
+      <i class="fas fa-check"></i> נוסף להזמנה
+    </div>
 
 <script>
 /* ══ CONSTANTS ══ */
@@ -2032,39 +2083,40 @@ function mobRefreshPersonal(){
   }
 }
 
+function playAddAnimation() {
+  // 1. הפעלת הבועה הצפה "נוסף להזמנה"
+  const msg = document.getElementById('floatingAddMsg');
+  if(msg) {
+    msg.classList.remove('run-anim');
+    void msg.offsetWidth; // מכריח את הדפדפן לאפס את האנימציה
+    msg.classList.add('run-anim');
+  }
+  
+  // 2. הקפצת הפלוס של ההזמנה בתפריט התחתון
+  // שים לב: אם ה-ID של כפתור ההזמנה בתפריט התחתון שלך שונה, עדכן אותו כאן (למשל 'navTabOrder' במקום 'navTabCart')
+  const navOrderBtn = document.getElementById('navTabCart') || document.getElementById('navTabOrder'); 
+  if(navOrderBtn) {
+    navOrderBtn.classList.add('nav-pop-active');
+    setTimeout(() => {
+      navOrderBtn.classList.remove('nav-pop-active');
+    }, 350); // הכפתור יחזור לעצמו אחרי שליש שנייה
+  }
+}
+
 // הפונקציה שלומדת מה הלקוח מזמין הכי הרבה!
+// הפונקציה שלומדת מה הלקוח מזמין או מציגה מומלצים ללקוח חדש
 function renderMobMyProducts(history) {
-    const sec = document.getElementById('mobMyProductsSection');
-    const list = document.getElementById('mobMyProductsList');
+    const myProdSec = document.getElementById('mobMyProductsSection');
+    const myProdList = document.getElementById('mobMyProductsList');
+    const newSec = document.getElementById('mobNewUserRecommendations');
+    const newList = document.getElementById('mobNewUserList');
     
-    if(!history || history.length === 0) {
-        sec.style.display = 'none';
-        return;
-    }
-
-    // ספירת כמויות מכל ההיסטוריה
-    const counts = {};
-    history.forEach(order => {
-        order.items.forEach(item => {
-            counts[item.name] = (counts[item.name] || 0) + item.qty;
-        });
-    });
-
-    // מיון ובחירת 5 המוצרים המובילים
-    const topProducts = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 5);
-    
-    if(topProducts.length === 0) {
-        sec.style.display = 'none';
-        return;
-    }
-
-    sec.style.display = 'block';
-    list.innerHTML = topProducts.map(name => {
+    // פונקציית עזר ליצירת כרטיסיית מוצר (כולל חיבור לאנימציה!)
+    const createProductCard = (name) => {
         const p = products.find(prod => prod.name === name);
         if(!p) return '';
         const idx = products.indexOf(p);
         const ci = cart.find(i => i.name === name);
-        
         return `
         <div style="min-width:115px; background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 6px 16px rgba(0,0,0,0.05); text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
@@ -2073,14 +2125,52 @@ function renderMobMyProducts(history) {
             </div>
             <div style="margin-top:10px;">
                 ${ci 
-                    ? `<div class="mob-qty-ctrl" style="justify-content:center; border:1.5px solid var(--olive); border-radius:10px;"><button style="width:28px;height:28px;font-size:1rem;background:var(--olive);color:white;border:none;" onclick="mobDecProd(${idx}); mobRefreshPersonal();">−</button><strong style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--olive);">${ci.qty}</strong><button style="width:28px;height:28px;font-size:1rem;background:var(--olive);color:white;border:none;" onclick="mobIncProd(${idx}); mobRefreshPersonal();">+</button></div>` 
-                    : `<button class="mob-add-btn" style="width:100%; height:32px; border-radius:10px; font-size:0.95rem; font-family:var(--font-heading);" onclick="mobAddProd(${idx}); mobRefreshPersonal();">הוסף</button>`
+                    ? `<div class="mob-qty-ctrl" style="justify-content:center; border:1.5px solid var(--olive); border-radius:10px;">
+                        <button style="width:28px;height:28px;font-size:1rem;background:var(--olive);color:white;border:none;" onclick="mobDecProd(${idx}); mobRefreshPersonal();">−</button>
+                        <strong style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--olive);">${ci.qty}</strong>
+                        <button style="width:28px;height:28px;font-size:1rem;background:var(--olive);color:white;border:none;" onclick="mobIncProd(${idx}); mobRefreshPersonal(); playAddAnimation();">+</button>
+                       </div>` 
+                    : `<button class="mob-add-btn" style="width:100%; height:32px; border-radius:10px; font-size:0.95rem; font-family:var(--font-heading);" onclick="mobAddProd(${idx}); mobRefreshPersonal(); playAddAnimation();">הוסף</button>`
                 }
             </div>
         </div>`;
-    }).join('');
-}
+    };
 
+    // מצב 1: אם אין היסטוריה - מציגים את "המלצות השף" (לקוח חדש)
+    if(!history || history.length === 0) {
+        if(myProdSec) myProdSec.style.display = 'none';
+        if(newSec) {
+            newSec.style.display = 'block';
+            // בוחרים מוצרי דגל פופולריים שיוצגו ללקוח החדש
+            const defaultProducts = ['תפוח אדמה קלוף (שלם)', 'בצל קלוף (שלם)', 'בטטה קלופה', 'שום כתוש טרי'];
+            if(newList) newList.innerHTML = defaultProducts.map(name => createProductCard(name)).join('');
+        }
+        return;
+    }
+
+    // מצב 2: אם יש היסטוריה - מחשבים את "המוצרים שלי"
+    const counts = {};
+    history.forEach(order => {
+        order.items.forEach(item => {
+            counts[item.name] = (counts[item.name] || 0) + item.qty;
+        });
+    });
+
+    const topProducts = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 5);
+    
+    if(topProducts.length === 0) {
+        if(myProdSec) myProdSec.style.display = 'none';
+        if(newSec) newSec.style.display = 'none';
+        return;
+    }
+
+    // מציגים את המוצרים המותאמים אישית ומסתירים את המלצות השף הכלליות
+    if(newSec) newSec.style.display = 'none';
+    if(myProdSec) {
+        myProdSec.style.display = 'block';
+        if(myProdList) myProdList.innerHTML = topProducts.map(name => createProductCard(name)).join('');
+    }
+}
 function mobToggleEdit(){ const f=document.getElementById('mobEditForm'); f.classList.toggle('open'); document.getElementById('mobEditToggle').innerHTML=f.classList.contains('open')?'<i class="fas fa-times"></i> סגור עריכה':'<i class="fas fa-pen"></i> עדכון פרטים'; }
 function mobSaveEdit(){ const name=document.getElementById('mobEName').value.trim(); const phone=document.getElementById('mobEPhone').value.trim(); const biz=document.getElementById('mobEBiz').value.trim(); const city=document.getElementById('mobECity').value.trim(); if(!name||!phone){ alert("שם וטלפון הם שדות חובה."); return; } const u={name,phone,business:biz,city}; localStorage.setItem("mosheUserDetails",JSON.stringify(u)); mobToggleEdit(); mobRefreshPersonal(); checkUserStatus(); mobRefreshOrderScreen(); }
 
