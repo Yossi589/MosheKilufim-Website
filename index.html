@@ -849,11 +849,27 @@ button,
 </div>
 
 <script>
-  // בדיקה מיידית: אם המסך רחב (מחשב) או שאין משתמש שמור (לקוח חדש) - נעלים את הפתיח מיד
-  if (!(window.innerWidth < 768 && localStorage.getItem("mosheUserDetails"))) {
-    document.getElementById('splashScreen').style.display = 'none';
+  // פונקציה לזיהוי האם אנחנו בתוך האפליקציה המותקנת
+  function isRunningAsPWA() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+
+  const hasUser = localStorage.getItem("mosheUserDetails");
+  const isMobile = window.innerWidth < 768;
+
+  if (isRunningAsPWA() && !hasUser) {
+      // פעם ראשונה באפליקציה! 
+      // נסתיר את מסך הטעינה כדי לא להפריע, ונפתח את מסך ההרשמה
+      document.getElementById('splashScreen').style.display = 'none';
+      window.addEventListener('DOMContentLoaded', () => {
+          openRegisterModal();
+      });
+  } else if (!(isMobile && hasUser)) {
+      // גלישה רגילה מדפדפן (או בלי משתמש מחוץ לאפליקציה) - אין מסך פתיחה
+      document.getElementById('splashScreen').style.display = 'none';
   }
 </script>
+
 <!-- ═══ MOBILE APP OVERLAY ═══ -->
 <div class="mobile-app-overlay" id="mobileApp">
   <div class="app-topbar" id="appTopbar">
@@ -914,6 +930,7 @@ button,
             <i class="fas fa-right-from-bracket"></i> התנתק
           </button>
           <button 
+            id="mobInstallBtn"
             onclick="handleInstallClick()" 
             style="background-color: var(--olive); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 15px;"
           >
@@ -1438,7 +1455,30 @@ function submitRegistration() {
   if (typeof mobRefreshPersonal === 'function') mobRefreshPersonal();
   if (typeof mobRefreshOrderScreen === 'function') mobRefreshOrderScreen();
 
-  showSuccess('register');
+  // הלוגיקה החדשה: מפעילים את מסך הטעינה בתוך האפליקציה
+  if (isRunningAsPWA()) {
+      // מעבירים למצב אפליקציה מאחורי הקלעים
+      document.body.classList.add('mobile-app-mode');
+      document.getElementById('mobileApp').style.display = 'flex';
+      appSwitchMainTab('appScreenPersonal', 'navTabPersonal');
+      
+      // מקפיצים את מסך הטעינה ("מכינים את המטבח...")
+      const splash = document.getElementById('splashScreen');
+      splash.style.display = 'flex';
+      splash.classList.remove('fade-out');
+      
+      // מעלימים אותו אחרי 2 שניות ומציגים את הודעת ה"ברוך הבא!"
+      setTimeout(() => {
+          splash.classList.add('fade-out');
+          setTimeout(() => {
+              splash.style.display = 'none';
+              showSuccess('register');
+          }, 600);
+      }, 2200);
+  } else {
+      // אם זה בוצע סתם מהדפדפן
+      showSuccess('register');
+  }
 }
 
 /* ── SHARED CART ── */
@@ -1895,6 +1935,12 @@ function mobRefreshPersonal(){
         <button class="mob-reorder-btn" onclick="mobReorderAndGo(${i})"><i class="fas fa-rotate-left"></i> הזמנה חוזרת</button>
       </div>`).join('');
   } else { histPanel.style.display='none'; }
+
+  // הסתרת כפתור "התקן אפליקציה" אם אנחנו כבר בתוך האפליקציה
+  const installBtn = document.getElementById('mobInstallBtn');
+  if (installBtn && isRunningAsPWA()) {
+      installBtn.style.display = 'none';
+  }
 }
 
 function mobToggleEdit(){ const f=document.getElementById('mobEditForm'); f.classList.toggle('open'); document.getElementById('mobEditToggle').innerHTML=f.classList.contains('open')?'<i class="fas fa-times"></i> סגור עריכה':'<i class="fas fa-pen"></i> עדכון פרטים'; }
@@ -1914,18 +1960,19 @@ function mobRefreshHistory(){
 }
 function mobReorderAndGo(idx){ const h=getOrderHistory(); const items=(h[idx]||{items:[]}).items; cart.length=0; items.forEach(i=>cart.push(i)); saveCartToStorage(); renderCart(); mobRenderProducts(); mobRefreshOrderScreen(); navStack=[]; appSwitchMainTab('appScreenOrder','navFabWrap'); }
 
-/* ── Init ── */
+
 /* ── Init ── */
 window.addEventListener("load",()=>{
-  // הסרת מסך הטעינה אחרי 2.2 שניות
+
+  // הסתרת מסך הטעינה (בלי למחוק אותו) אלא אם אנחנו בתהליך הרשמה ראשוני
   setTimeout(() => {
     const splash = document.getElementById('splashScreen');
-    if (splash) {
+    if (splash && splash.style.display !== 'none') {
       splash.classList.add('fade-out');
-      // הסרה מוחלטת מה-DOM כדי לא להפריע ללחיצות באתר
-      setTimeout(() => splash.remove(), 600);
+      setTimeout(() => splash.style.display = 'none', 600); 
     }
   }, 2200);
+  
   loadCartFromStorage();
   const isMobile = window.innerWidth < 768;
   const isVip = !!localStorage.getItem("mosheUserDetails"); // בודק האם יש פרטי משתמש שמורים
