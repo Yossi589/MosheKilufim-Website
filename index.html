@@ -887,6 +887,14 @@ button,
 
     <!-- SCREEN 1: Products -->
     <div class="app-screen active" id="appScreenProducts" data-title="מוצרים">
+      <!-- שורת חיפוש חדשה -->
+      <div style="padding: 12px 16px 0;">
+        <div style="position:relative;">
+          <i class="fas fa-search" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--muted);"></i>
+          <input type="text" id="mobAppSearch" placeholder="חיפוש מוצר... (למשל: בטטה, קצוץ)" oninput="mobOnSearch(this.value)" style="width:100%; padding:12px 40px 12px 12px; border-radius:14px; border:1.5px solid rgba(0,0,0,0.12); font-family:var(--font-body); font-size:16px; outline:none; transition:0.3s; background:#fff;">
+        </div>
+      </div>
+      
       <div class="mob-filter-strip" id="mobFilterStrip">
         <button class="mob-chip active" onclick="mobFilter('all',this)">הכול</button>
         <button class="mob-chip" onclick="mobFilter('שום',this)">שום</button>
@@ -900,47 +908,54 @@ button,
       <div class="mob-products-list" id="mobProductsList"></div>
     </div>
 
-    <!-- SCREEN 2: Personal -->
+  <!-- SCREEN 2: Personal -->
     <div class="app-screen" id="appScreenPersonal" data-title="אזור אישי">
-      <div class="mob-screen-title">האזור האישי שלך</div>
-      <div class="mob-screen-sub">פרטי העסק, הזמנות אחרונות ועדכון פרטים</div>
-      <div class="mob-section-pad">
-        <div class="mob-user-card" id="mobUserCard">
-          <div class="mob-avatar-row">
-            <div class="mob-avatar" id="mobAvatar">?</div>
-            <div>
-              <div class="mob-user-name" id="mobUserName">לא מחובר</div>
-              <div class="mob-user-sub" id="mobUserSub">הזן פרטים בעגלת ההזמנה</div>
-            </div>
-          </div>
-          <div id="mobUserInfoRows"></div>
+      <!-- חלק עליון: ברכה + גלגל שיניים -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding: 20px 16px 10px;">
+        <div>
+          <div class="mob-screen-title" id="mobGreetingTitle" style="padding:0; margin-bottom:4px;">שלום</div>
+          <div class="mob-screen-sub" id="mobGreetingSub" style="padding:0;">איזה כיף שחזרת אלינו</div>
         </div>
-        <button class="mob-edit-btn" id="mobEditToggle" onclick="mobToggleEdit()">
-          <i class="fas fa-pen"></i> עדכון פרטים
+        <button onclick="mobToggleSettings()" style="background:rgba(61,70,22,0.1); border:none; width:44px; height:44px; border-radius:50%; font-size:1.3rem; color:var(--olive); cursor:pointer; transition:0.2s;">
+          <i class="fas fa-cog"></i>
         </button>
-        <div class="mob-edit-form" id="mobEditForm">
-          <input id="mobEName" placeholder="שם מלא (חובה)">
-          <input id="mobEPhone" placeholder="טלפון (חובה)" inputmode="tel">
-          <input id="mobEBiz" placeholder="שם עסק / מוסד">
-          <input id="mobECity" placeholder="עיר אספקה">
-          <button class="mob-save-btn" onclick="mobSaveEdit()">שמור שינויים</button>
-        </div>
-        <div style="padding-bottom:16px">
+      </div>
+
+      <div class="mob-section-pad">
+        
+        <!-- חלונית הגדרות (מוסתרת כברירת מחדל, נפתחת בגלגל השיניים) -->
+        <div id="mobSettingsPanel" style="display:none; background:#fff; border-radius:22px; padding:18px; margin-bottom:16px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 4px 14px rgba(0,0,0,0.06);">
+          <h4 style="margin:0 0 14px; font-family:var(--font-heading); color:var(--olive); font-size:1.1rem;"><i class="fas fa-user-edit"></i> עדכון פרטים</h4>
+          <div class="mob-edit-form open" style="margin-bottom:16px;">
+            <input id="mobEName" placeholder="שם מלא (חובה)">
+            <input id="mobEPhone" placeholder="טלפון (חובה)" inputmode="tel">
+            <input id="mobEBiz" placeholder="שם עסק / מוסד">
+            <input id="mobECity" placeholder="עיר אספקה">
+            <button class="mob-save-btn" onclick="mobSaveEdit()">שמור שינויים</button>
+          </div>
           <button class="mob-logout-btn" onclick="clearUserDetails()">
             <i class="fas fa-right-from-bracket"></i> התנתק
           </button>
-          <button 
-            id="mobInstallBtn"
-            onclick="handleInstallClick()" 
-            style="background-color: var(--olive); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 15px;"
-          >
-            <i class="fas fa-download"></i> התקן אפליקציה
-          </button>
         </div>
+
+        <!-- אזור "המוצרים שלי" (מומלצים) -->
+        <div id="mobMyProductsSection" style="margin-bottom: 20px; display:none;">
+          <div class="mob-section-label" style="font-family:var(--font-heading); font-size:1.1rem; color:var(--olive); margin-bottom:12px; font-weight:700;">
+            <i class="fas fa-star" style="color:var(--gold);"></i> המוצרים שלי
+          </div>
+          <div id="mobMyProductsList" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
+            <!-- יאוכלס אוטומטית ע"י ג'אווה-סקריפט -->
+          </div>
+        </div>
+
+        <!-- היסטוריית הזמנות -->
         <div id="mobPersonalHistory" style="display:none" class="mob-personal-history-section">
-          <div class="mob-section-label"><i class="fas fa-clock-rotate-left"></i> הזמנות אחרונות</div>
+          <div class="mob-section-label" style="font-family:var(--font-heading); font-size:1.1rem; color:var(--olive); margin-bottom:12px; font-weight:700;">
+            <i class="fas fa-clock-rotate-left"></i> הזמנות אחרונות
+          </div>
           <div id="mobPersonalHistoryList"></div>
         </div>
+
       </div>
     </div>
 
@@ -1046,9 +1061,17 @@ button,
           <div><div class="mob-contact-title">אימייל</div><div class="mob-contact-sub">Mk.orders3@gmail.com</div></div>
           <i class="fas fa-chevron-left" style="color:var(--muted);margin-right:auto"></i>
         </a>
-        <div class="mob-hours-box">
-          <p>שעות פעילות</p>
-          <strong>ראשון–חמישי, 07:00–17:00</strong>
+       <div class="mob-hours-box" style="text-align: right;">
+          <p style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px;">שעות פעילות</p>
+          <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; color: var(--olive);">
+            <span>ימים א'-ג', ה':</span><strong>08:00–16:00</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; color: var(--olive);">
+            <span>יום רביעי:</span><strong>פתוח 24 שעות</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: var(--muted);">
+            <span>שישי ושבת:</span><strong>סגור</strong>
+          </div>
         </div>
       </div>
     </div>
@@ -1460,6 +1483,7 @@ function submitRegistration() {
       // מעבירים למצב אפליקציה מאחורי הקלעים
       document.body.classList.add('mobile-app-mode');
       document.getElementById('mobileApp').style.display = 'flex';
+      mobRenderProducts();
       appSwitchMainTab('appScreenPersonal', 'navTabPersonal');
       
       // מקפיצים את מסך הטעינה ("מכינים את המטבח...")
@@ -1717,7 +1741,7 @@ function showSuccess(type){
     iconEl.className='fas fa-phone'; 
     document.getElementById("successTitle").textContent="מתקשרים אלינו!"; 
     document.getElementById("successMsg").textContent="אנחנו ממתינים לשיחתך כדי לתאם את ההזמנה."; 
-    document.getElementById("successTimeText").textContent="שעות פעילות: א-ה 7:00-17:00"; 
+    document.getElementById("successTimeText").textContent="שעות: א'-ג', ה' 08:00-16:00 | ד' 24 שעות";
   } else if(type==='register'){ 
     icon.classList.add('wa'); 
     iconEl.className='fas fa-user-check'; 
@@ -1771,16 +1795,43 @@ function updateTabHighlight(screenId){ document.querySelectorAll('.nav-tab').for
 function appSwitchMainTab(screenId, tabId){ navStack=[]; appShowScreen(screenId,false); if(screenId==='appScreenOrder') mobRefreshOrderScreen(); }
 function updateCartBadge(){ const total=cart.reduce((s,i)=>s+i.qty,0); const badge=document.getElementById('appCartBadge'); const badgeText=document.getElementById('appCartBadgeText'); if(badge){ if(total>0){ badge.style.display='flex'; badgeText.textContent=total; } else { badge.style.display='none'; } } }
 
-/* ── Mobile products ── */
+/* ── Mobile products & Search ── */
 let mobCurrentCat='all';
-function mobFilter(cat,btn){ mobCurrentCat=cat; document.querySelectorAll('.mob-chip').forEach(c=>c.classList.remove('active')); btn.classList.add('active'); mobRenderProducts(); }
+let mobSearchQuery='';
+
+function mobOnSearch(val){ 
+  mobSearchQuery = val.trim().toLowerCase();
+  mobRenderProducts(); 
+}
+
+function mobFilter(cat,btn){ 
+  mobCurrentCat=cat; 
+  mobSearchQuery=''; // איפוס החיפוש כשלוחצים על קטגוריה
+  document.getElementById('mobAppSearch').value = ''; // ניקוי שורת החיפוש
+  document.querySelectorAll('.mob-chip').forEach(c=>c.classList.remove('active')); 
+  btn.classList.add('active'); 
+  mobRenderProducts(); 
+}
+
 function mobRenderProducts(){
   const list=document.getElementById('mobProductsList'); if(!list) return;
   const h=getOrderHistory();
   const orderedNames=new Set(h.flatMap(e=>e.items.map(i=>i.name)));
   const isVip=!!localStorage.getItem("mosheUserDetails");
-  let filtered=products.filter(p=>mobCurrentCat==='all'||p.category===mobCurrentCat);
-  if(isVip) filtered.sort((a,b)=>(orderedNames.has(a.name)?0:1)-(orderedNames.has(b.name)?0:1));
+  
+  let filtered = products.filter(p => {
+    const matchCat = mobCurrentCat === 'all' || p.category === mobCurrentCat;
+    const matchSearch = !mobSearchQuery || p.name.toLowerCase().includes(mobSearchQuery) || p.category.toLowerCase().includes(mobSearchQuery);
+    return matchCat && matchSearch;
+  });
+  
+  if(isVip && !mobSearchQuery) filtered.sort((a,b)=>(orderedNames.has(a.name)?0:1)-(orderedNames.has(b.name)?0:1));
+  
+  if(filtered.length === 0) {
+      list.innerHTML = `<div style="text-align:center; margin-top:30px; color:var(--muted); font-weight:bold;">לא נמצאו מוצרים תואמים לחיפוש שלך.</div>`;
+      return;
+  }
+
   list.innerHTML=filtered.map(p=>{
     const idx=products.indexOf(p);
     const ci=cart.find(i=>i.name===p.name);
@@ -1901,29 +1952,44 @@ function mobOrderHandlePhone(event){ if(cart.length===0){ event.preventDefault()
 
 /* ── Mobile personal ── */
 
+/* ── Mobile personal & Recommended ── */
+function mobToggleSettings() {
+  const panel = document.getElementById('mobSettingsPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
 function mobRefreshPersonal(){
   const saved=localStorage.getItem("mosheUserDetails");
   const h=getOrderHistory();
   
   if(saved){
     const u=JSON.parse(saved);
-    document.getElementById('mobAvatar').textContent=(u.business||u.name||'?').charAt(0);
-    document.getElementById('mobUserName').textContent=u.business||u.name;
-    document.getElementById('mobUserSub').textContent=u.phone;
+    
+    // ברכה לפי שעה
+    const hour = new Date().getHours();
+    let greeting = "שלום";
+    if (hour >= 5 && hour < 12) greeting = "בוקר טוב";
+    else if (hour >= 12 && hour < 17) greeting = "צהריים טובים";
+    else if (hour >= 17 && hour < 21) greeting = "ערב טוב";
+    else greeting = "לילה טוב";
+    
+    // משיכת השם הפרטי בלבד
+    const firstName = u.name ? u.name.split(' ')[0] : 'שף';
+    
+    document.getElementById('mobGreetingTitle').textContent = `${greeting}, ${firstName}`;
+    document.getElementById('mobGreetingSub').textContent = u.business || 'משה קילופים איתך';
+
+    // פרטי הגדרות
     document.getElementById('mobEName').value=u.name||'';
     document.getElementById('mobEPhone').value=u.phone||'';
     document.getElementById('mobEBiz').value=u.business||'';
     document.getElementById('mobECity').value=u.city||'';
-    document.getElementById('mobUserInfoRows').innerHTML=`
-      <div class="mob-info-row"><i class="fas fa-building"></i><span>עסק</span><strong>${u.business||'-'}</strong></div>
-      <div class="mob-info-row"><i class="fas fa-map-marker-alt"></i><span>עיר</span><strong>${u.city||'-'}</strong></div>
-      <div class="mob-info-row"><i class="fas fa-calendar"></i><span>הזמנה אחרונה</span><strong>${h[0]?.date||'-'}</strong></div>`;
-  } else {
-    document.getElementById('mobAvatar').textContent='?';
-    document.getElementById('mobUserName').textContent='לא מחובר';
-    document.getElementById('mobUserSub').textContent='הזן פרטים בעגלת ההזמנה';
-    document.getElementById('mobUserInfoRows').innerHTML='';
+
+    // הפעלת אלגוריתם "המוצרים שלי"
+    renderMobMyProducts(h);
   }
+
+  // היסטוריה רגילה
   const histPanel=document.getElementById('mobPersonalHistory');
   const histList=document.getElementById('mobPersonalHistoryList');
   if(h.length>0&&saved){
@@ -1941,6 +2007,55 @@ function mobRefreshPersonal(){
   if (installBtn && isRunningAsPWA()) {
       installBtn.style.display = 'none';
   }
+}
+
+// הפונקציה שלומדת מה הלקוח מזמין הכי הרבה!
+function renderMobMyProducts(history) {
+    const sec = document.getElementById('mobMyProductsSection');
+    const list = document.getElementById('mobMyProductsList');
+    
+    if(!history || history.length === 0) {
+        sec.style.display = 'none';
+        return;
+    }
+
+    // ספירת כמויות מכל ההיסטוריה
+    const counts = {};
+    history.forEach(order => {
+        order.items.forEach(item => {
+            counts[item.name] = (counts[item.name] || 0) + item.qty;
+        });
+    });
+
+    // מיון ובחירת 5 המוצרים המובילים
+    const topProducts = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 5);
+    
+    if(topProducts.length === 0) {
+        sec.style.display = 'none';
+        return;
+    }
+
+    sec.style.display = 'block';
+    list.innerHTML = topProducts.map(name => {
+        const p = products.find(prod => prod.name === name);
+        if(!p) return '';
+        const idx = products.indexOf(p);
+        const ci = cart.find(i => i.name === name);
+        
+        return `
+        <div style="min-width:115px; background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 6px 16px rgba(0,0,0,0.05); text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <img src="${p.image}" alt="${p.name}" style="width:60px; height:60px; object-fit:cover; border-radius:12px; margin:0 auto 8px; display:block;" onerror="this.style.display='none'">
+              <div style="font-size:0.9rem; font-family:var(--font-heading); color:var(--olive); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${p.name}">${p.name}</div>
+            </div>
+            <div style="margin-top:10px;">
+                ${ci 
+                    ? `<div class="mob-qty-ctrl" style="justify-content:center; border:1.5px solid var(--olive); border-radius:10px;"><button style="width:28px;height:28px;font-size:1rem;background:var(--olive);color:white;border:none;" onclick="mobDecProd(${idx}); mobRefreshPersonal();">−</button><strong style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--olive);">${ci.qty}</strong><button style="width:28px;height:28px;font-size:1rem;background:var(--olive);color:white;border:none;" onclick="mobIncProd(${idx}); mobRefreshPersonal();">+</button></div>` 
+                    : `<button class="mob-add-btn" style="width:100%; height:32px; border-radius:10px; font-size:0.95rem; font-family:var(--font-heading);" onclick="mobAddProd(${idx}); mobRefreshPersonal();">הוסף</button>`
+                }
+            </div>
+        </div>`;
+    }).join('');
 }
 
 function mobToggleEdit(){ const f=document.getElementById('mobEditForm'); f.classList.toggle('open'); document.getElementById('mobEditToggle').innerHTML=f.classList.contains('open')?'<i class="fas fa-times"></i> סגור עריכה':'<i class="fas fa-pen"></i> עדכון פרטים'; }
