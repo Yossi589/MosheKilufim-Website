@@ -13,7 +13,32 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
   <style>
+
+    /* אנימציה לעגלה העליונה (שקשוק/קפיצה קטנה) */
+    @keyframes cartWiggle {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.25) rotate(-10deg); }
+      60% { transform: scale(1.1) rotate(10deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+    .cart-wiggle {
+      animation: cartWiggle 0.4s ease-out;
+      color: var(--gold) !important; 
+    }
+
+    /* עיצוב בולט לכפתור ההזמנה התחתון כשיש מוצרים בעגלה */
+    .btn-has-items {
+      background: var(--gold) !important;
+      color: #171717 !important;
+      transform: scale(1.08) translateY(-4px);
+      box-shadow: 0 6px 20px rgba(200,150,93,0.4);
+      font-weight: 900 !important;
+      border-radius: 16px !important;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
     :root {
       --cream: #fdfbf7; --cream-dark: #f3eadc; --olive: #3d4616; --olive-light: #536025;
       --gold: #c8965d; --dark: #1a1a1a; --muted: #666; --white: #fff;
@@ -1617,6 +1642,7 @@ function renderCart(){
     else{ bar.classList.remove("active"); document.body.classList.remove("cart-active"); }
   }
   renderCartPage();
+  updateOrderButtonState();
 }
 function renderCartPage(){
   const el=document.getElementById("cartPageItems");
@@ -2088,18 +2114,42 @@ function playAddAnimation() {
   const msg = document.getElementById('floatingAddMsg');
   if(msg) {
     msg.classList.remove('run-anim');
-    void msg.offsetWidth; // מכריח את הדפדפן לאפס את האנימציה
+    void msg.offsetWidth;
     msg.classList.add('run-anim');
   }
   
-  // 2. הקפצת הפלוס של ההזמנה בתפריט התחתון
-  // שים לב: אם ה-ID של כפתור ההזמנה בתפריט התחתון שלך שונה, עדכן אותו כאן (למשל 'navTabOrder' במקום 'navTabCart')
-  const navOrderBtn = document.getElementById('navTabCart') || document.getElementById('navTabOrder'); 
-  if(navOrderBtn) {
-    navOrderBtn.classList.add('nav-pop-active');
-    setTimeout(() => {
-      navOrderBtn.classList.remove('nav-pop-active');
-    }, 350); // הכפתור יחזור לעצמו אחרי שליש שנייה
+  // 2. אנימציה לעגלה למעלה
+  // אנחנו תופסים את העגלה לפי הקלאס שלה
+  const topCart = document.querySelector('.cart-container'); 
+  if(topCart) {
+    topCart.classList.remove('cart-wiggle');
+    void topCart.offsetWidth;
+    topCart.classList.add('cart-wiggle');
+    setTimeout(() => topCart.classList.remove('cart-wiggle'), 400);
+  }
+
+  // 3. עדכון כפתור ההזמנה למטה (כדי שישתנה ל"סיכום הזמנה")
+  updateOrderButtonState();
+}
+
+// פונקציה חדשה: בודקת אם יש מוצרים, ומשנה את הכפתור בהתאם
+function updateOrderButtonState() {
+  // חפש את הכפתור האמצעי בתפריט המובייל - בהנחה שה-ID שלו הוא navTabCart
+  // אם קראת לו אחרת, שנה את השם פה:
+  const navOrderBtn = document.getElementById('navTabCart'); 
+  if(!navOrderBtn) return;
+
+  // בודקים אם יש מוצרים בעגלה
+  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+
+  if(totalItems > 0) {
+    navOrderBtn.classList.add('btn-has-items');
+    // משנים את הטקסט והאייקון לסיכום הזמנה
+    navOrderBtn.innerHTML = '<i class="fa-solid fa-cart-shopping"></i><br><span style="font-size:0.75rem; font-family:var(--font-heading);">סיכום הזמנה</span>';
+  } else {
+    navOrderBtn.classList.remove('btn-has-items');
+    // מחזירים למצב הרגיל (הפלוס)
+    navOrderBtn.innerHTML = '<i class="fas fa-plus"></i>';
   }
 }
 
@@ -2191,6 +2241,35 @@ function mobReorderAndGo(idx){ const h=getOrderHistory(); const items=(h[idx]||{
 
 /* ── Init ── */
 window.addEventListener("load",()=>{
+
+  // בדיקה אם המשתמש כבר מחובר ושמירת מצב ההתחברות בריענון הדף
+  const savedUser = localStorage.getItem("mosheUserDetails");
+  if (savedUser) {
+      // עדכון תפריט המחשב
+      const navLoginBtn = document.getElementById('navLoginBtn');
+      if (navLoginBtn) {
+          navLoginBtn.innerHTML = '<i class="fas fa-user"></i> אזור אישי';
+          navLoginBtn.onclick = () => { window.location.href = '#personal-wrapper'; return false; };
+      }
+      
+      // עדכון תפריט המובייל הצדדי
+      const mobMenuLoginBtn = document.getElementById('mobMenuLoginBtn');
+      if (mobMenuLoginBtn) {
+          mobMenuLoginBtn.innerHTML = '<i class="fas fa-user"></i> אזור אישי';
+          mobMenuLoginBtn.onclick = () => { toggleMenu(); showAppScreen('appScreenPersonal'); return false; };
+      }
+      
+      // הסתרת כפתור ההרשמה ממסך הפתיחה
+      const heroLoginBtn = document.getElementById('heroLoginBtn');
+      if (heroLoginBtn) {
+          heroLoginBtn.style.display = 'none';
+      }
+      
+      // עדכון הנתונים האישיים באפליקציה
+      if (typeof mobRefreshPersonal === 'function') {
+          mobRefreshPersonal();
+      }
+  }
 
   // הוספת מזהה ל-body כדי להעלים כפתורי התקנה מתוך האפליקציה
   if (isRunningAsPWA()) {
