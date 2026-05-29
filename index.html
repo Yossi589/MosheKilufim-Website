@@ -1694,14 +1694,7 @@ function removeFromCart(index){ cart.splice(index,1); renderCart(); mobRefreshOr
 /* ── ORDER TEXT ── */
 function buildOrderText(u,notes,date){
   const pt=cart.map(item=>{ const p=products.find(p=>p.name===item.name); return `• ${item.name} - ${item.qty} מארזים${p ? getWeightStr(p, item.qty) : ""}`; }).join("\n");
-  const totalW = cart.reduce((s,i) => {
-    const p = products.find(prod => prod.name === i.name);
-    if(!p || !p.pack) return s;
-    const m = p.pack.match(/([0-9.]+)\s*ק״ג/);
-    return s + (m ? parseFloat(m[1]) * i.qty : 0);
-  }, 0);
-  const wStr = totalW % 1 === 0 ? totalW : totalW.toFixed(1);
-  return `שלום, אשמח לקבל הצעת מחיר ממשה קילופים:\n\nפרטי לקוח:\nשם: ${u.name}\nטלפון: ${u.phone}\nעסק/מוסד: ${u.business||"-"}\nעיר אספקה: ${u.city||"-"}${date?'\nתאריך אספקה: '+date:''}\n\nמוצרים:\n${pt}\n\nסה״כ משקל משוער: ${wStr} ק״ג${notes?'\n\nהערות:\n'+notes:''}`;
+  return `שלום, אשמח לקבל הצעת מחיר ממשה קילופים:\n\n*פרטי לקוח:*\n*שם:* ${u.name}\n*טלפון:* ${u.phone}\n*עסק/מוסד:* ${u.business||"-"}\n*עיר אספקה:* ${u.city||"-"}${date?'\n*תאריך אספקה:* '+date:''}\n\n*מוצרים:*\n${pt}${notes?'\n\n*הערות:*\n'+notes:''}`;
 }
 function clearAfterOrder(){
   saveOrderToHistory([...cart]);
