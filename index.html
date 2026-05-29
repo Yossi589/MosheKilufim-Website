@@ -506,6 +506,26 @@
       .mob-edit-form input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,93,0.15); }
       .mob-save-btn { padding: 13px; border-radius: 14px; background: var(--olive); color: #fff; border: none; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; cursor: pointer; transition: .2s; }
       .mob-logout-btn { width: 100%; padding: 13px; border-radius: 16px; border: 1px solid rgba(220,53,69,0.3); background: rgba(220,53,69,0.05); font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #dc3545; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: .2s; }
+      .mob-settings-panel {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        background: #fff;
+        border-radius: 22px;
+        padding: 0 18px;
+        margin-bottom: 0;
+        border: 0 solid rgba(0,0,0,0.05);
+        box-shadow: none;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .mob-settings-panel.open {
+        max-height: 500px;
+        opacity: 1;
+        padding: 18px;
+        margin-bottom: 16px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      }
 
       /* ── ORDER SCREEN (FAB) - redesigned ── */
       .mob-screen-title { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; color: var(--olive); padding: 16px 16px 4px; }
@@ -917,9 +937,17 @@ button,
 
     /* קלאס להקפצת כפתור הניווט */
     .nav-pop-active {
-      transform: scale(1.3) !important;
       color: var(--gold) !important;
       transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes navBtnPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .nav-btn-pulse {
+      animation: navBtnPulse 0.3s ease-in-out;
     }
 
   </style>
@@ -943,7 +971,10 @@ button,
   const hasUser = localStorage.getItem("mosheUserDetails");
   const isMobile = window.innerWidth < 768;
 
-  if (isRunningAsPWA() && !hasUser) {
+  if (sessionStorage.getItem('skipSplash') === 'true') {
+      document.getElementById('splashScreen').style.display = 'none';
+      sessionStorage.removeItem('skipSplash');
+  } else if (isRunningAsPWA() && !hasUser) {
       // פעם ראשונה באפליקציה! 
       // נסתיר את מסך הטעינה כדי לא להפריע, ונפתח את מסך ההרשמה
       document.getElementById('splashScreen').style.display = 'none';
@@ -994,21 +1025,21 @@ button,
       <div class="mob-products-list" id="mobProductsList"></div>
     </div>
 
- <!-- SCREEN 2: personal erea -->
- <div class="app-screen" id="appScreenPersonal" data-title="אזור אישי">
-      <div style="display:flex; justify-content:space-between; align-items:center; padding: 20px 16px 10px;">
-        <div>
-          <div class="mob-screen-title" id="mobGreetingTitle" style="padding:0; margin-bottom:4px;">שלום</div>
-          <div class="mob-screen-sub" id="mobGreetingSub" style="padding:0;">איזה כיף שחזרת אלינו</div>
-        </div>
-        <button onclick="mobToggleSettings()" style="background:rgba(61,70,22,0.1); border:none; width:44px; height:44px; border-radius:50%; font-size:1.3rem; color:var(--olive); cursor:pointer; transition:0.2s;">
-          <i class="fas fa-cog"></i>
-        </button>
-      </div>
+  <!-- SCREEN 2: personal erea -->
+  <div class="app-screen" id="appScreenPersonal" data-title="אזור אישי">
+       <div style="display:flex; justify-content:space-between; align-items:center; padding: 20px 16px 10px;">
+         <div>
+           <div class="mob-screen-title" id="mobGreetingTitle" style="padding:0; margin-bottom:4px;">שלום</div>
+           <div class="mob-screen-sub" id="mobGreetingSub" style="padding:0;">איזה כיף שחזרת אלינו</div>
+         </div>
+         <button onclick="mobToggleSettings()" style="background:rgba(61,70,22,0.1); border:none; width:44px; height:44px; border-radius:50%; font-size:1.3rem; color:var(--olive); cursor:pointer; transition:0.2s;">
+           <i class="fas fa-cog"></i>
+         </button>
+       </div>
 
       <div class="mob-section-pad">
         
-        <div id="mobSettingsPanel" style="display:none; background:#fff; border-radius:22px; padding:18px; margin-bottom:16px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 4px 14px rgba(0,0,0,0.06);">
+        <div id="mobSettingsPanel" class="mob-settings-panel">
           <h4 style="margin:0 0 14px; font-family:var(--font-heading); color:var(--olive); font-size:1.1rem;"><i class="fas fa-user-edit"></i> עדכון פרטים</h4>
           <div class="mob-edit-form open" style="margin-bottom:16px;">
             <input id="mobEName" placeholder="שם מלא (חובה)">
@@ -1068,8 +1099,8 @@ button,
         </div>
 
         <!-- 2. Cart contents -->
-        <div class="mob-order-cart-section">
-          <div class="mob-order-cart-title">
+        <div class="mob-order-cart-section" style="border: 2px solid var(--olive); background: #fdfdf9; box-shadow: 0 6px 15px rgba(0,0,0,0.08);">
+          <div class="mob-order-cart-title" style="font-size: 1.25rem;">
             <span>העגלה שלי</span>
             <span class="mob-order-cart-badge" id="mobOrderCartBadge">0</span>
           </div>
@@ -1081,12 +1112,12 @@ button,
           </button>
         </div>
 
-        <!-- 3. Order summary -->
-        <div class="mob-order-summary-box" id="mobOrderSummaryBox" style="display:none">
-          <h3>סיכום</h3>
-          <div class="mob-os-line"><span>סוגי מוצרים</span><span id="mobOSSProducts">0</span></div>
-          <div class="mob-os-line"><span>סה"כ מארזים</span><span id="mobOSSQty">0</span></div>
-          <p class="mob-price-note-sm">המחיר נקבע לפי סוג המוצר והכמות הרצויה</p>
+        <!-- Recommended Products -->
+        <div class="mob-recommended-section" id="mobRecommendedSection" style="display:none; margin-bottom: 25px;">
+           <div style="font-weight: 800; color: var(--olive); margin-bottom: 10px; font-size: 1.05rem;">מומלץ עבורך <i class="fas fa-star" style="color:var(--gold); font-size:0.9rem;"></i></div>
+           <div id="mobRecommendedList" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;">
+              <!-- Cards injected by JS -->
+           </div>
         </div>
 
         <!-- 4. New user form (hidden for VIP) -->
@@ -1100,24 +1131,30 @@ button,
           </div>
         </div>
 
-        <!-- 5. Notes + date (always visible) -->
-        <div class="mob-notes-box">
-          <label><i class="fas fa-calendar" style="color:var(--gold)"></i> תאריך אספקה רצוי</label>
-          <input type="date" id="mobODate">
-          <label style="margin-top:10px;display:block"><i class="fas fa-pen-to-square" style="color:var(--gold)"></i> הערות להזמנה</label>
-          <textarea id="mobONotes" placeholder="הערות נוספות (אופציונלי)"></textarea>
+        <!-- 5. Notes + date (Action Buttons) -->
+        <input type="hidden" id="mobODate" value="">
+        <input type="hidden" id="mobONotes" value="">
+        
+        <div class="mob-action-buttons" style="display:flex; gap:12px; margin-bottom:25px; margin-top:20px;">
+          <button onclick="openMobDateModal()" id="btnMobDate" style="flex:1; background:#fff; border:2px solid #eaeaea; border-radius:16px; padding:18px 10px; font-weight:800; font-size:1rem; color:var(--olive); box-shadow:0 4px 12px rgba(0,0,0,0.04); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:12px; transition:0.3s;">
+            <div style="width:45px; height:45px; background:rgba(61,70,22,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+               <i class="fas fa-calendar-alt" style="font-size:1.3rem; color:var(--olive);"></i>
+            </div>
+            <span>תאריך אספקה <span style="color:#e74c3c">*</span></span>
+          </button>
+          
+          <button onclick="openMobNotesModal()" id="btnMobNotes" style="flex:1; background:#fff; border:2px solid #eaeaea; border-radius:16px; padding:18px 10px; font-weight:800; font-size:1rem; color:var(--olive); box-shadow:0 4px 12px rgba(0,0,0,0.04); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:12px; transition:0.3s;">
+            <div style="width:45px; height:45px; background:rgba(200,150,93,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+               <i class="fas fa-pen-to-square" style="font-size:1.3rem; color:var(--gold);"></i>
+            </div>
+            <span>הערות להזמנה</span>
+          </button>
         </div>
 
         <!-- 6. Send buttons -->
-        <div class="mob-send-section" id="mobSendSection">
-          <button class="mob-send-wa" id="mobBtnWa" onclick="mobOrderSendWA()">
-            <i class="fab fa-whatsapp"></i> <span id="mobWaLabel">קבלת הצעה בוואטסאפ</span>
-          </button>
-          <a class="mob-send-phone" id="mobBtnPhone" href="tel:098911191" onclick="mobOrderHandlePhone(event)">
-            <i class="fas fa-phone"></i> <span id="mobPhLabel">קבלת הצעה בטלפון</span>
-          </a>
-          <button class="mob-send-mail" id="mobBtnMail" onclick="mobOrderSendMail()">
-            <i class="fas fa-envelope"></i> <span id="mobMailLabel">קבלת הצעה במייל</span>
+        <div class="mob-send-section" id="mobSendSection" style="margin-top:20px;">
+          <button class="mob-send-wa" id="mobBtnWa" onclick="mobOrderSendWA()" style="width:100%; height:60px; font-size:1.4rem; border-radius:30px; display:flex; justify-content:center; align-items:center; gap:10px; background:var(--olive); color:#fff; box-shadow:0 8px 15px rgba(0,0,0,0.15); font-weight:800; border:none; cursor:pointer; transition: transform 0.2s;">
+            <i class="fab fa-whatsapp" style="font-size:1.7rem"></i> <span id="mobWaLabel">סיים הזמנה</span>
           </button>
           <p class="mob-help-text" id="mobCartEmptyHint">הוסיפו מוצרים לפני שליחת ההזמנה</p>
         </div>
@@ -1337,7 +1374,6 @@ button,
         <aside class="cart-summary-box">
           <h3>סיכום הזמנה</h3>
           <div class="cart-summary-line"><span>סוגי מוצרים</span><span id="summaryProducts">0</span></div>
-          <div class="cart-summary-line"><span>סה״כ מארזים</span><span id="summaryQty">0</span></div>
           <p class="cart-price-note">המחיר נקבע לפי סוג המוצר והכמות הרצויה</p>
           <div id="newUserForm" class="quote-form">
             <input id="quoteName" placeholder="שם מלא (חובה)" autocomplete="name">
@@ -1474,6 +1510,35 @@ button,
 
 <footer><strong>משה קילופים</strong><br>ירקות קלופים וחתוכים למטבחים מוסדיים · © 2026 כל הזכויות שמורות</footer>
 
+<!-- Mobile Flow Modals -->
+<div class="success-overlay" id="mobDateModal">
+  <div class="success-card" style="max-width:400px; width:90%; padding:30px 20px; border-radius:24px; text-align:center; position:relative;">
+    <button class="product-close" style="top: 14px; left: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onclick="closeMobDateModal()">×</button>
+    
+    <div style="width:50px; height:50px; background:var(--olive); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 15px; box-shadow:0 6px 15px rgba(61,70,22,0.3);">
+      <i class="fas fa-calendar-alt"></i>
+    </div>
+    
+    <h3 style="font-family:var(--font-heading); color:var(--olive); font-size:1.4rem; margin-bottom:20px;">בחר תאריך אספקה</h3>
+    <div id="mobDateCarousel" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:15px; scrollbar-width:none;">
+    </div>
+  </div>
+</div>
+
+<div class="success-overlay" id="mobNotesModal">
+  <div class="success-card" style="max-width:400px; width:90%; padding:30px 20px; border-radius:24px; text-align:center; position:relative;">
+    <button class="product-close" style="top: 14px; left: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onclick="closeMobNotesModal()">×</button>
+    
+    <div style="width:50px; height:50px; background:var(--gold); color:#171717; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 15px; box-shadow:0 6px 15px rgba(200,150,93,0.3);">
+      <i class="fas fa-pen-to-square"></i>
+    </div>
+    
+    <h3 style="font-family:var(--font-heading); color:var(--olive); font-size:1.4rem; margin-bottom:20px;">הערות להזמנה</h3>
+    <textarea id="mobNotesInput" placeholder="הכנס הערות מיוחדות, בקשות לאריזה וכד׳" style="width:100%; height:120px; padding:15px; border-radius:12px; border:1px solid #ddd; font-family:inherit; font-size:1rem; resize:none; margin-bottom:20px; outline:none; background:#fdfdf9;"></textarea>
+    <button onclick="saveMobNotes()" style="width:100%; background:var(--olive); color:#fff; padding:15px; border-radius:12px; font-weight:800; font-size:1.1rem; border:none; cursor:pointer;">שמור הערות</button>
+  </div>
+</div>
+
 <div id="floatingAddMsg" class="floating-add-msg">
       <i class="fas fa-check"></i> נוסף להזמנה
     </div>
@@ -1513,6 +1578,13 @@ const products = [
 
 let currentProductIndex = null;
 const cart = [];
+function getWeightStr(p, qty) {
+  if(!p || !p.pack) return "";
+  const m = p.pack.match(/([0-9.]+)\s*ק״ג/);
+  if(!m) return "";
+  const w = parseFloat(m[1]) * qty;
+  return ` (${w % 1 === 0 ? w : w.toFixed(1)} ק״ג)`;
+}
 let currentCategory = 'all';
 let currentSearch = '';
 
@@ -1621,14 +1693,121 @@ function removeFromCart(index){ cart.splice(index,1); renderCart(); mobRefreshOr
 
 /* ── ORDER TEXT ── */
 function buildOrderText(u,notes,date){
-  const pt=cart.map(item=>{ const p=products.find(p=>p.name===item.name); return `• ${item.name} - ${item.qty} מארזים (${p?p.pack:""})`; }).join("\n");
-  return `שלום, אשמח לקבל הצעת מחיר ממשה קילופים:\n\nפרטי לקוח:\nשם: ${u.name}\nטלפון: ${u.phone}\nעסק/מוסד: ${u.business||"-"}\nעיר אספקה: ${u.city||"-"}${date?'\nתאריך אספקה: '+date:''}\n\nמוצרים:\n${pt}${notes?'\n\nהערות:\n'+notes:''}`;
+  const pt=cart.map(item=>{ const p=products.find(p=>p.name===item.name); return `• ${item.name} - ${item.qty} מארזים${p ? getWeightStr(p, item.qty) : ""}`; }).join("\n");
+  const totalW = cart.reduce((s,i) => {
+    const p = products.find(prod => prod.name === i.name);
+    if(!p || !p.pack) return s;
+    const m = p.pack.match(/([0-9.]+)\s*ק״ג/);
+    return s + (m ? parseFloat(m[1]) * i.qty : 0);
+  }, 0);
+  const wStr = totalW % 1 === 0 ? totalW : totalW.toFixed(1);
+  return `שלום, אשמח לקבל הצעת מחיר ממשה קילופים:\n\nפרטי לקוח:\nשם: ${u.name}\nטלפון: ${u.phone}\nעסק/מוסד: ${u.business||"-"}\nעיר אספקה: ${u.city||"-"}${date?'\nתאריך אספקה: '+date:''}\n\nמוצרים:\n${pt}\n\nסה״כ משקל משוער: ${wStr} ק״ג${notes?'\n\nהערות:\n'+notes:''}`;
 }
 function clearAfterOrder(){
   saveOrderToHistory([...cart]);
   cart.length=0; saveCartToStorage();
   renderCart(); mobRefreshOrderScreen(); mobRefreshPersonal(); mobRefreshHistory();
   checkUserStatus();
+}
+
+/* ── MOBILE MODALS LOGIC ── */
+let selectedMobDate = '';
+let selectedMobNotes = '';
+
+function openMobDateModal() {
+  const c = document.getElementById('mobDateCarousel');
+  if(!c.querySelector('.date-card')) {
+    let html = '';
+    const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+    for(let i=1; i<=7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      if(d.getDay() === 6) continue; // Skip Saturday
+      const dayName = i === 1 ? 'מחר' : days[d.getDay()];
+      const dateStr = d.toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit'});
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const isoDate = `${year}-${month}-${day}`;
+      html += `<div onclick="selectMobDate('${isoDate}', '${dayName} ${dateStr}')" style="flex-shrink:0; width:100px; height:100px; border:2px solid #eaeaea; border-radius:16px; display:flex; flex-direction:column; justify-content:center; align-items:center; cursor:pointer; background:#fff; transition:0.2s;" class="date-card" data-val="${isoDate}">
+        <span style="font-weight:800; color:var(--olive); font-size:1.2rem;">${dayName}</span>
+        <span style="color:var(--muted); font-size:0.95rem; margin-top:5px; font-weight:600;">${dateStr}</span>
+      </div>`;
+    }
+    c.innerHTML = html;
+  }
+  // Highlight currently selected date card
+  const cards = c.querySelectorAll('.date-card');
+  cards.forEach(card => {
+    const val = card.getAttribute('data-val');
+    if (val === selectedMobDate) {
+      card.style.borderColor = 'var(--gold)';
+      card.style.background = 'rgba(200,150,93,0.1)';
+      card.style.transform = 'scale(1.05)';
+    } else {
+      card.style.borderColor = '#eaeaea';
+      card.style.background = '#fff';
+      card.style.transform = '';
+    }
+  });
+  document.getElementById('mobDateModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function selectMobDate(isoDate, displayStr) {
+  selectedMobDate = isoDate;
+  document.getElementById('mobODate').value = isoDate;
+  document.getElementById('btnMobDate').innerHTML = `
+    <div style="width:45px; height:45px; background:var(--olive); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 4px 10px rgba(61,70,22,0.3);">
+       <i class="fas fa-calendar-check" style="font-size:1.3rem;"></i>
+    </div>
+    <span style="color:var(--olive); font-size:0.95rem; font-weight:800;">${displayStr}</span>
+  `;
+  document.getElementById('btnMobDate').style.borderColor = "var(--olive)";
+  document.getElementById('btnMobDate').style.background = "#f4f7f4";
+  closeMobDateModal();
+}
+
+function closeMobDateModal() {
+  document.getElementById('mobDateModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function openMobNotesModal() {
+  document.getElementById('mobNotesInput').value = selectedMobNotes;
+  document.getElementById('mobNotesModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobNotesModal() {
+  document.getElementById('mobNotesModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function saveMobNotes() {
+  selectedMobNotes = document.getElementById('mobNotesInput').value.trim();
+  document.getElementById('mobONotes').value = selectedMobNotes;
+  const btn = document.getElementById('btnMobNotes');
+  if(selectedMobNotes) {
+    btn.innerHTML = `
+      <div style="width:45px; height:45px; background:var(--olive); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 4px 10px rgba(61,70,22,0.3);">
+         <i class="fas fa-comment-dots" style="font-size:1.3rem;"></i>
+      </div>
+      <span style="color:var(--olive); font-size:0.95rem; font-weight:800;">נשמרו הערות</span>
+    `;
+    btn.style.background = "#f4f7f4";
+    btn.style.borderColor = "var(--olive)";
+  } else {
+    btn.innerHTML = `
+      <div style="width:45px; height:45px; background:rgba(200,150,93,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+         <i class="fas fa-pen-to-square" style="font-size:1.3rem; color:var(--gold);"></i>
+      </div>
+      <span style="font-size:1rem; font-weight:800; color:var(--olive);">הערות להזמנה</span>
+    `;
+    btn.style.background = "#fff";
+    btn.style.borderColor = "#eaeaea";
+  }
+  closeMobNotesModal();
 }
 
 /* ══ DESKTOP LOGIC ══ */
@@ -1643,13 +1822,12 @@ function renderCart(){
   }
   renderCartPage();
   updateOrderButtonState();
+  updateCartBadge();
 }
 function renderCartPage(){
   const el=document.getElementById("cartPageItems");
   const sp=document.getElementById("summaryProducts");
-  const sq=document.getElementById("summaryQty");
   if(sp) sp.textContent=cart.length;
-  if(sq) sq.textContent=cart.reduce((s,i)=>s+i.qty,0);
   if(!el) return;
   if(cart.length===0){
     const last=localStorage.getItem("mosheLastOrder");
@@ -1666,9 +1844,12 @@ function renderCartPage(){
     d.innerHTML=`<img src="${p.image||''}" alt="${item.name}" onerror="this.style.display='none'">
       <div><h3>${item.name}</h3><p>${p.desc||""}</p><span class="pack-line">${p.pack||""}</span></div>
       <div class="cart-page-actions">
-        <div class="cart-qty-control">
-          <button onclick="changeCartQty(${index},-1)">−</button><strong>${item.qty}</strong>
-          <button onclick="changeCartQty(${index},1)">+</button>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px; width:100%">
+          <div class="cart-qty-control" style="width:100%">
+            <button onclick="changeCartQty(${index},-1)">−</button><strong>${item.qty}</strong>
+            <button onclick="changeCartQty(${index},1)">+</button>
+          </div>
+          <div style="font-size:0.85rem; font-weight:800; color:var(--olive);">${getWeightStr(p, item.qty).trim()}</div>
         </div>
         <button class="remove-cart-item" onclick="removeFromCart(${index})"><i class="fa-solid fa-trash-can"></i> הסר</button>
       </div>`;
@@ -1858,7 +2039,12 @@ function showSuccess(type){
   document.getElementById("successOverlay").classList.add("open"); 
   document.body.style.overflow="hidden"; 
 }
-function closeSuccess(){ document.getElementById("successOverlay").classList.remove("open"); document.body.style.overflow=""; }
+function closeSuccess(){ 
+  document.getElementById("successOverlay").classList.remove("open"); 
+  document.body.style.overflow=""; 
+  sessionStorage.setItem('skipSplash', 'true');
+  window.location.reload();
+}
 
 function revealOnScroll(){ document.querySelectorAll(".reveal").forEach(el=>{ if(el.getBoundingClientRect().top<window.innerHeight-60) el.classList.add("active"); }); const b=document.getElementById("badge30"); if(b&&b.getBoundingClientRect().top<window.innerHeight-80) b.classList.add("active"); }
 window.addEventListener("scroll",revealOnScroll);
@@ -1965,7 +2151,7 @@ function mobRefreshOrderScreen(){
   const subEl=document.getElementById('mobRestoreSub');
   if(subEl) subEl.textContent=h[0]?`הזמנה מ-${h[0].date} — ${h[0].items.reduce((s,i)=>s+i.qty,0)} מארזים`:'אין הזמנות קודמות';
   const restoreWrap=document.getElementById('mobRestoreBigWrap');
-  if(restoreWrap) restoreWrap.style.display=h.length?'block':'none';
+  if(restoreWrap) restoreWrap.style.display=(h.length && !hasCart)?'block':'none';
 
   // Cart rows
   const cartBadge=document.getElementById('mobOrderCartBadge');
@@ -1980,10 +2166,13 @@ function mobRefreshOrderScreen(){
         return `<div class="mob-order-cart-row">
             <img class="mob-ocr-img" src="${p.image||''}" alt="${item.name}" onerror="this.style.display='none'">
             <div class="mob-ocr-name">${item.name}</div>
-            <div class="mob-ocr-qty-ctrl">
-              <button onclick="mobOrderCartChange(${index},-1)">−</button>
-              <strong id="mobOCR-qty-${index}">${item.qty}</strong>
-              <button onclick="mobOrderCartChange(${index},1)">+</button>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+              <div class="mob-ocr-qty-ctrl">
+                <button onclick="mobOrderCartChange(${index},-1)">−</button>
+                <strong id="mobOCR-qty-${index}">${item.qty}</strong>
+                <button onclick="mobOrderCartChange(${index},1)">+</button>
+              </div>
+              <div style="font-size:0.75rem; font-weight:800; color:var(--olive);">${getWeightStr(p, item.qty).trim()}</div>
             </div>
             <button class="mob-ocr-remove" onclick="mobRemoveFromCart(${index})"><i class="fa-solid fa-trash-can"></i></button>
           </div>`;
@@ -1995,9 +2184,7 @@ function mobRefreshOrderScreen(){
   const summaryBox=document.getElementById('mobOrderSummaryBox');
   if(summaryBox) summaryBox.style.display=hasCart?'block':'none';
   const sp=document.getElementById('mobOSSProducts');
-  const sq=document.getElementById('mobOSSQty');
   if(sp) sp.textContent=cart.length;
-  if(sq) sq.textContent=total;
 
   // User form
   const newUserForm=document.getElementById('mobOrderNewUserForm');
@@ -2005,20 +2192,32 @@ function mobRefreshOrderScreen(){
 
   // Send button labels
   const waLbl=document.getElementById('mobWaLabel');
-  const phLbl=document.getElementById('mobPhLabel');
-  const mlLbl=document.getElementById('mobMailLabel');
-  const label=isVip?['הזמנה ב-WhatsApp','הזמנה טלפונית','הזמנה במייל']:['קבלת הצעה בוואטסאפ','קבלת הצעה בטלפון','קבלת הצעה במייל'];
-  if(waLbl) waLbl.textContent=label[0];
-  if(phLbl) phLbl.textContent=label[1];
-  if(mlLbl) mlLbl.textContent=label[2];
+  if(waLbl) waLbl.textContent="סיים הזמנה";
 
   // Disable/enable send if cart empty
   const hint=document.getElementById('mobCartEmptyHint');
-  ['mobBtnWa','mobBtnPhone','mobBtnMail'].forEach(id=>{
-    const btn=document.getElementById(id);
-    if(btn){ if(hasCart) btn.classList.remove('mob-send-disabled'); else btn.classList.add('mob-send-disabled'); }
-  });
+  const btnWa=document.getElementById('mobBtnWa');
+  if(btnWa){ if(hasCart) btnWa.classList.remove('mob-send-disabled'); else btnWa.classList.add('mob-send-disabled'); }
   if(hint) hint.style.display=hasCart?'none':'block';
+
+  // Recommended products
+  const recEl=document.getElementById('mobRecommendedList');
+  if(recEl){
+    const notInCart = products.filter(p => !cart.some(c => c.name === p.name));
+    const recs = notInCart.slice(0, 3);
+    if(recs.length > 0 && hasCart) {
+      document.getElementById('mobRecommendedSection').style.display = 'block';
+      recEl.innerHTML = recs.map(p => {
+        return `<div style="min-width:130px; background:#fff; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:12px; display:flex; flex-direction:column; align-items:center; box-shadow:0 3px 8px rgba(0,0,0,0.04);">
+          <img src="${p.image||''}" onerror="this.style.display='none'" style="width:60px; height:60px; object-fit:contain; margin-bottom:8px;">
+          <div style="font-size:0.9rem; font-weight:800; text-align:center; margin-bottom:8px; color:var(--olive); flex-grow:1; display:flex; align-items:center; justify-content:center;">${p.name}</div>
+          <button onclick="addToCart('${p.name}', 1); playAddAnimation();" style="background:var(--gold); color:#171717; border:none; padding:6px 18px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; width:100%; margin-top:auto;">הוסף</button>
+        </div>`;
+      }).join('');
+    } else {
+      document.getElementById('mobRecommendedSection').style.display = 'none';
+    }
+  }
 }
 
 function mobOrderCartChange(index,delta){
@@ -2026,6 +2225,7 @@ function mobOrderCartChange(index,delta){
   cart[index].qty+=delta;
   if(cart[index].qty<=0) cart.splice(index,1);
   saveCartToStorage(); renderCart(); mobRenderProducts(); mobRefreshOrderScreen();
+  if(delta > 0) playAddAnimation();
 }
 
 function mobRemoveFromCart(index){
@@ -2046,7 +2246,20 @@ function mobRestoreAndStay(){
 
 /* ── Mobile order send ── */
 function mobCollectUser(){ const s=localStorage.getItem("mosheUserDetails"); if(s) return JSON.parse(s); if(!validateOrderForm('mobOName','mobOPhone')) return null; const u={name:document.getElementById('mobOName').value.trim(),phone:document.getElementById('mobOPhone').value.trim(),business:document.getElementById('mobOBiz').value.trim(),city:document.getElementById('mobOCity').value.trim()}; localStorage.setItem("mosheUserDetails",JSON.stringify(u)); return u; }
-function mobOrderSendWA(){ if(cart.length===0){ alert("העגלה ריקה."); return; } const u=mobCollectUser(); if(!u) return; const notes=document.getElementById('mobONotes').value.trim(); const date=document.getElementById('mobODate')?.value||''; window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildOrderText(u,notes,date))}`,"_blank"); clearAfterOrder(); showSuccess('whatsapp'); }
+function mobOrderSendWA() { 
+  if(cart.length===0){ alert("העגלה ריקה."); return; } 
+  const date=document.getElementById('mobODate')?.value||''; 
+  if(!date) {
+    openMobDateModal();
+    return;
+  }
+  const u=mobCollectUser(); 
+  if(!u) return; 
+  const notes=document.getElementById('mobONotes').value.trim(); 
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildOrderText(u,notes,date))}`,"_blank"); 
+  clearAfterOrder(); 
+  showSuccess('whatsapp'); 
+}
 function mobOrderSendMail(){ if(cart.length===0){ alert("העגלה ריקה."); return; } const u=mobCollectUser(); if(!u) return; const notes=document.getElementById('mobONotes').value.trim(); const date=document.getElementById('mobODate')?.value||''; window.location.href=`mailto:${BUSINESS_EMAIL}?subject=${encodeURIComponent("בקשה להצעת מחיר - משה קילופים")}&body=${encodeURIComponent(buildOrderText(u,notes,date))}`; clearAfterOrder(); showSuccess('mail'); }
 function mobOrderHandlePhone(event){ if(cart.length===0){ event.preventDefault(); return; } const u=mobCollectUser(); if(!u){ event.preventDefault(); return; } clearAfterOrder(); showSuccess('phone'); }
 
@@ -2054,8 +2267,7 @@ function mobOrderHandlePhone(event){ if(cart.length===0){ event.preventDefault()
 
 /* ── Mobile personal & Recommended ── */
 function mobToggleSettings() {
-  const panel = document.getElementById('mobSettingsPanel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  document.getElementById('mobSettingsPanel').classList.toggle('open');
 }
 
 function mobRefreshPersonal(){
@@ -2110,12 +2322,15 @@ function mobRefreshPersonal(){
 }
 
 function playAddAnimation() {
-  // 1. הפעלת הבועה הצפה "נוסף להזמנה"
-  const msg = document.getElementById('floatingAddMsg');
-  if(msg) {
-    msg.classList.remove('run-anim');
-    void msg.offsetWidth;
-    msg.classList.add('run-anim');
+  // 1. אנימציית פולס/הקפצה לכפתור סיכום ההזמנה למטה
+  const navOrderBtn = document.getElementById('navFabWrap');
+  if(navOrderBtn) {
+    navOrderBtn.classList.remove('nav-btn-pulse');
+    void navOrderBtn.offsetWidth; // trigger reflow
+    navOrderBtn.classList.add('nav-btn-pulse');
+    setTimeout(() => {
+      if(navOrderBtn) navOrderBtn.classList.remove('nav-btn-pulse');
+    }, 300);
   }
   
   // 2. אנימציה לעגלה למעלה (מותאם למובייל ולדסקטופ)
@@ -2223,7 +2438,7 @@ function renderMobMyProducts(history) {
     }
 }
 function mobToggleEdit(){ const f=document.getElementById('mobEditForm'); f.classList.toggle('open'); document.getElementById('mobEditToggle').innerHTML=f.classList.contains('open')?'<i class="fas fa-times"></i> סגור עריכה':'<i class="fas fa-pen"></i> עדכון פרטים'; }
-function mobSaveEdit(){ const name=document.getElementById('mobEName').value.trim(); const phone=document.getElementById('mobEPhone').value.trim(); const biz=document.getElementById('mobEBiz').value.trim(); const city=document.getElementById('mobECity').value.trim(); if(!name||!phone){ alert("שם וטלפון הם שדות חובה."); return; } const u={name,phone,business:biz,city}; localStorage.setItem("mosheUserDetails",JSON.stringify(u)); mobToggleEdit(); mobRefreshPersonal(); checkUserStatus(); mobRefreshOrderScreen(); }
+function mobSaveEdit(){ const name=document.getElementById('mobEName').value.trim(); const phone=document.getElementById('mobEPhone').value.trim(); const biz=document.getElementById('mobEBiz').value.trim(); const city=document.getElementById('mobECity').value.trim(); if(!name||!phone){ alert("שם וטלפון הם שדות חובה."); return; } const u={name,phone,business:biz,city}; localStorage.setItem("mosheUserDetails",JSON.stringify(u)); document.getElementById('mobSettingsPanel').classList.remove('open'); mobRefreshPersonal(); checkUserStatus(); mobRefreshOrderScreen(); }
 
 /* ── Mobile history ── */
 function mobRefreshHistory(){
