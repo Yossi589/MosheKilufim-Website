@@ -433,7 +433,7 @@
     
 
       .mobile-app-overlay {
-        display: flex; flex-direction: column; position: fixed; inset: 0;
+        display: none; flex-direction: column; position: fixed; inset: 0;
         background: #f0e8d4; z-index: 500; overflow: hidden;
       }
       .app-topbar {
@@ -2492,7 +2492,7 @@ window.addEventListener("load",()=>{
       splash.classList.add('fade-out');
       setTimeout(() => splash.style.display = 'none', 600); 
     }
-  }, 2200);
+  }, 200);
   
   loadCartFromStorage();
   const isMobile = window.innerWidth < 768;
