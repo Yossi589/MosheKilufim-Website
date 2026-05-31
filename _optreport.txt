@@ -1,0 +1,36 @@
+=== PNG/JPG remaining ===
+batata.png
+bigpotteto.png
+carrot.png
+diskiot.png
+farezian.png
+fries.png
+gulashpotteto.png
+hasa.png
+homefries.png
+icon-192.png
+icon-512.png
+kesefpotteto.png
+kruvadom.png
+kruvlavan.png
+kubiot.png
+kubiotpotteto.png
+moshe.jpg
+onion.png
+opening.png
+prusotpotteto.png
+ragilpotteto.png
+redonion.png
+redpotteto.png
+seder.png
+selekvacoum.png
+sherit.png
+shum.png
+shum_katush.png
+sirot.png
+=== WEBP count ===
+26
+=== site dir size (excl .git) ===
+65M	.
+=== missing refs ===
+[]

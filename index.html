@@ -112,7 +112,7 @@
     .mobile-menu.open { transform: translateY(0); display: flex; }
     .mobile-menu a { font-family: var(--font-heading); font-size: 2rem; color: var(--olive); font-weight: 700; }
     .close-menu { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 3rem; color: var(--olive); cursor: pointer; }
-    .hero { position: relative; min-height: 86vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background-image: url('opening.png'); background-size: cover; background-position: center; background-attachment: fixed; background-color: var(--olive); padding: 120px 20px; }
+    .hero { position: relative; min-height: 86vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background-image: url('opening.webp'); background-size: cover; background-position: center; background-attachment: fixed; background-color: var(--olive); padding: 120px 20px; }
     .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.65)); }
     .hero-content { position: relative; max-width: 980px; z-index: 1; }
     .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 9px 18px; font-weight: 700; backdrop-filter: blur(8px); margin-bottom: 22px; color: #fff; }
@@ -668,7 +668,7 @@
       .cart-page-actions { grid-column: 1/-1; display: grid; grid-template-columns: 1fr auto; }
     }
     @media (max-width: 768px) {
-      .hero { background-image: url('opening.png') !important; background-attachment: scroll !important; }
+      .hero { background-image: url('opening.webp') !important; background-attachment: scroll !important; }
     }
     @media (max-width: 640px) {
       header { padding: 12px 4%; }
@@ -1282,7 +1282,7 @@ button,
 
 
 <section class="trust-strip reveal">
-  <div class="trust-item"><img src="sherit.png" alt="לוגו כשרות שארית ישראל" class="kashrut-logo"><strong>כשרות מקומית ושארית ישראל</strong><span>מענה למטבחים מוסדיים</span></div>
+  <div class="trust-item"><img src="sherit.webp" alt="לוגו כשרות שארית ישראל" class="kashrut-logo"><strong>כשרות מקומית ושארית ישראל</strong><span>מענה למטבחים מוסדיים</span></div>
   <div class="trust-item"><i class="fa-solid fa-snowflake"></i><strong>קירור מבוקר</strong><span>שמירה על טריות המוצר</span></div>
   <div class="trust-item"><i class="fa-solid fa-clock"></i><strong>אספקה יומית</strong><span>לפי זמני המטבח</span></div>
   <div class="trust-item"><i class="fa-solid fa-kitchen-set"></i><strong>חיתוך לפי דרישה</strong><span>קוביות, דסקיות, קצוץ ועוד</span></div>
@@ -1319,7 +1319,7 @@ button,
           <p class="about-strong">מוכן לעבודה. מהרגע הראשון.</p>
         </div>
         <div class="about-image badge-wrapper">
-          <img src="seder.png" alt="ירקות חתוכים ומופרדים במגש למסעדות" loading="lazy" onerror="this.src='opening.png'">
+          <img src="seder.webp" alt="ירקות חתוכים ומופרדים במגש למסעדות" loading="lazy" onerror="this.src='opening.webp'">
           <div class="badge-30" id="badge30">30+<br>שנות ניסיון</div>
         </div>
       </div>
@@ -1551,29 +1551,29 @@ const POPULAR = ["תפוח אדמה לבן","בצל מקולף","שיני שום
 const MAX_HISTORY = 6;
 
 const products = [
-  {name:"שיני שום קלופות",pack:"מארז 1 ק״ג",category:"שום",desc:"שיני שום קלופות, נקיות ומוכנות לשימוש במטבח מקצועי.",image:"shum.png",emoji:"🧄"},
-  {name:"שום כתוש",pack:"מארז 3 ק״ג",category:"שום",desc:"שום כתוש מוכן לשימוש, מתאים לתיבול, בישול והכנות בכמות גדולה.",image:"shum_katush.png",emoji:"🧄"},
-  {name:"תפוח אדמה ענק",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוחי אדמה גדולים במיוחד, מתאימים לאפייה, מילוי ומנות גדולות.",image:"bigpotteto.png",emoji:"🥔"},
-  {name:"תפוח אדמה נייר כסף",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוחי אדמה המתאימים לאפייה בנייר כסף, שטופים ומוכנים לעבודה.",image:"kesefpotteto.png",emoji:"🥔"},
-  {name:"תפוח אדמה לבן",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה לבן קלוף ומוכן לשימוש, מתאים לבישול, פירה ותוספות.",image:"ragilpotteto.png",emoji:"🥔"},
-  {name:"תפוח אדמה אדום",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה אדום, מתאים לתבשילים, אפייה ותוספות.",image:"redpotteto.png",emoji:"🥔"},
-  {name:"תפוח אדמה פרוס",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה פרוס בחיתוך אחיד, מתאים לתנור, גרטן ומטבחים מוסדיים.",image:"prusotpotteto.png",emoji:"🥔"},
-  {name:"תפוח אדמה גולש",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה חתוך לגולש, מתאים לתבשילים ומנות חמות.",image:"gulashpotteto.png",emoji:"🥔"},
-  {name:"תפוח אדמה הום פרייז",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"חיתוך הום פרייז, מוכן לטיגון/אפייה ולשימוש מהיר במטבח.",image:"homefries.png",emoji:"🥔"},
-  {name:"תפוח אדמה קוביות קטנות 10/10",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"קוביות תפוח אדמה קטנות בחיתוך 10/10, אחידות ומוכנות לבישול.",image:"kubiotpotteto.png",emoji:"🥔"},
-  {name:"צ׳יפס",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה חתוך לצ׳יפס, מתאים למטבחים מוסדיים, מסעדות וקייטרינג.",image:"fries.png",emoji:"🍟"},
-  {name:"תפוח אדמה פריזיאן",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה פריזיאן, חיתוך עגול ומוכן לבישול/צלייה.",image:"farezian.png",emoji:"🥔"},
-  {name:"סלק מבושל בוואקום",pack:"מארז 2.8 ק״ג · 5 שקיות בקרטון",category:"ירקות מבושלים",desc:"סלק מבושל באריזות וואקום, מוכן לשימוש לסלטים, תוספות ומטבחים מוסדיים.",image:"selekvacoum.png",emoji:"🟥"},
-  {name:"סירות תפוח אדמה",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"סירות תפוח אדמה בחיתוך אחיד, מתאימות לתנור, תוספות והגשה.",image:"sirot.png",emoji:"🥔"},
-  {name:"כרוב לבן קצוץ",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"כרוב לבן קצוץ ומוכן לשימוש לסלטים, מוקפצים ותוספות.",image:"kruvlavan.png",emoji:"🥬"},
-  {name:"כרוב אדום קצוץ",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"כרוב אדום קצוץ, מתאים לסלטים, חמוצים ותוספות.",image:"kruvadom.png",emoji:"🥬"},
-  {name:"חסה קצוצה",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"חסה קצוצה ומוכנה לשימוש, מתאימה לסלטים והגשה מהירה.",image:"hasa.png",emoji:"🥬"},
-  {name:"גזר מקולף",pack:"מארז 10 ק״ג",category:"גזר",desc:"גזר מקולף, שטוף ומוכן לחיתוך, בישול או הגשה.",image:"carrot.png",emoji:"🥕"},
-  {name:"גזר קוביות",pack:"מארז 10 ק״ג",category:"גזר",desc:"גזר חתוך לקוביות, מתאים למרקים, תבשילים ומטבח מוסדי.",image:"kubiot.png",emoji:"🥕"},
-  {name:"גזר טבעות",pack:"מארז 10 ק״ג",category:"גזר",desc:"טבעות גזר אחידות, מתאימות לקוסקוס, מרקים ותבשילים.",image:"diskiot.png",emoji:"🥕"},
-  {name:"בצל מקולף",pack:"מארז 10 ק״ג",category:"בצל",desc:"בצל לבן מקולף, נקי ומוכן לחיתוך או בישול.",image:"onion.png",emoji:"🧅"},
-  {name:"בצל סגול מקולף",pack:"מארז 10 ק״ג",category:"בצל",desc:"בצל סגול מקולף, מתאים לסלטים, בישול והכנות מטבח.",image:"redonion.png",emoji:"🧅"},
-  {name:"בטטה מקולפת",pack:"מארז 10 ק״ג",category:"בטטה",desc:"בטטה מקולפת, נקייה ומוכנה לחיתוך, אפייה ובישול.",image:"batata.png",emoji:"🍠"}
+  {name:"שיני שום קלופות",pack:"מארז 1 ק״ג",category:"שום",desc:"שיני שום קלופות, נקיות ומוכנות לשימוש במטבח מקצועי.",image:"shum.webp",emoji:"🧄"},
+  {name:"שום כתוש",pack:"מארז 3 ק״ג",category:"שום",desc:"שום כתוש מוכן לשימוש, מתאים לתיבול, בישול והכנות בכמות גדולה.",image:"shum_katush.webp",emoji:"🧄"},
+  {name:"תפוח אדמה ענק",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוחי אדמה גדולים במיוחד, מתאימים לאפייה, מילוי ומנות גדולות.",image:"bigpotteto.webp",emoji:"🥔"},
+  {name:"תפוח אדמה נייר כסף",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוחי אדמה המתאימים לאפייה בנייר כסף, שטופים ומוכנים לעבודה.",image:"kesefpotteto.webp",emoji:"🥔"},
+  {name:"תפוח אדמה לבן",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה לבן קלוף ומוכן לשימוש, מתאים לבישול, פירה ותוספות.",image:"ragilpotteto.webp",emoji:"🥔"},
+  {name:"תפוח אדמה אדום",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה אדום, מתאים לתבשילים, אפייה ותוספות.",image:"redpotteto.webp",emoji:"🥔"},
+  {name:"תפוח אדמה פרוס",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה פרוס בחיתוך אחיד, מתאים לתנור, גרטן ומטבחים מוסדיים.",image:"prusotpotteto.webp",emoji:"🥔"},
+  {name:"תפוח אדמה גולש",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה חתוך לגולש, מתאים לתבשילים ומנות חמות.",image:"gulashpotteto.webp",emoji:"🥔"},
+  {name:"תפוח אדמה הום פרייז",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"חיתוך הום פרייז, מוכן לטיגון/אפייה ולשימוש מהיר במטבח.",image:"homefries.webp",emoji:"🥔"},
+  {name:"תפוח אדמה קוביות קטנות 10/10",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"קוביות תפוח אדמה קטנות בחיתוך 10/10, אחידות ומוכנות לבישול.",image:"kubiotpotteto.webp",emoji:"🥔"},
+  {name:"צ׳יפס",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה חתוך לצ׳יפס, מתאים למטבחים מוסדיים, מסעדות וקייטרינג.",image:"fries.webp",emoji:"🍟"},
+  {name:"תפוח אדמה פריזיאן",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה פריזיאן, חיתוך עגול ומוכן לבישול/צלייה.",image:"farezian.webp",emoji:"🥔"},
+  {name:"סלק מבושל בוואקום",pack:"מארז 2.8 ק״ג · 5 שקיות בקרטון",category:"ירקות מבושלים",desc:"סלק מבושל באריזות וואקום, מוכן לשימוש לסלטים, תוספות ומטבחים מוסדיים.",image:"selekvacoum.webp",emoji:"🟥"},
+  {name:"סירות תפוח אדמה",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"סירות תפוח אדמה בחיתוך אחיד, מתאימות לתנור, תוספות והגשה.",image:"sirot.webp",emoji:"🥔"},
+  {name:"כרוב לבן קצוץ",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"כרוב לבן קצוץ ומוכן לשימוש לסלטים, מוקפצים ותוספות.",image:"kruvlavan.webp",emoji:"🥬"},
+  {name:"כרוב אדום קצוץ",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"כרוב אדום קצוץ, מתאים לסלטים, חמוצים ותוספות.",image:"kruvadom.webp",emoji:"🥬"},
+  {name:"חסה קצוצה",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"חסה קצוצה ומוכנה לשימוש, מתאימה לסלטים והגשה מהירה.",image:"hasa.webp",emoji:"🥬"},
+  {name:"גזר מקולף",pack:"מארז 10 ק״ג",category:"גזר",desc:"גזר מקולף, שטוף ומוכן לחיתוך, בישול או הגשה.",image:"carrot.webp",emoji:"🥕"},
+  {name:"גזר קוביות",pack:"מארז 10 ק״ג",category:"גזר",desc:"גזר חתוך לקוביות, מתאים למרקים, תבשילים ומטבח מוסדי.",image:"kubiot.webp",emoji:"🥕"},
+  {name:"גזר טבעות",pack:"מארז 10 ק״ג",category:"גזר",desc:"טבעות גזר אחידות, מתאימות לקוסקוס, מרקים ותבשילים.",image:"diskiot.webp",emoji:"🥕"},
+  {name:"בצל מקולף",pack:"מארז 10 ק״ג",category:"בצל",desc:"בצל לבן מקולף, נקי ומוכן לחיתוך או בישול.",image:"onion.webp",emoji:"🧅"},
+  {name:"בצל סגול מקולף",pack:"מארז 10 ק״ג",category:"בצל",desc:"בצל סגול מקולף, מתאים לסלטים, בישול והכנות מטבח.",image:"redonion.webp",emoji:"🧅"},
+  {name:"בטטה מקולפת",pack:"מארז 10 ק״ג",category:"בטטה",desc:"בטטה מקולפת, נקייה ומוכנה לחיתוך, אפייה ובישול.",image:"batata.webp",emoji:"🍠"}
 ];
 
 let currentProductIndex = null;
