@@ -1,2778 +1,409 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover" />
-  <title>משה קילופים | ירקות טריים קלופים וחתוכים למטבחים, עסקים, ומוסדות</title>
-  <meta name="description" content="משה קילופים מספקת ירקות טריים קלופים, שטופים וחתוכים למסעדות, קייטרינגים ומוסדות. אספקה יומית, כשרות מהודרת, ואפס פחת במטבח.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>משה קילופים · ירקות קלופים וחתוכים למטבחים מקצועיים</title>
+  <meta name="description" content="ירקות טריים, קלופים וחתוכים לפי דרישה למסעדות, קייטרינגים ומוסדות. אספקה יומית, כשרות מקומית ושארית ישראל. בוחרים מוצרים ומקבלים הצעת מחיר בוואטסאפ.">
+  <meta name="theme-color" content="#3b2314">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#3d4616">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="icon" type="image/png" href="img/favicon-64.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <meta property="og:title" content="משה קילופים">
+  <meta property="og:description" content="ירקות טריים, קלופים וחתוכים — מוכנים לעבודה במטבח.">
+  <meta property="og:image" content="img/logo-720.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  
-  <style>
-
-    /* אנימציה לעגלה העליונה (הקפצה קטנה ונעימה) */
-    @keyframes cartWiggle {
-      0% { transform: scale(1); }
-      40% { transform: scale(1.15) translateY(-3px); }
-      75% { transform: scale(0.95) translateY(1px); }
-      100% { transform: scale(1); }
-    }
-    .cart-wiggle {
-      animation: cartWiggle 0.4s ease-out;
-      color: var(--gold) !important; 
-    }
-
-    /* עיצוב בולט לכפתור ההזמנה התחתון כשיש מוצרים בעגלה */
-    .btn-has-items {
-      background: var(--gold) !important;
-      color: #171717 !important;
-      transform: scale(1.08) translateY(-4px);
-      box-shadow: 0 6px 20px rgba(200,150,93,0.4);
-      font-weight: 900 !important;
-      border-radius: 16px !important;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    :root {
-      --cream: #fdfbf7; --cream-dark: #f3eadc; --olive: #3d4616; --olive-light: #536025;
-      --gold: #c8965d; --dark: #1a1a1a; --muted: #666; --white: #fff;
-      --glass: rgba(255,255,255,0.9); --shadow: 0 18px 45px rgba(0,0,0,0.12);
-      --radius: 26px; --font-heading: 'Rubik','Heebo',sans-serif; --font-body: 'Heebo',sans-serif;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; font-family: var(--font-body); color: var(--dark); background: linear-gradient(180deg,#e4c979,#f2e3b6); overflow-x: hidden; font-weight: 500; }
-    a { color: inherit; text-decoration: none; }
-
-    header { position: sticky; top: 0; z-index: 1000; background: rgba(255,255,255,0.95); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(0,0,0,0.07); padding: 14px 5%; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-    .logo { font-family: var(--font-heading); font-size: 2.6rem; font-weight: 700; color: var(--olive); letter-spacing: -1.5px; white-space: nowrap; line-height: 1; }
-    .logo span { color: var(--gold); font-weight: 800; }
-    .logo { font-family: var(--font-heading); font-size: 2.6rem; font-weight: 700; color: var(--olive); letter-spacing: -1.5px; white-space: nowrap; line-height: 1; }
-    .logo span { color: var(--gold); font-weight: 800; }
-    
-    /* הנה הקוד שהדבקת: */
-    .header-user-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--olive), var(--olive-light));
-      color: white;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-heading);
-      font-size: 1.3rem;
-      font-weight: 800;
-      box-shadow: 0 4px 10px rgba(61,70,22,0.15);
-      flex-shrink: 0;
-      border: 2px solid white;
-    }
-
-    .header-greeting {
-      font-size: 0.95rem;
-      color: var(--muted);
-      font-weight: 600;
-      margin-top: 1px;
-    }
-
-   nav { display: flex; align-items: center; gap: 26px; font-weight: 700; color: var(--olive); }
-    nav a:hover { color: var(--gold); }
-    
-    /* העיצוב החדש של כפתור ההתקנה */
-    .nav-install-btn {
-      background: rgba(200,150,93,0.15);
-      color: var(--olive) !important;
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: 1px solid rgba(200,150,93,0.3);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: 0.25s;
-      font-size: 1.05rem;
-    }
-    .nav-install-btn:hover {
-      background: var(--gold);
-      color: #171717 !important;
-      transform: translateY(-2px);
-    }
-    body.is-pwa .hide-in-pwa {
-      display: none !important;
-    }
-    
-    .cart-container { cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--olive); color: white; padding: 10px 20px; border-radius: 999px; font-weight: 700; border: none; transition: 0.25s; white-space: nowrap; font-family: inherit; font-size: 1rem; }
-    .cart-container:hover { background: var(--olive-light); transform: translateY(-2px); }
-    .hamburger { display: none; background: none; border: none; font-size: 1.8rem; color: var(--olive); cursor: pointer; padding: 5px; }
-    .mobile-menu { display: none; position: fixed; inset: 0; background: rgba(253,251,247,0.98); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; gap: 30px; transform: translateY(-100%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
-    .mobile-menu.open { transform: translateY(0); display: flex; }
-    .mobile-menu a { font-family: var(--font-heading); font-size: 2rem; color: var(--olive); font-weight: 700; }
-    .close-menu { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 3rem; color: var(--olive); cursor: pointer; }
-    .hero { position: relative; min-height: 86vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background-image: url('opening.webp'); background-size: cover; background-position: center; background-attachment: fixed; background-color: var(--olive); padding: 120px 20px; }
-    .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.65)); }
-    .hero-content { position: relative; max-width: 980px; z-index: 1; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 9px 18px; font-weight: 700; backdrop-filter: blur(8px); margin-bottom: 22px; color: #fff; }
-    .hero h1 { font-family: var(--font-heading); font-size: clamp(3rem,8vw,6.2rem); line-height: 1.02; margin: 0; color: #fff; text-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: 700; letter-spacing: -2.5px; }
-    .hero h1 span { color: var(--gold); }
-    .hero p { font-size: clamp(1.25rem,2.3vw,1.9rem); margin: 24px auto 34px; max-width: 840px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.4); font-weight: 700; }
-    .hero-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: none; border-radius: 999px; padding: 14px 26px; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: 0.25s; font-family: inherit; }
-    .btn-primary { background: var(--gold); color: #171717; }
-    .btn-primary:hover { transform: translateY(-3px); filter: brightness(1.05); }
-    .btn-secondary { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.4); backdrop-filter: blur(8px); }
-    .btn-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px); }
-
-    .trust-strip { margin: -42px auto 0; position: relative; z-index: 2; width: min(1180px,92%); background: var(--white); box-shadow: var(--shadow); border-radius: var(--radius); padding: 22px; display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
-    .trust-item { text-align: center; padding: 10px; border-left: 1px solid rgba(0,0,0,0.08); }
-    .trust-item:last-child { border-left: none; }
-    .trust-item i { color: var(--gold); font-size: 1.5rem; margin-bottom: 8px; }
-    .trust-item strong { display: block; color: var(--olive); font-size: 1.05rem; }
-    .trust-item span { color: var(--muted); font-size: 0.95rem; }
-
-    .section { width: min(1240px,92%); margin: 50px auto; }
-    .glass-panel { background: var(--glass); border: 1px solid rgba(255,255,255,0.65); box-shadow: var(--shadow); border-radius: var(--radius); padding: clamp(28px,5vw,58px); backdrop-filter: blur(12px); }
-    .section-title { font-family: var(--font-heading); font-size: clamp(2.1rem,4vw,3.2rem); color: var(--olive); text-align: center; margin: 0 0 34px; letter-spacing: -1px; font-weight: 700; }
-    .section-title::after { content: ""; display: block; width: 70px; height: 5px; background: var(--gold); border-radius: 999px; margin: 15px auto 0; }
-    .section-subtitle { text-align: center; color: var(--muted); font-size: 1.1rem; margin: -20px 0 30px; font-weight: 600; }
-    .sector-divider { text-align: center; color: rgba(200,150,93,0.5); font-size: 1.5rem; margin: 60px 0; display: flex; align-items: center; justify-content: center; }
-    .sector-divider::before,.sector-divider::after { content: ""; height: 1px; background: rgba(200,150,93,0.3); flex: 1; margin: 0 5%; }
-
-    .about-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; align-items: center; gap: 42px; }
-    .about-grid p { font-size: 1.18rem; line-height: 1.9; margin: 0 0 18px; font-weight: 500; }
-    .about-strong { margin-top: 10px; font-weight: 800; color: var(--olive); }
-    .badge-wrapper { position: relative; overflow: visible; }
-    .badge-30 { position: absolute; bottom: -30px; right: -30px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle,#fff 42%,var(--gold)); border: 5px solid var(--gold); display: flex; align-items: center; justify-content: center; text-align: center; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; color: var(--olive); line-height: 1.2; box-shadow: 0 20px 50px rgba(0,0,0,0.28); transform: scale(0.7) rotate(-15deg); z-index: 2; opacity: 0; transition: opacity 0.7s,transform 0.7s; }
-    .badge-30.active { opacity: 1; transform: scale(1) rotate(-10deg); }
-    .about-image img { width: 100%; border-radius: 22px; display: block; box-shadow: var(--shadow); object-fit: cover; }
-
-    .audience-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; margin-top: 26px; }
-    .audience-card { background: #fff; border-radius: 24px; padding: 24px 18px; text-align: center; box-shadow: 0 12px 28px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05); transition: 0.25s; }
-    .audience-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
-    .audience-card i { font-size: 2.35rem; color: var(--gold); margin-bottom: 14px; }
-    .audience-card h3 { margin: 0 0 8px; font-family: var(--font-heading); color: var(--olive); font-size: 1.25rem; }
-    .audience-card p { margin: 0; color: var(--muted); line-height: 1.55; font-weight: 600; }
-
-    .search-wrap { position: relative; max-width: 500px; margin: 0 auto 28px; }
-    .search-wrap i { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1.1rem; pointer-events: none; }
-    #catalogSearch { width: 100%; border: 1.5px solid rgba(0,0,0,0.12); border-radius: 999px; padding: 13px 46px 13px 20px; font-family: inherit; font-size: 1rem; background: white; outline: none; transition: 0.3s; font-weight: 600; }
-    #catalogSearch:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(200,150,93,0.15); }
-    #catalogSearch::placeholder { color: #aaa; }
-
-    .filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
-    .filter-btn { border: 1px solid rgba(0,0,0,0.12); background: #fff; color: var(--olive); border-radius: 999px; padding: 10px 18px; font-family: inherit; font-weight: 700; cursor: pointer; transition: 0.25s; }
-    .filter-btn:hover,.filter-btn.active { background: var(--olive); color: #fff; transform: translateY(-2px); }
-
-    .products-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 24px; }
-    .product-card { background: white; border-radius: 24px; padding: 0; box-shadow: 0 12px 28px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05); transition: 0.25s; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-    .product-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); }
-    .badge-popular { position: absolute; top: 10px; right: 10px; z-index: 5; background: var(--gold); color: #171717; border-radius: 999px; padding: 4px 12px; font-size: 0.82rem; font-weight: 900; font-family: var(--font-heading); box-shadow: 0 4px 10px rgba(200,150,93,0.4); }
-    .badge-ordered { position: absolute; top: 10px; right: 10px; z-index: 5; background: var(--olive); color: #fff; border-radius: 999px; padding: 4px 12px; font-size: 0.82rem; font-weight: 900; font-family: var(--font-heading); display: flex; align-items: center; gap: 5px; }
-    .product-image-btn { width: 100%; height: 180px; border: 0; padding: 0; background: var(--cream-dark); cursor: pointer; position: relative; overflow: hidden; display: block; }
-    .product-image-btn img { width: 100%; height: 100%; object-fit: cover; display: block; transition: 0.35s; }
-    .product-card:hover .product-image-btn img { transform: scale(1.06); }
-    .product-fallback { display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 4.2rem; background: linear-gradient(135deg,#f7efe2,#fff); }
-    .product-card-body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
-    .product-category { display: inline-flex; width: fit-content; background: rgba(200,150,93,0.15); color: var(--olive); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; }
-    .product-card h3 { font-family: var(--font-heading); color: var(--olive); margin: 0 0 8px; font-size: 1.45rem; }
-    .product-card p { color: var(--muted); line-height: 1.65; margin: 0 0 18px; flex: 1; }
-    .price-note { display: inline-flex; width: fit-content; align-items: center; gap: 7px; background: rgba(61,70,22,0.09); color: var(--olive); border: 1px solid rgba(61,70,22,0.12); border-radius: 999px; padding: 7px 12px; font-weight: 900; font-size: 0.88rem; margin: 0 0 14px; }
-    .btn-add { background: var(--olive); color: white; border: none; padding: 13px 14px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: 0.25s; width: 100%; font-family: inherit; font-size: 1rem; }
-    .btn-add:hover { background: var(--olive-light); }
-    .desk-btn { display: block; }
-
-    .inline-qty-ctrl { display: none; align-items: center; width: 100%; border-radius: 14px; overflow: hidden; border: 2px solid var(--olive); }
-    .inline-qty-ctrl.visible { display: flex; }
-    .inline-qty-ctrl button { flex: 0 0 44px; height: 44px; border: none; background: var(--olive); color: white; font-size: 1.3rem; font-weight: 900; cursor: pointer; transition: 0.2s; font-family: inherit; }
-    .inline-qty-ctrl button:hover { background: var(--olive-light); }
-    .inline-qty-ctrl strong { flex: 1; text-align: center; font-size: 1.1rem; font-weight: 900; color: var(--olive); background: #fff; height: 44px; display: flex; align-items: center; justify-content: center; }
-
-    .mobile-btn { display: none; }
-    .mobile-cart-bar { display: none; }
-
-    .product-page { position: fixed; inset: 0; background: rgba(0,0,0,0.58); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 22px; }
-    .product-page.open { display: flex; }
-    .product-page-card { background: #fff; border-radius: 28px; width: min(980px,96vw); max-height: 90vh; overflow: auto; box-shadow: 0 30px 80px rgba(0,0,0,0.35); display: grid; grid-template-columns: 0.9fr 1.1fr; position: relative; }
-    .product-close { position: absolute; top: 14px; left: 14px; width: 42px; height: 42px; border: 0; border-radius: 50%; background: rgba(255,255,255,0.9); font-size: 2rem; cursor: pointer; z-index: 2; box-shadow: 0 8px 18px rgba(0,0,0,0.15); }
-    .product-page-image { min-height: 430px; background: var(--cream-dark); }
-    .product-page-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .product-detail-fallback { display: none; width: 100%; height: 100%; min-height: 430px; align-items: center; justify-content: center; font-size: 7rem; background: linear-gradient(135deg,#f7efe2,#fff); }
-    .product-page-content { padding: 44px; }
-    .product-page-content h2 { font-family: var(--font-heading); color: var(--olive); font-size: clamp(2rem,4vw,3.2rem); margin: 0 0 14px; line-height: 1.05; }
-    .product-page-content p { color: var(--muted); font-size: 1.15rem; line-height: 1.8; margin: 0 0 24px; }
-    .detail-info { display: grid; gap: 14px; margin: 24px 0; }
-    .detail-info div { background: var(--cream); border: 1px solid rgba(0,0,0,0.06); border-radius: 18px; padding: 16px; }
-    .detail-info strong { display: block; color: var(--olive); margin-bottom: 6px; font-size: 1.05rem; }
-    .detail-order { display: grid; grid-template-columns: 1fr 130px; gap: 12px; align-items: end; }
-    .detail-order label { grid-column: 1/-1; font-weight: 800; color: var(--olive); }
-    .detail-order input { border: 1px solid rgba(0,0,0,0.13); border-radius: 14px; padding: 13px 15px; font-family: inherit; font-size: 1rem; background: white; outline: none; transition: 0.3s; }
-    .detail-order input:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(200,150,93,0.15); }
-
-    #cart-page { background: linear-gradient(135deg,rgba(255,255,255,0.94),rgba(253,251,247,0.96)); border: 1px solid rgba(200,150,93,0.20); }
-    .cart-page-layout { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(330px,0.65fr); gap: 26px; align-items: start; }
-    .cart-page-items { display: grid; gap: 18px; }
-    .cart-empty { background: #fff; border-radius: 26px; padding: 44px 28px; text-align: center; color: var(--muted); border: 1px dashed rgba(61,70,22,0.24); font-weight: 800; box-shadow: 0 10px 24px rgba(0,0,0,0.05); }
-    .cart-empty i { font-size: 3rem; color: var(--gold); margin-bottom: 16px; display: block; }
-    .cart-empty h3 { color: var(--olive); font-family: var(--font-heading); margin: 0 0 10px; }
-    .cart-empty p { margin: 0; font-weight: 600; }
-    .cart-page-item { display: grid; grid-template-columns: 150px 1fr 150px; gap: 20px; align-items: center; background: #fff; border-radius: 26px; padding: 16px; box-shadow: 0 16px 34px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.06); transition: 0.25s; position: relative; overflow: hidden; }
-    .cart-page-item::before { content: ""; position: absolute; inset-inline-start: 0; top: 0; width: 6px; height: 100%; background: var(--gold); }
-    .cart-page-item:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-    .cart-page-item img { width: 150px; height: 120px; object-fit: cover; border-radius: 20px; background: var(--cream-dark); }
-    .cart-page-item h3 { margin: 0 0 7px; color: var(--olive); font-family: var(--font-heading); font-size: 1.42rem; }
-    .cart-page-item p { margin: 0 0 10px; color: var(--muted); font-size: 0.98rem; }
-    .pack-line { display: inline-flex; width: fit-content; background: rgba(200,150,93,0.16); color: var(--olive); border-radius: 999px; padding: 7px 13px; font-weight: 900; font-size: 0.92rem; }
-    .cart-page-actions { display: flex; flex-direction: column; gap: 10px; }
-    .cart-qty-control { display: grid; grid-template-columns: 38px 1fr 38px; align-items: center; gap: 8px; background: var(--cream); padding: 8px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.06); }
-    .cart-qty-control button { width: 38px; height: 38px; border-radius: 12px; background: #fff; color: var(--olive); font-size: 1.25rem; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: none; cursor: pointer; transition: 0.2s; }
-    .cart-qty-control button:hover { background: var(--gold); color: #171717; }
-    .cart-qty-control strong { text-align: center; color: var(--olive); font-size: 1.15rem; font-weight: 900; }
-    .remove-cart-item { background: #fdf5f5; color: #dc3545; border-radius: 14px; padding: 10px 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s; }
-    .remove-cart-item:hover { background: #fce4e4; }
-
-    .cart-summary-box { background: linear-gradient(180deg,#ffffff,#fbf7ef); border-radius: 28px; padding: 24px; box-shadow: var(--shadow); border: 1px solid rgba(200,150,93,0.20); position: sticky; top: 100px; }
-    .cart-summary-box h3 { margin: 0 0 14px; color: var(--olive); font-family: var(--font-heading); font-size: 1.55rem; }
-    .cart-summary-line { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.07); font-weight: 800; }
-    .cart-summary-line span:last-child { color: var(--olive); font-weight: 900; }
-    .cart-price-note { margin-top: 14px; background: rgba(200,150,93,0.14); color: var(--olive); border-radius: 16px; padding: 12px; font-weight: 800; line-height: 1.5; text-align: center; }
-    .quote-form { display: grid; gap: 10px; margin-top: 18px; }
-    .quote-form input,.quote-form textarea,.quote-form select { width: 100%; border-radius: 15px; padding: 13px 14px; font-family: inherit; border: 1px solid rgba(0,0,0,0.13); background: #fff; transition: 0.3s; outline: none; font-size: 16px; }
-    .quote-form input:focus,.quote-form textarea:focus,.quote-form select:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(200,150,93,0.15); }
-    .quote-form textarea { min-height: 88px; resize: vertical; }
-    .quote-actions { display: grid; gap: 10px; margin-top: 16px; }
-    .quote-whatsapp,.quote-phone,.quote-mail { width: 100%; min-height: 52px; border: none; border-radius: 17px; padding: 14px 16px; font-family: inherit; font-size: 1.05rem; font-weight: 900; cursor: pointer; transition: 0.25s; display: flex; align-items: center; justify-content: center; gap: 9px; text-decoration: none; }
-    .quote-whatsapp { background: #25D366; color: #fff; }
-    .quote-phone { background: var(--olive); color: #fff; }
-    .quote-mail { background: var(--gold); color: #171717; }
-    .quote-whatsapp:hover,.quote-phone:hover,.quote-mail:hover { transform: translateY(-2px); filter: brightness(0.97); }
-    .quote-help-text { margin: 12px 0 0; color: var(--muted); font-size: 0.92rem; line-height: 1.5; text-align: center; font-weight: 600; }
-
-    .btn-restore { background: linear-gradient(135deg,var(--gold),#dcb27f); color: #1a1a1a; font-size: 1.15rem; padding: 15px 28px; border-radius: 16px; border: none; font-weight: 900; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center; max-width: 380px; margin: 20px auto 0; animation: pulse-gold 2s infinite; font-family: inherit; }
-    @keyframes pulse-gold { 0%{box-shadow:0 0 0 0 rgba(200,150,93,0.5)} 70%{box-shadow:0 0 0 15px rgba(200,150,93,0)} 100%{box-shadow:0 0 0 0 rgba(200,150,93,0)} }
-    .orders-history-panel { margin-top: 24px; border-top: 1px solid rgba(0,0,0,0.07); padding-top: 20px; }
-    .orders-history-panel h4 { font-family: var(--font-heading); color: var(--olive); font-size: 1.2rem; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
-    .order-history-item { background: #fff; border-radius: 20px; padding: 16px 18px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 6px 16px rgba(0,0,0,0.06); transition: 0.2s; }
-    .order-history-item:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-    .order-history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .order-history-date { font-weight: 800; color: var(--olive); font-size: 0.95rem; }
-    .order-history-count { background: rgba(200,150,93,0.18); color: var(--olive); border-radius: 999px; padding: 4px 12px; font-weight: 900; font-size: 0.88rem; }
-    .order-history-products { color: var(--muted); font-size: 0.92rem; font-weight: 600; line-height: 1.6; margin-bottom: 12px; }
-    .btn-reorder { background: var(--olive); color: white; border: none; border-radius: 12px; padding: 9px 18px; font-weight: 700; font-family: inherit; cursor: pointer; transition: 0.2s; font-size: 0.95rem; display: flex; align-items: center; gap: 7px; }
-    .btn-reorder:hover { background: var(--olive-light); transform: translateY(-1px); }
-
-    .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 22px; }
-    .success-overlay.open { display: flex; }
-    .success-card { background: #fff; border-radius: 32px; padding: 52px 44px; text-align: center; max-width: 480px; width: 100%; box-shadow: 0 40px 80px rgba(0,0,0,0.3); animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
-    @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
-    .success-icon { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2.8rem; color: white; }
-    .success-icon.wa { background: linear-gradient(135deg,#25D366,#1daa54); box-shadow: 0 16px 32px rgba(37,211,102,0.35); }
-    .success-icon.ph { background: linear-gradient(135deg,var(--olive),var(--olive-light)); box-shadow: 0 16px 32px rgba(61,70,22,0.35); }
-    .success-icon.ml { background: linear-gradient(135deg,var(--gold),#dcb27f); box-shadow: 0 16px 32px rgba(200,150,93,0.35); }
-    .success-card h2 { font-family: var(--font-heading); color: var(--olive); font-size: 2rem; margin: 0 0 12px; }
-    .success-card p { color: var(--muted); font-size: 1.1rem; line-height: 1.7; margin: 0 0 28px; font-weight: 600; }
-    .success-time { display: inline-flex; align-items: center; gap: 8px; background: rgba(61,70,22,0.08); color: var(--olive); border-radius: 999px; padding: 8px 18px; font-weight: 800; font-size: 0.95rem; margin-bottom: 28px; }
-    .btn-close-success { background: var(--olive); color: white; border: none; border-radius: 16px; padding: 14px 32px; font-family: inherit; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.25s; }
-    .btn-close-success:hover { background: var(--olive-light); transform: translateY(-2px); }
-
-    #vip-welcome-banner { width: min(1240px,92%); margin: 25px auto 10px; display: none; }
-    
-    .vip-card {
-      background: rgba(253,251,247,0.95);
-      border: 1px solid rgba(200,150,93,0.25);
-      border-radius: 24px;
-      padding: 24px 30px;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.06);
-      border-right: 5px solid var(--gold);
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .vip-card-main {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .vip-user-info {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .vip-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--olive), var(--olive-light));
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-heading);
-      font-size: 1.8rem;
-      font-weight: 800;
-      box-shadow: 0 6px 15px rgba(61,70,22,0.2);
-    }
-
-    .vip-welcome-text {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.1;
-    }
-
-    .vip-greet {
-      font-size: 1rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    .vip-name {
-      font-family: var(--font-heading);
-      color: var(--olive);
-      font-size: 2rem;
-      font-weight: 900;
-    }
-
-    .btn-vip-logout {
-      background: white;
-      border: 1px solid rgba(0,0,0,0.08);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 10px 20px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      font-size: 0.95rem;
-      transition: 0.25s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-    }
-
-    .btn-vip-logout:hover {
-      background: #fdf5f5;
-      color: #dc3545;
-      border-color: rgba(220,53,69,0.2);
-      transform: translateY(-2px);
-    }
-
-    .vip-card-footer {
-      background: rgba(200,150,93,0.08);
-      border-radius: 14px;
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 1.05rem;
-      font-weight: 500;
-    }
-
-    .vip-card-footer i {
-      color: var(--gold);
-      font-size: 1.3rem;
-    }
-
-    .vip-card-footer strong {
-      color: var(--olive);
-      font-weight: 800;
-    }
-
-    .quick-contact-panel { text-align: center; background: linear-gradient(135deg,rgba(255,255,255,0.96),rgba(253,251,247,0.94)); border: 1px solid rgba(200,150,93,0.18); }
-    .contact-icons { display: flex; justify-content: center; gap: 28px; margin-top: 26px; flex-wrap: wrap; }
-    .contact-card { width: 165px; min-height: 150px; border-radius: 24px; background: #fff; box-shadow: 0 14px 32px rgba(0,0,0,0.10); border: 1px solid rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; transition: 0.25s; }
-    .contact-card i { font-size: 3.2rem; }
-    .contact-card span { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--olive); }
-    .contact-card small { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
-    .contact-card:hover { transform: translateY(-7px) scale(1.03); box-shadow: var(--shadow); }
-    .contact-card.whatsapp i { color: #25D366; }
-    .contact-card.phone i { color: var(--olive); }
-    .contact-card.mail i { color: var(--gold); }
-
-    .floating-contact { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; background: #25D366; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 12px 25px rgba(0,0,0,0.22); z-index: 1000; text-decoration: none; transition: transform 0.3s ease, bottom 0.3s ease; }
-    .floating-contact:hover { transform: scale(1.08); }
-    body.cart-active .floating-contact { bottom: 90px; }
-    .reveal { opacity: 0; transform: translateY(28px); transition: 0.75s ease; }
-    .reveal.active { opacity: 1; transform: translateY(0); }
-    footer { background: var(--olive); color: rgba(255,255,255,0.78); padding: 34px 5%; text-align: center; margin-top: 70px; }
-
-    main { display: flex; flex-direction: column; }
-    #vip-welcome-banner { order: 0; }
-    #about-wrapper { order: 1; }
-    #audience-wrapper { order: 2; }
-    #products-wrapper { order: 3; }
-    #cart-wrapper { order: 4; }
-    #contact-wrapper { order: 5; }
-    
-    body.vip-mode #vip-welcome-banner { display: block !important; order: 1; margin-top: 20px; }
-    body.vip-mode #cart-wrapper { order: 2; margin-top: 20px; }
-    body.vip-mode #products-wrapper { order: 3; }
-    body.vip-mode #contact-wrapper { order: 4; }
-    body.vip-mode #about-wrapper, body.vip-mode #audience-wrapper { display: none !important; }
-
-    /* ════ MOBILE APP ════ */
-    .mobile-app-overlay { display: none; }
-    .bottom-nav-bar { display: none; }
-
-    @media (max-width: 767px) {
-    body.mobile-app-mode header,
-    body.mobile-app-mode footer,
-    body.mobile-app-mode .hero,
-    body.mobile-app-mode .trust-strip,
-    body.mobile-app-mode main,
-    body.mobile-app-mode .floating-contact,
-    body.mobile-app-mode #mobileCartBar { display: none !important; }
-    body.mobile-app-mode .hide-in-pwa { display: none !important; }
-    
-
-      .mobile-app-overlay {
-        display: none; flex-direction: column; position: fixed; inset: 0;
-        background: #f0e8d4; z-index: 500; overflow: hidden;
-      }
-      .app-topbar {
-        background: rgba(255,255,255,0.96); backdrop-filter: blur(14px);
-        border-bottom: 1px solid rgba(0,0,0,0.07); padding: 14px 18px 10px;
-        display: flex; align-items: center; justify-content: space-between;
-        flex-shrink: 0; position: relative;
-      }
-      .app-topbar-logo { font-family: var(--font-heading); font-size: 1.7rem; font-weight: 700; color: var(--olive); letter-spacing: -1px; }
-      .app-topbar-logo span { color: var(--gold); }
-      .app-topbar-back { display: none; align-items: center; gap: 6px; background: none; border: none; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--olive); cursor: pointer; padding: 6px 10px 6px 6px; border-radius: 999px; transition: .2s; }
-      .app-topbar-back.visible { display: flex; }
-      .app-topbar-back:active { background: rgba(0,0,0,0.05); }
-      .app-topbar-cart-badge { background: var(--olive); color: #fff; border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 7px; cursor: pointer; border: none; font-family: inherit; }
-
-      .app-screens { flex: 1; overflow: hidden; position: relative; width: 100%; max-width: 100vw; }
-      .app-screen { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 80px; transform: translateX(100%); transition: transform 0.32s cubic-bezier(0.4,0,0.2,1); background: #f0e8d4; will-change: transform; }
-      .app-screen.active { transform: translateX(0); }
-      .app-screen.slide-left { transform: translateX(-30%); }
-
-      .bottom-nav-bar { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; height: 68px; background: rgba(255,255,255,0.97); backdrop-filter: blur(16px); border-top: 1px solid rgba(0,0,0,0.08); z-index: 600; align-items: flex-end; padding: 0 6px 10px; gap: 0; }
-      .nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px; border: none; background: none; cursor: pointer; color: #999; transition: .18s; font-family: var(--font-body); }
-      .nav-tab i { font-size: 21px; transition: .18s; }
-      .nav-tab span { font-size: 10px; font-weight: 700; transition: .18s; }
-      .nav-tab.active { color: var(--olive); }
-      .nav-fab-wrap { flex: 1.2; display: flex; flex-direction: column; align-items: center; gap: 3px; padding-bottom: 0; cursor: pointer; }
-      .nav-fab { width: 54px; height: 54px; border-radius: 50%; background: var(--olive); color: #fff; border: 3px solid rgba(255,255,255,0.97); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-top: -22px; box-shadow: 0 8px 20px rgba(61,70,22,0.35); transition: .18s; cursor: pointer; }
-      .nav-fab-label { font-size: 10px; font-weight: 700; color: #999; transition: .18s; }
-      .nav-fab-wrap.active .nav-fab { background: var(--gold); }
-      .nav-fab-wrap.active .nav-fab-label { color: var(--gold); }
-
-      /* Filter strip */
-      .mob-filter-strip { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; position: sticky; top: 0; z-index: 10; background: rgba(240,232,212,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-      .mob-filter-strip::-webkit-scrollbar { display: none; }
-      .mob-chip { flex-shrink: 0; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.12); background: #fff; font-size: 0.95rem; font-weight: 700; color: var(--olive); cursor: pointer; white-space: nowrap; font-family: inherit; transition: .2s; }
-      .mob-chip.active { background: var(--olive); color: #fff; border-color: var(--olive); }
-      .mob-products-list { padding: 10px 14px 0; }
-      .mob-product-row { background: #fff; border-radius: 18px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); position: relative; }
-      .mob-prod-img { width: 68px; height: 68px; border-radius: 12px; background: var(--cream-dark); object-fit: cover; flex-shrink: 0; display: block; }
-      .mob-prod-fallback { width: 68px; height: 68px; border-radius: 12px; background: linear-gradient(135deg,#f7efe2,#fff); display: none; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; }
-      .mob-prod-info { flex: 1; min-width: 0; }
-      .mob-prod-name { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--olive); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .mob-prod-pack { font-size: 0.85rem; color: var(--muted); margin-top: 2px; font-weight: 600; }
-      .mob-prod-badge { display: inline-block; background: rgba(200,150,93,0.18); color: var(--olive); border-radius: 999px; padding: 2px 9px; font-size: 0.75rem; font-weight: 700; margin-top: 4px; }
-      .mob-add-btn { width: 36px; height: 36px; border-radius: 10px; background: var(--olive); color: #fff; border: none; font-size: 1.3rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: .2s; }
-      .mob-qty-ctrl { display: flex; align-items: center; border: 1.5px solid var(--olive); border-radius: 10px; overflow: hidden; }
-      .mob-qty-ctrl button { width: 32px; height: 36px; border: none; background: var(--olive); color: #fff; font-size: 1rem; font-weight: 900; cursor: pointer; font-family: inherit; }
-      .mob-qty-ctrl strong { min-width: 28px; text-align: center; font-size: 1rem; font-weight: 900; color: var(--olive); background: #fff; height: 36px; display: flex; align-items: center; justify-content: center; }
-
-      /* Personal screen */
-      .mob-section-pad { padding: 16px 14px 0; }
-      .mob-user-card { background: #fff; border-radius: 22px; padding: 20px 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.07); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 12px; }
-      .mob-avatar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-      .mob-avatar { width: 54px; height: 54px; border-radius: 50%; background: var(--olive); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; flex-shrink: 0; }
-      .mob-user-name { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: var(--olive); }
-      .mob-user-sub { font-size: 0.9rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
-      .mob-info-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
-      .mob-info-row:last-child { border-bottom: none; }
-      .mob-info-row i { color: var(--gold); font-size: 1.05rem; width: 20px; text-align: center; }
-      .mob-info-row span { flex: 1; font-size: 0.95rem; color: var(--muted); font-weight: 600; }
-      .mob-info-row strong { font-size: 0.95rem; color: var(--olive); font-weight: 700; }
-      .mob-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-      .mob-stat-card { background: #fff; border-radius: 18px; padding: 14px 12px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); }
-      .mob-stat-num { font-family: var(--font-heading); font-size: 2rem; font-weight: 900; color: var(--olive); }
-      .mob-stat-lbl { font-size: 0.8rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
-      .mob-edit-btn { width: 100%; padding: 13px; border-radius: 16px; border: 1.5px solid rgba(61,70,22,0.2); background: #fff; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--olive); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: .2s; margin-bottom: 14px; }
-      .mob-edit-form { display: none; flex-direction: column; gap: 10px; margin-bottom: 14px; }
-      .mob-edit-form.open { display: flex; }
-      .mob-edit-form input { width: 100%; padding: 12px 14px; border-radius: 14px; border: 1.5px solid rgba(0,0,0,0.12); background: #fff; font-family: var(--font-body); font-size: 1rem; outline: none; transition: .3s; }
-      .mob-edit-form input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,93,0.15); }
-      .mob-save-btn { padding: 13px; border-radius: 14px; background: var(--olive); color: #fff; border: none; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; cursor: pointer; transition: .2s; }
-      .mob-logout-btn { width: 100%; padding: 13px; border-radius: 16px; border: 1px solid rgba(220,53,69,0.3); background: rgba(220,53,69,0.05); font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: #dc3545; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: .2s; }
-      .mob-settings-panel {
-        max-height: 0;
-        opacity: 0;
-        overflow: hidden;
-        background: #fff;
-        border-radius: 22px;
-        padding: 0 18px;
-        margin-bottom: 0;
-        border: 0 solid rgba(0,0,0,0.05);
-        box-shadow: none;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .mob-settings-panel.open {
-        max-height: 500px;
-        opacity: 1;
-        padding: 18px;
-        margin-bottom: 16px;
-        border: 1px solid rgba(0,0,0,0.05);
-        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-      }
-
-      /* ── ORDER SCREEN (FAB) - redesigned ── */
-      .mob-screen-title { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; color: var(--olive); padding: 16px 16px 4px; }
-      .mob-screen-sub { font-size: 0.85rem; color: var(--muted); font-weight: 600; padding: 0 16px 12px; }
-
-      /* Restore button — bold & prominent */
-      .mob-restore-big {
-        display: flex; align-items: center; gap: 14px;
-        background: linear-gradient(135deg, var(--gold), #dcb27f);
-        border-radius: 22px; padding: 18px 18px; margin-bottom: 14px;
-        border: none; width: 100%; cursor: pointer; font-family: inherit;
-        box-shadow: 0 8px 24px rgba(200,150,93,0.45);
-        animation: pulse-gold 2.2s infinite;
-        transition: .2s; text-align: right;
-      }
-      .mob-restore-big:active { transform: scale(.98); }
-      .mob-restore-icon { width: 52px; height: 52px; border-radius: 16px; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #171717; flex-shrink: 0; }
-      .mob-restore-title { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #171717; }
-      .mob-restore-sub { font-size: 0.82rem; color: rgba(0,0,0,0.6); font-weight: 600; margin-top: 3px; }
-
-      /* Cart inside order screen */
-      .mob-order-cart-section {
-        background: #fff; border-radius: 22px; padding: 16px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.07);
-        border: 1px solid rgba(0,0,0,0.05); margin-bottom: 14px;
-      }
-      .mob-order-cart-title {
-        font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700;
-        color: var(--olive); margin-bottom: 12px; display: flex; align-items: center;
-        justify-content: space-between;
-      }
-      .mob-order-cart-badge {
-        background: var(--olive); color: #fff; border-radius: 999px;
-        padding: 3px 11px; font-size: 0.82rem; font-weight: 900;
-      }
-      .mob-order-cart-empty {
-        text-align: center; color: var(--muted); font-size: 0.9rem;
-        font-weight: 600; padding: 12px 0;
-      }
-      .mob-order-cart-row {
-        display: flex; align-items: center; gap: 10px;
-        padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
-      }
-      .mob-order-cart-row:last-child { border-bottom: none; }
-      .mob-ocr-img { width: 46px; height: 46px; border-radius: 10px; object-fit: cover; background: var(--cream-dark); flex-shrink: 0; }
-      .mob-ocr-name { flex: 1; font-size: 0.92rem; font-weight: 700; color: var(--olive); }
-      .mob-ocr-qty-ctrl { display: flex; align-items: center; border: 1.5px solid var(--olive); border-radius: 9px; overflow: hidden; }
-      .mob-ocr-remove { background: #fdf5f5; color: #dc3545; border: none; border-radius: 10px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 1.1rem; margin-right: 6px; }
-      .mob-ocr-remove:active { background: #fce4e4; }
-      .mob-ocr-qty-ctrl button { width: 28px; height: 30px; border: none; background: var(--olive); color: #fff; font-size: 0.9rem; font-weight: 900; cursor: pointer; font-family: inherit; }
-      .mob-ocr-qty-ctrl strong { min-width: 24px; text-align: center; font-size: 0.9rem; font-weight: 900; color: var(--olive); background: #fff; height: 30px; display: flex; align-items: center; justify-content: center; }
-
-      /* Add more products link */
-      .mob-add-more-btn {
-        width: 100%; padding: 11px; border-radius: 14px; background: rgba(61,70,22,0.07);
-        border: 1.5px dashed rgba(61,70,22,0.25); color: var(--olive);
-        font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700;
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        gap: 8px; margin-top: 10px; transition: .2s;
-      }
-      .mob-add-more-btn:active { background: rgba(61,70,22,0.13); }
-
-      /* Order summary + send */
-      .mob-order-summary-box {
-        background: rgba(255,255,255,0.95); border-radius: 22px; padding: 16px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.07);
-        border: 1px solid rgba(200,150,93,0.2); margin-bottom: 14px;
-      }
-      .mob-order-summary-box h3 { font-family: var(--font-heading); color: var(--olive); font-size: 1rem; margin: 0 0 10px; }
-      .mob-os-line { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-weight: 700; font-size: 0.9rem; }
-      .mob-os-line span:last-child { color: var(--olive); font-weight: 900; }
-      .mob-price-note-sm { margin-top: 10px; background: rgba(200,150,93,0.14); color: var(--olive); border-radius: 12px; padding: 9px 11px; font-weight: 800; font-size: 0.82rem; text-align: center; }
-
-      /* User form for new users */
-      .mob-new-user-form { background: #fff; border-radius: 22px; padding: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 14px; }
-      .mob-new-user-form h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--olive); margin: 0 0 12px; }
-      .mob-form-group { display: grid; gap: 9px; }
-      .mob-form-group input, .mob-form-group textarea { width: 100%; padding: 12px 14px; border-radius: 14px; border: 1.5px solid rgba(0,0,0,0.12); background: #fff; font-family: var(--font-body); font-size: 16px; outline: none; transition: .3s; }
-      .mob-form-group input:focus, .mob-form-group textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,93,0.15); }
-      .mob-form-group textarea { min-height: 72px; resize: vertical; }
-
-      /* Notes field (always visible) */
-      .mob-notes-box { background: #fff; border-radius: 22px; padding: 14px 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 14px; }
-      .mob-notes-box label { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: var(--olive); display: block; margin-bottom: 8px; }
-      .mob-notes-box textarea { width: 100%; padding: 11px 13px; border-radius: 13px; border: 1.5px solid rgba(0,0,0,0.12); background: #fff; font-family: var(--font-body); font-size: 15px; outline: none; min-height: 66px; resize: vertical; transition: .3s; }
-      .mob-notes-box textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,93,0.15); }
-      .mob-notes-box input[type="date"] { width: 100%; margin-top: 8px; padding: 11px 13px; border-radius: 13px; border: 1.5px solid rgba(0,0,0,0.12); background: #fff; font-family: var(--font-body); font-size: 15px; outline: none; transition: .3s; }
-      .mob-notes-box input[type="date"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,93,0.15); }
-
-      /* Send buttons */
-      .mob-send-section { margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; }
-      .mob-send-wa { width: 100%; padding: 15px; border-radius: 16px; background: #25D366; color: #fff; border: none; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px; transition: .2s; }
-      .mob-send-wa:active { background: #1daa54; }
-      .mob-send-phone { width: 100%; padding: 15px; border-radius: 16px; background: var(--olive); color: #fff; border: none; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px; text-decoration: none; transition: .2s; }
-      .mob-send-phone:active { background: var(--olive-light); }
-      .mob-send-mail { width: 100%; padding: 15px; border-radius: 16px; background: var(--gold); color: #171717; border: none; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px; text-decoration: none; transition: .2s; }
-      .mob-send-mail:active { filter: brightness(0.93); }
-      .mob-send-disabled { opacity: 0.45; pointer-events: none; }
-      .mob-help-text { text-align: center; color: var(--muted); font-size: 0.82rem; font-weight: 600; line-height: 1.5; }
-
-      /* History screen */
-      .mob-order-card { background: #fff; border-radius: 22px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 12px; position: relative; overflow: hidden; }
-      .mob-order-card::before { content: ""; position: absolute; right: 0; top: 0; width: 5px; height: 100%; background: var(--gold); }
-      .mob-order-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-      .mob-order-date { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--olive); display: flex; align-items: center; gap: 6px; }
-      .mob-order-count { background: rgba(200,150,93,0.18); color: var(--olive); border-radius: 999px; padding: 4px 12px; font-size: 0.85rem; font-weight: 900; }
-      .mob-order-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-      .mob-tag { background: rgba(61,70,22,0.07); color: var(--olive); border-radius: 999px; padding: 4px 11px; font-size: 0.8rem; font-weight: 700; }
-      .mob-reorder-btn { width: 100%; padding: 12px; border-radius: 14px; background: var(--olive); color: #fff; border: none; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: .2s; }
-      .mob-reorder-btn:active { background: var(--olive-light); }
-
-      /* Contact screen */
-      .mob-contact-card { background: #fff; border-radius: 22px; padding: 18px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 12px; text-decoration: none; color: inherit; transition: .2s; }
-      .mob-contact-card:active { transform: scale(.98); }
-      .mob-contact-icon { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
-      .mob-contact-icon.wa { background: #e8f8ef; color: #25D366; }
-      .mob-contact-icon.ph { background: rgba(61,70,22,0.1); color: var(--olive); }
-      .mob-contact-icon.ml { background: rgba(200,150,93,0.18); color: var(--olive); }
-      .mob-contact-title { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--olive); }
-      .mob-contact-sub { font-size: 0.85rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
-      .mob-hours-box { background: #fff; border-radius: 18px; padding: 16px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); }
-      .mob-hours-box p { font-size: 0.9rem; color: var(--muted); font-weight: 600; }
-      .mob-hours-box strong { display: block; font-family: var(--font-heading); font-size: 1.1rem; color: var(--olive); margin-top: 4px; }
-
-      /* Personal history */
-      .mob-personal-history-section { margin-top: 6px; }
-      .mob-personal-history-section .mob-section-label { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--olive); margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
-    }
-
-    @media (max-width: 1180px) { .products-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
-    @media (max-width: 980px) {
-      nav { display: none; } .hamburger { display: block; }
-      .trust-strip { grid-template-columns: repeat(2,1fr); }
-      .about-grid { grid-template-columns: 1fr; }
-      .audience-grid { grid-template-columns: repeat(2,1fr); }
-      .products-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-      .cart-page-layout { grid-template-columns: 1fr; }
-      .cart-summary-box { position: static; }
-      .cart-page-item { grid-template-columns: 120px 1fr; }
-      .cart-page-actions { grid-column: 1/-1; display: grid; grid-template-columns: 1fr auto; }
-    }
-    @media (max-width: 768px) {
-      .hero { background-image: url('opening.webp') !important; background-attachment: scroll !important; }
-    }
-    @media (max-width: 640px) {
-      header { padding: 12px 4%; }
-      .logo { font-size: 1.65rem; }
-      .cart-container { padding: 9px 12px; font-size: 0.9rem; }
-      .hero { min-height: 78vh; padding: 86px 16px; }
-      .section { margin: 40px auto; }
-      .trust-strip { grid-template-columns: repeat(2,1fr); gap: 12px; padding: 16px; margin-top: -25px; }
-      .trust-item { border: none !important; font-size: 0.9rem; padding: 5px; }
-      .contact-card { width: 100%; min-height: 125px; }
-      .filters { position: sticky; top: 55px; z-index: 900; background: rgba(253,251,247,0.95); backdrop-filter: blur(8px); padding: 12px 0 16px; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-bottom: 1px solid rgba(0,0,0,0.05); }
-      .filters::-webkit-scrollbar { display: none; }
-      .filter-btn { flex-shrink: 0; font-size: 1.05rem; padding: 10px 20px; }
-      .products-grid { display: flex; flex-direction: column; gap: 12px; }
-      .product-card { flex-direction: row; min-height: auto; padding: 12px; }
-      .product-image-btn { width: 110px; height: 110px; border-radius: 12px; flex-shrink: 0; margin-left: 15px; }
-      .product-card-body { padding: 0; justify-content: center; }
-      .product-card h3 { font-size: 1.3rem; margin-bottom: 4px; }
-      .product-card p { font-size: 1rem; margin-bottom: 8px; }
-      .product-category,.price-note { display: none; }
-      .desk-btn { display: inline-flex; background: rgba(200,150,93,0.18); color: var(--olive); padding: 10px 20px; font-size: 1.05rem; width: max-content; align-self: flex-start; white-space: nowrap; font-weight: 800; border-radius: 14px; border: none; cursor: pointer; font-family: inherit; }
-      .desk-btn:active { background: var(--gold); color: #fff; }
-      .inline-qty-ctrl { width: 120px; align-self: flex-start; height: 38px; border-radius: 12px; }
-      .inline-qty-ctrl button { flex: 0 0 34px; height: 38px; font-size: 1.1rem; }
-      .inline-qty-ctrl strong { height: 38px; font-size: 1rem; }
-      .badge-popular,.badge-ordered { top: 6px; right: 6px; font-size: 0.72rem; padding: 3px 8px; }
-      .mobile-cart-bar { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; background: var(--olive); color: white; justify-content: space-between; align-items: center; padding: 14px 20px; padding-bottom: max(14px,env(safe-area-inset-bottom)); box-shadow: 0 -5px 20px rgba(0,0,0,0.15); z-index: 2000; transform: translateY(100%); transition: transform 0.3s ease-in-out; }
-      .mobile-cart-bar.active { transform: translateY(0); }
-      .cart-bar-info { display: flex; align-items: center; gap: 10px; font-family: var(--font-heading); font-weight: 700; font-size: 1.3rem; }
-      .cart-bar-btn { background: var(--gold); color: #171717; border: none; border-radius: 999px; padding: 10px 22px; font-weight: 700; font-family: inherit; font-size: 1.1rem; cursor: pointer; }
-      .cart-page-item { grid-template-columns: 80px 1fr !important; gap: 12px; padding: 14px; align-items: start; }
-      .cart-page-item img { width: 80px !important; height: 80px !important; border-radius: 12px; }
-      .cart-page-item p { display: none; }
-      .cart-page-item h3 { font-size: 1.3rem; margin-bottom: 4px; }
-      .cart-page-actions { grid-column: 1/-1; display: flex !important; flex-direction: row !important; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px; margin-top: 4px; }
-      .product-page-card { grid-template-columns: 1fr; }
-      .product-page-image,.product-detail-fallback { min-height: 260px; }
-      .product-page-content { padding: 28px; }
-      .detail-order { grid-template-columns: 1fr; }
-      .success-card { padding: 36px 24px; }
-    }
-    @media (min-width: 768px) {
-      .mobile-app-overlay { display: none !important; }
-      .bottom-nav-bar { display: none !important; }
-    }
-      /* ── SMART APP BANNER ── */
-  .pwa-install-banner {
-    position: fixed;
-    bottom: 80px; /* צף מעל תפריט הניווט התחתון */
-    left: 12px;
-    right: 12px;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(10px);
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    display: none; /* מוסתר כברירת מחדל */
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    z-index: 5000;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    animation: slideUpBanner 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-
-  @keyframes slideUpBanner {
-    from { transform: translateY(100px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  .pwa-close-btn {
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    color: var(--muted);
-    padding: 0 10px 4px 0;
-    cursor: pointer;
-    line-height: 1;
-  }
-
-  .pwa-banner-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-  }
-
-  .pwa-banner-logo {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-
-  .pwa-banner-text {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .pwa-banner-text strong {
-    color: var(--olive);
-    font-size: 1.05rem;
-    font-family: var(--font-heading);
-    line-height: 1.1;
-  }
-
-  .pwa-banner-text span {
-    color: var(--muted);
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: 3px;
-  }
-
-  .pwa-install-btn {
-    background: linear-gradient(135deg, var(--olive), var(--olive-light));
-    color: white;
-    border: none;
-    border-radius: 999px;
-    padding: 8px 18px;
-    font-weight: 700;
-    font-family: var(--font-heading);
-    font-size: 0.95rem;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(61, 70, 22, 0.25);
-  }
-  .pulse-dot { display: inline-block; width: 14px; height: 14px; background-color: #ff3b30; border-radius: 50%; position: absolute; top: -8px; right: -12px; box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); animation: pulsing 1.5s infinite cubic-bezier(0.66, 0, 0, 1); }
-  @keyframes pulsing { to { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); } }
-  .icon-wrapper { position: relative; display: inline-block; }
-
-  /* ── SPLASH SCREEN ── */
-.splash-screen {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(135deg, var(--olive), #2a300f);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
-}
-.splash-screen.fade-out {
-  opacity: 0;
-  visibility: hidden;
-}
-.splash-content {
-  text-align: center;
-  color: white;
-  animation: splashPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.splash-logo {
-  font-family: var(--font-heading);
-  font-size: clamp(3rem, 10vw, 4rem);
-  font-weight: 900;
-  margin-bottom: 24px;
-  letter-spacing: -1px;
-}
-.splash-logo span {
-  color: var(--gold);
-}
-.splash-loader {
-  width: 46px;
-  height: 46px;
-  border: 4px solid rgba(255, 255, 255, 0.15);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  margin: 0 auto 20px;
-  animation: splashSpin 1s linear infinite;
-}
-.splash-text {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 0.5px;
-}
-
-@keyframes splashPop {
-  0% { transform: scale(0.85); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes splashSpin {
-  to { transform: rotate(360deg); }
-}
-/* ── הגדלת פונטים לאפליקציית מובייל ── */
-@media (max-width: 767px) {
-  .mob-prod-name { font-size: 1.15rem; } 
-  .mob-prod-pack { font-size: 0.95rem; } 
-  .mob-ocr-name { font-size: 1.05rem; } 
-  .mob-chip { font-size: 1.05rem; } 
-  .mob-screen-title { font-size: 1.6rem; } 
-  .mob-screen-sub { font-size: 0.95rem; } 
-  .nav-tab span { font-size: 11px; } 
-  .nav-fab-label { font-size: 11px; } 
-  .mob-qty-ctrl button { font-size: 1.15rem; }
-  .mob-qty-ctrl strong { font-size: 1.15rem; }
-}
-
-.mobile-header-login {
-      display: none;
-      background: rgba(200, 150, 93, 0.15);
-      color: var(--gold);
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .mobile-header-login:active {
-      background: rgba(200, 150, 93, 0.3);
-    }
-    @media (max-width: 980px) {
-      .mobile-header-login.show { display: flex; }
-    }
-    /* ביטול דיליי של 300ms ומניעת זום בלחיצות מהירות במובייל */
-button, 
-.mob-add-btn, 
-.mob-qty-ctrl button, 
-.inline-qty-ctrl button, 
-.mob-ocr-qty-ctrl button,
-.cart-qty-control button {
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
-.kashrut-logo {
-    height: 32px;
-    width: auto;
-    margin-bottom: 8px;
-    display: inline-block;
-    object-fit: contain;
-  }
-/* אנימציית הבועה "נוסף להזמנה" שצפה למעלה ונעלמת */
-    @keyframes floatUpFade {
-      0% { opacity: 0; transform: translate(-50%, 20px); }
-      15% { opacity: 1; transform: translate(-50%, 0); }
-      85% { opacity: 1; transform: translate(-50%, 0); }
-      100% { opacity: 0; transform: translate(-50%, -20px); }
-    }
-    
-    .floating-add-msg {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--olive);
-      color: var(--gold);
-      padding: 10px 24px;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 1.05rem;
-      z-index: 9999;
-      pointer-events: none;
-      display: none;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-    }
-    
-    .floating-add-msg.run-anim {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      animation: floatUpFade 1.5s forwards;
-    }
-
-    /* קלאס להקפצת כפתור הניווט */
-    .nav-pop-active {
-      color: var(--gold) !important;
-      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    @keyframes navFabPulse {
-      0% { transform: scale(1) translateY(0); box-shadow: 0 8px 20px rgba(61,70,22,0.35); }
-      40% { transform: scale(1.12) translateY(-6px); box-shadow: 0 12px 25px rgba(200,150,93,0.6); background: var(--gold); }
-      75% { transform: scale(0.96) translateY(2px); }
-      100% { transform: scale(1) translateY(0); box-shadow: 0 8px 20px rgba(61,70,22,0.35); }
-    }
-    .nav-fab-pulse {
-      animation: navFabPulse 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .add-particle {
-      position: fixed;
-      z-index: 9999;
-      color: #fff;
-      background: var(--gold);
-      border-radius: 50%;
-      width: 26px;
-      height: 26px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 0.85rem;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      animation: particleFly 0.8s cubic-bezier(0.2, 1, 0.3, 1) forwards;
-      box-shadow: 0 4px 10px rgba(200,150,93,0.4);
-    }
-    
-    @keyframes particleFly {
-      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-      40% { opacity: 1; transform: translate(-50%, calc(-50% - 60px)) scale(1.2); }
-      100% { opacity: 0; transform: translate(-50%, calc(-50% - 100px)) scale(1); }
-    }
-
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Playpen+Sans+Hebrew:wght@500;700&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>try{var a=JSON.parse(localStorage.getItem("mkA11y")||"{}");var r=document.documentElement;if(a.size)r.style.fontSize=a.size+"%";["contrast","gray","links","font","still","spacing"].forEach(function(k){if(a[k])r.classList.add("a11y-"+k)})}catch(e){}</script>
 </head>
 <body>
 
-  <div id="splashScreen" class="splash-screen">
-  <div class="splash-content">
-    <div class="splash-logo">משה <span>קילופים</span></div>
-    <div class="splash-loader"></div>
-    <div class="splash-text">מכינים את המטבח...</div>
+<!-- ============ אייקונים ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M20 20l-4.2-4.2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2.2l2.1 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L21 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.6" fill="currentColor"/><circle cx="17" cy="20" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3.5l2.6-.4 1.6 4-2 1.4a11 11 0 0 0 6.7 6.7l1.4-2 4 1.6-.4 2.6a2 2 0 0 1-2 1.7C10.6 19.1 4.9 13.4 4.9 5.5a2 2 0 0 1 1.7-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.4L3 21l4.7-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.8 8.6c.2-.5.5-.5.8-.5h.5c.2 0 .4 0 .6.5l.7 1.6c.1.2 0 .4-.1.6l-.5.6c-.1.2-.1.3 0 .5.6 1 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.2.3.4 0 .7-.4 1.4-1.2 1.7-.7.3-1.6.3-3-.3-1.8-.8-3.2-2.3-4-4-.6-1.3-.4-2.4.2-3.2z" fill="currentColor"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.5M20 4v4.5h-4.5M20 12a8 8 0 0 1-13.7 5.6L4 15.5M4 20v-4.5h4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.5 6.5h11v9h-11zM13.5 9.5h4l3 3v3h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.8" fill="var(--c-bg, #fff)" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17.5" r="1.8" fill="var(--c-bg, #fff)" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.5 4.5L12 7l2.5-2.5M9.5 19.5L12 17l2.5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-knife" viewBox="0 0 24 24"><path d="M3 20.5L16.5 7a3 3 0 0 1 4.2 4.2L13 19l-3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M3 20.5l3.5-3.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z M3.5 7.5L12 12l8.5-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="4.5" cy="6.5" r="1.4" fill="currentColor"/><circle cx="4.5" cy="12" r="1.4" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1.4" fill="currentColor"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h4.5a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5H14M10 8l-4 4 4 4M6 12h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3.5M8 7.5l4-4 4 4M6 11H5v9.5h14V11h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-a11y" viewBox="0 0 24 24"><circle cx="12" cy="4.2" r="2.2" fill="currentColor"/><path d="M4.5 8.2c2.5.7 5 1 7.5 1s5-.3 7.5-1M12 9.2v5.3M12 14.5l-3.2 6.3M12 14.5l3.2 6.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="19" r="2" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<a class="skip-link" href="#catalog">דלג לקטלוג</a>
+
+<!-- ============ פס עליון ============ -->
+<div class="topbar">
+  <div class="container topbar-inner">
+    <span><svg class="ic"><use href="#i-truck"/></svg> אספקה יומית למטבחים מקצועיים</span>
+    <span class="topbar-hide-sm">כשרות מקומית ושארית ישראל</span>
+    <a href="tel:098911191" class="topbar-phone"><svg class="ic"><use href="#i-phone"/></svg> 09-891-1191</a>
   </div>
 </div>
 
-<script>
-  // פונקציה לזיהוי האם אנחנו בתוך האפליקציה המותקנת
-  function isRunningAsPWA() {
-      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  }
+<!-- ============ כותרת ============ -->
+<header class="site-header" id="siteHeader">
+  <div class="container header-row">
+    <a href="#top" class="brand" aria-label="משה קילופים — לדף הבית">
+      <img src="img/logo-160.webp" width="64" height="64" alt="">
+      <span class="brand-text">
+        <strong>משה קילופים</strong>
+        <small>ירקות קלופים וחתוכים</small>
+      </span>
+    </a>
 
-  const hasUser = localStorage.getItem("mosheUserDetails");
-  const isMobile = window.innerWidth < 768;
+    <form class="search" role="search" onsubmit="return false">
+      <svg class="ic"><use href="#i-search"/></svg>
+      <label class="sr-only" for="searchInput">חיפוש מוצר</label>
+      <input id="searchInput" type="search" placeholder="מה צריך היום? למשל: קוביות, שום, פרוס" autocomplete="off">
+    </form>
 
-  if (sessionStorage.getItem('skipSplash') === 'true') {
-      document.getElementById('splashScreen').style.display = 'none';
-      sessionStorage.removeItem('skipSplash');
-  } else if (isRunningAsPWA() && !hasUser) {
-      // פעם ראשונה באפליקציה! 
-      // נסתיר את מסך הטעינה כדי לא להפריע, ונפתח את מסך ההרשמה
-      document.getElementById('splashScreen').style.display = 'none';
-      window.addEventListener('DOMContentLoaded', () => {
-          openRegisterModal();
-      });
-  } else if (!(isMobile && hasUser)) {
-      // גלישה רגילה מדפדפן (או בלי משתמש מחוץ לאפליקציה) - אין מסך פתיחה
-      document.getElementById('splashScreen').style.display = 'none';
-  }
-</script>
-
-<!-- ═══ MOBILE APP OVERLAY ═══ -->
-<div class="mobile-app-overlay" id="mobileApp">
-  <div class="app-topbar" id="appTopbar">
-    <button class="app-topbar-back" id="appBackBtn" onclick="appGoBack()">
-      <i class="fas fa-chevron-right"></i> <span id="appBackLabel">חזור</span>
-    </button>
-    <div class="app-topbar-logo">משה <span>קילופים</span></div>
-    <button class="app-topbar-cart-badge" onclick="appSwitchMainTab('appScreenOrder','navFabWrap')" id="appCartBadge" style="display:none">
-      <i class="fas fa-basket-shopping"></i>
-      <span id="appCartBadgeText">0</span>
-    </button>
-  </div>
-
-  <div class="app-screens" id="appScreens">
-
-    <!-- SCREEN 1: Products -->
-    <div class="app-screen active" id="appScreenProducts" data-title="מוצרים">
-      <!-- שורת חיפוש חדשה -->
-      <div style="padding: 12px 16px 0;">
-        <div style="position:relative;">
-          <i class="fas fa-search" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--muted);"></i>
-          <input type="text" id="mobAppSearch" placeholder="חיפוש מוצר... (למשל: בטטה, קצוץ)" oninput="mobOnSearch(this.value)" style="width:100%; padding:12px 40px 12px 12px; border-radius:14px; border:1.5px solid rgba(0,0,0,0.12); font-family:var(--font-body); font-size:16px; outline:none; transition:0.3s; background:#fff;">
-        </div>
-      </div>
-      
-      <div class="mob-filter-strip" id="mobFilterStrip">
-        <button class="mob-chip active" onclick="mobFilter('all',this)">הכול</button>
-        <button class="mob-chip" onclick="mobFilter('שום',this)">שום</button>
-        <button class="mob-chip" onclick="mobFilter('תפוחי אדמה',this)">תפ"א</button>
-        <button class="mob-chip" onclick="mobFilter('ירקות מבושלים',this)">מבושלים</button>
-        <button class="mob-chip" onclick="mobFilter('ירקות קצוצים',this)">קצוצים</button>
-        <button class="mob-chip" onclick="mobFilter('גזר',this)">גזר</button>
-        <button class="mob-chip" onclick="mobFilter('בצל',this)">בצל</button>
-        <button class="mob-chip" onclick="mobFilter('בטטה',this)">בטטה</button>
-      </div>
-      <div class="mob-products-list" id="mobProductsList"></div>
-    </div>
-
-  <!-- SCREEN 2: personal erea -->
-  <div class="app-screen" id="appScreenPersonal" data-title="אזור אישי">
-       <div style="display:flex; justify-content:space-between; align-items:center; padding: 20px 16px 10px;">
-         <div>
-           <div class="mob-screen-title" id="mobGreetingTitle" style="padding:0; margin-bottom:4px;">שלום</div>
-           <div class="mob-screen-sub" id="mobGreetingSub" style="padding:0;">איזה כיף שחזרת אלינו</div>
-         </div>
-         <button onclick="mobToggleSettings()" style="background:rgba(61,70,22,0.1); border:none; width:44px; height:44px; border-radius:50%; font-size:1.3rem; color:var(--olive); cursor:pointer; transition:0.2s;">
-           <i class="fas fa-cog"></i>
-         </button>
-       </div>
-
-      <div class="mob-section-pad">
-        
-        <div id="mobSettingsPanel" class="mob-settings-panel">
-          <h4 style="margin:0 0 14px; font-family:var(--font-heading); color:var(--olive); font-size:1.1rem;"><i class="fas fa-user-edit"></i> עדכון פרטים</h4>
-          <div class="mob-edit-form open" style="margin-bottom:16px;">
-            <input id="mobEName" placeholder="שם מלא (חובה)">
-            <input id="mobEPhone" placeholder="טלפון (חובה)" inputmode="tel">
-            <input id="mobEBiz" placeholder="שם עסק / מוסד">
-            <input id="mobECity" placeholder="עיר אספקה">
-            <button class="mob-save-btn" onclick="mobSaveEdit()">שמור שינויים</button>
-          </div>
-          <button class="mob-logout-btn" onclick="clearUserDetails()">
-            <i class="fas fa-right-from-bracket"></i> התנתק
-          </button>
-        </div>
-
-        <div id="mobMyProductsSection" style="margin-bottom: 20px; display:none;">
-          <div class="mob-section-label" style="font-family:var(--font-heading); font-size:1.1rem; color:var(--olive); margin-bottom:12px; font-weight:700;">
-            <i class="fas fa-star" style="color:var(--gold);"></i> המוצרים שלי
-          </div>
-          <div id="mobMyProductsList" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
-            </div>
-        </div>
-
-        <div id="mobNewUserRecommendations" style="display:none; margin-bottom: 20px;">
-          <div class="mob-section-label" style="font-family:var(--font-heading); font-size:1.1rem; color:var(--olive); margin-bottom:12px; font-weight:700;">
-            <i class="fas fa-fire" style="color:var(--gold);"></i> המלצות השף
-          </div>
-          <div style="background:rgba(200,150,93,0.08); border-radius:18px; padding:16px; margin-bottom:12px; font-size:0.95rem; color:var(--olive); border:1px dashed rgba(200,150,93,0.3);">
-            עדיין לא ביצעת הזמנות. הנה כמה מהמוצרים הכי פופולריים שלנו כדי להתחיל:
-          </div>
-          <div id="mobNewUserList" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
-            </div>
-        </div>
-
-        <div id="mobPersonalHistory" style="display:none" class="mob-personal-history-section">
-          <div class="mob-section-label" style="font-family:var(--font-heading); font-size:1.1rem; color:var(--olive); margin-bottom:12px; font-weight:700;">
-            <i class="fas fa-clock-rotate-left"></i> הזמנות אחרונות
-          </div>
-          <div id="mobPersonalHistoryList"></div>
-        </div>
-
-      </div>
-    </div>
-    <!-- SCREEN 3: Order (FAB) — all-in-one -->
-    <div class="app-screen" id="appScreenOrder" data-title="הזמנה">
-      <div class="mob-screen-title">הזמנה חדשה</div>
-      <div class="mob-screen-sub">עגלה, פרטים ושליחה — הכל במקום אחד</div>
-      <div class="mob-section-pad">
-
-        <!-- 1. Restore previous order — BIG button -->
-        <div id="mobRestoreBigWrap">
-          <button class="mob-restore-big" onclick="mobRestoreAndStay()">
-            <div class="mob-restore-icon"><i class="fas fa-rotate-left"></i></div>
-            <div>
-              <div class="mob-restore-title">שחזור הזמנה קודמת</div>
-              <div class="mob-restore-sub" id="mobRestoreSub">טוען...</div>
-            </div>
-          </button>
-        </div>
-
-        <!-- 2. Cart contents -->
-        <div class="mob-order-cart-section" style="border: 2px solid var(--olive); background: #fdfdf9; box-shadow: 0 6px 15px rgba(0,0,0,0.08);">
-          <div class="mob-order-cart-title" style="font-size: 1.25rem;">
-            <span>העגלה שלי</span>
-            <span class="mob-order-cart-badge" id="mobOrderCartBadge">0</span>
-          </div>
-          <div id="mobOrderCartRows">
-            <div class="mob-order-cart-empty">העגלה ריקה — בחרו מוצרים מהקטלוג</div>
-          </div>
-          <button class="mob-add-more-btn" onclick="appSwitchMainTab('appScreenProducts','navTabProducts')">
-            <i class="fas fa-plus"></i> הוספת מוצרים
-          </button>
-        </div>
-
-        <!-- Recommended Products -->
-        <div class="mob-recommended-section" id="mobRecommendedSection" style="display:none; margin-bottom: 25px;">
-           <div style="font-weight: 800; color: var(--olive); margin-bottom: 10px; font-size: 1.05rem;">מומלץ עבורך <i class="fas fa-star" style="color:var(--gold); font-size:0.9rem;"></i></div>
-           <div id="mobRecommendedList" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;">
-              <!-- Cards injected by JS -->
-           </div>
-        </div>
-
-        <!-- 4. New user form (hidden for VIP) -->
-        <div class="mob-new-user-form" id="mobOrderNewUserForm">
-          <h4><i class="fas fa-user" style="color:var(--gold)"></i> פרטי ההזמנה</h4>
-          <div class="mob-form-group">
-            <input id="mobOName" placeholder="שם מלא (חובה)" autocomplete="name">
-            <input id="mobOPhone" placeholder="טלפון (חובה)" inputmode="tel" autocomplete="tel">
-            <input id="mobOBiz" placeholder="שם עסק / מוסד" autocomplete="organization">
-            <input id="mobOCity" placeholder="עיר אספקה">
-          </div>
-        </div>
-
-        <!-- 5. Notes + date (Action Buttons) -->
-        <input type="hidden" id="mobODate" value="">
-        <input type="hidden" id="mobONotes" value="">
-        
-        <div class="mob-action-buttons" style="display:flex; gap:12px; margin-bottom:25px; margin-top:20px;">
-          <button onclick="openMobDateModal()" id="btnMobDate" style="flex:1; background:#fff; border:2px solid #eaeaea; border-radius:16px; padding:18px 10px; font-weight:800; font-size:1rem; color:var(--olive); box-shadow:0 4px 12px rgba(0,0,0,0.04); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:12px; transition:0.3s;">
-            <div style="width:45px; height:45px; background:rgba(61,70,22,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-               <i class="fas fa-calendar-alt" style="font-size:1.3rem; color:var(--olive);"></i>
-            </div>
-            <span>תאריך אספקה <span style="color:#e74c3c">*</span></span>
-          </button>
-          
-          <button onclick="openMobNotesModal()" id="btnMobNotes" style="flex:1; background:#fff; border:2px solid #eaeaea; border-radius:16px; padding:18px 10px; font-weight:800; font-size:1rem; color:var(--olive); box-shadow:0 4px 12px rgba(0,0,0,0.04); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:12px; transition:0.3s;">
-            <div style="width:45px; height:45px; background:rgba(200,150,93,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-               <i class="fas fa-pen-to-square" style="font-size:1.3rem; color:var(--gold);"></i>
-            </div>
-            <span>הערות להזמנה</span>
-          </button>
-        </div>
-
-        <!-- 6. Send buttons -->
-        <div class="mob-send-section" id="mobSendSection" style="margin-top:20px;">
-          <button class="mob-send-wa" id="mobBtnWa" onclick="mobOrderSendWA()" style="width:100%; height:60px; font-size:1.4rem; border-radius:30px; display:flex; justify-content:center; align-items:center; gap:10px; background:var(--olive); color:#fff; box-shadow:0 8px 15px rgba(0,0,0,0.15); font-weight:800; border:none; cursor:pointer; transition: transform 0.2s;">
-            <i class="fab fa-whatsapp" style="font-size:1.7rem"></i> <span id="mobWaLabel">סיים הזמנה</span>
-          </button>
-          <p class="mob-help-text" id="mobCartEmptyHint">הוסיפו מוצרים לפני שליחת ההזמנה</p>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- SCREEN 4: History -->
-    <div class="app-screen" id="appScreenHistory" data-title="הזמנות שלי">
-      <div class="mob-screen-title">ההזמנות שלי</div>
-      <div class="mob-screen-sub">היסטוריית הזמנות לפי תאריכים</div>
-      <div class="mob-section-pad" id="mobHistoryList"></div>
-    </div>
-
-    <!-- SCREEN 5: Contact -->
-    <div class="app-screen" id="appScreenContact" data-title="צור קשר">
-      <div class="mob-screen-title">צור קשר</div>
-      <div class="mob-screen-sub">זמינים לכל שאלה</div>
-      <div class="mob-section-pad">
-        <a href="https://wa.me/972527495162" target="_blank" class="mob-contact-card">
-          <div class="mob-contact-icon wa"><i class="fab fa-whatsapp"></i></div>
-          <div><div class="mob-contact-title">וואטסאפ</div><div class="mob-contact-sub">052-7495162</div></div>
-          <i class="fas fa-chevron-left" style="color:var(--muted);margin-right:auto"></i>
-        </a>
-        <a href="tel:098911191" class="mob-contact-card">
-          <div class="mob-contact-icon ph"><i class="fas fa-phone"></i></div>
-          <div><div class="mob-contact-title">טלפון</div><div class="mob-contact-sub">09-891-1191</div></div>
-          <i class="fas fa-chevron-left" style="color:var(--muted);margin-right:auto"></i>
-        </a>
-        <a href="mailto:Mk.orders3@gmail.com" class="mob-contact-card">
-          <div class="mob-contact-icon ml"><i class="fas fa-envelope"></i></div>
-          <div><div class="mob-contact-title">אימייל</div><div class="mob-contact-sub">Mk.orders3@gmail.com</div></div>
-          <i class="fas fa-chevron-left" style="color:var(--muted);margin-right:auto"></i>
-        </a>
-       <div class="mob-hours-box" style="text-align: right;">
-          <p style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px;">שעות פעילות</p>
-          <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; color: var(--olive);">
-            <span>ימים א'-ג', ה':</span><strong>08:00–16:00</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; color: var(--olive);">
-            <span>יום רביעי:</span><strong>פתוח 24 שעות</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: var(--muted);">
-            <span>שישי ושבת:</span><strong>סגור</strong>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /app-screens -->
-
-  <nav class="bottom-nav-bar">
-    <button class="nav-tab active" id="navTabProducts" onclick="appSwitchMainTab('appScreenProducts','navTabProducts')">
-      <i class="fas fa-basket-shopping"></i><span>מוצרים</span>
-    </button>
-    <button class="nav-tab" id="navTabPersonal" onclick="appSwitchMainTab('appScreenPersonal','navTabPersonal')">
-      <i class="fas fa-user"></i><span>אישי</span>
-    </button>
-    <div class="nav-fab-wrap" id="navFabWrap" onclick="appSwitchMainTab('appScreenOrder','navFabWrap')">
-      <div class="nav-fab" id="navFab"><i class="fas fa-plus"></i></div>
-      <span class="nav-fab-label">הזמנה</span>
-    </div>
-    <button class="nav-tab" id="navTabHistory" onclick="appSwitchMainTab('appScreenHistory','navTabHistory')">
-      <i class="fas fa-clipboard-list"></i><span>הזמנות</span>
-    </button>
-    <button class="nav-tab" id="navTabContact" onclick="appSwitchMainTab('appScreenContact','navTabContact')">
-      <i class="fas fa-headset"></i><span>קשר</span>
-    </button>
-  </nav>
-</div><!-- /mobileApp -->
-
-<!-- ═══ DESKTOP ═══ -->
-<div class="mobile-menu" id="mobileMenu">
-  <button class="close-menu" onclick="toggleMenu()">×</button>
-  <a href="#about-wrapper" onclick="toggleMenu()">מי אנחנו</a>
-  <a href="#products-wrapper" onclick="toggleMenu()">המוצרים שלנו</a>
-  <a href="#cart-wrapper" onclick="toggleMenu()">סל הזמנות</a>
-  <a href="#contact-wrapper" onclick="toggleMenu()">יצירת קשר</a>
-  <a href="#" onclick="toggleMenu(); handleInstallClick(); return false;" class="hide-in-pwa nav-install-btn" style="font-size: 1.5rem; padding: 12px 24px;"><i class="fas fa-mobile-screen-button"></i> שמור למסך הבית</a>
-  <a href="#" onclick="toggleMenu(); openRegisterModal(); return false;" id="mobMenuLoginBtn" style="color: var(--gold);">התחברות / הרשמה</a>
-</div>
-
-<header>
-  <div style="display:flex;align-items:center;gap:15px;">
-    <button class="hamburger" onclick="toggleMenu()">☰</button>
-    <button class="mobile-header-login show" id="mobHeaderLoginBtn" onclick="openRegisterModal()" aria-label="הרשמה">
-      <i class="fas fa-user"></i>
-    </button>
-        <div class="header-user-avatar" id="headerAvatar" style="display: none;"></div>
-    <div style="display: flex; flex-direction: column; align-items: flex-start;">
-      <a class="logo" href="#">משה <span>קילופים</span></a>
-      <span id="headerGreeting" class="header-greeting" style="display: none;"></span>
+    <div class="header-actions">
+      <button class="hbtn" type="button" data-open="account" id="accountBtn">
+        <span class="avatar" id="headerAvatar" hidden></span>
+        <svg class="ic" id="headerUserIcon"><use href="#i-user"/></svg>
+        <span class="hbtn-label" id="accountBtnLabel">כניסה ללקוחות</span>
+      </button>
+      <button class="hbtn hbtn-cart" type="button" data-open="cart" id="cartBtn" aria-label="סל ההזמנה">
+        <svg class="ic"><use href="#i-cart"/></svg>
+        <span class="hbtn-label">סל ההזמנה</span>
+        <span class="count-badge" id="cartCount" hidden>0</span>
+      </button>
     </div>
   </div>
-  
-  <nav>
-    <a href="#about-wrapper">מי אנחנו</a>
-    <a href="#products-wrapper">המוצרים שלנו</a>
-    <a href="#cart-wrapper">עגלה</a>
-    <a href="#contact-wrapper">יצירת קשר</a>
-    <a href="#" onclick="openRegisterModal(); return false;" id="navLoginBtn" style="color: var(--gold);">התחברות / הרשמה</a>
+
+  <nav class="cat-nav" aria-label="קטגוריות">
+    <div class="container cat-nav-inner" id="catNav"></div>
   </nav>
-  <button class="cart-container" onclick="document.getElementById('cart-wrapper').scrollIntoView({behavior:'smooth'})">
-    <i class="fas fa-shopping-basket"></i>
-    <span id="cartCount">סל הזמנות (0)</span>
-  </button>
 </header>
 
-<section class="hero">
-  <div class="hero-content reveal">
-    <div class="hero-badge"><i class="fa-solid fa-truck-fast"></i> אספקה יומית למטבחים מוסדיים</div>
-    <h1>טרי, נקי<br><span>מוכן לבישול</span></h1>
-    <p>ירקות טריים קלופים, שטופים וחתוכים — מוכנים לשימוש, באריזה מסודרת ולפי דרישת הלקוח.</p>
-    
- <div class="hero-actions">
-      <button class="btn btn-primary hide-in-pwa" onclick="openRegisterModal()" id="heroLoginBtn" style="background: var(--white); color: var(--olive); box-shadow: 0 4px 15px rgba(255,255,255,0.2);">
-        <i class="fas fa-user-plus"></i> התחברות / הרשמה
-      </button>
-      <a class="btn btn-primary" href="#products-wrapper"><i class="fa-solid fa-list"></i> לצפייה בקטלוג</a>
-      <a class="btn btn-secondary" href="#cart-wrapper"><i class="fa-solid fa-cart-shopping"></i> לעגלת הקניות</a>
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-art" aria-hidden="true">
+      <img class="art-color" src="img/hero-color.webp" alt="" width="1536" height="1024">
+      <img class="art-lines" src="img/hero-lines.webp" alt="" width="1536" height="1024">
     </div>
-
-</section>
-
-
-
-<section class="trust-strip reveal">
-  <div class="trust-item"><img src="sherit.webp" alt="לוגו כשרות שארית ישראל" class="kashrut-logo"><strong>כשרות מקומית ושארית ישראל</strong><span>מענה למטבחים מוסדיים</span></div>
-  <div class="trust-item"><i class="fa-solid fa-snowflake"></i><strong>קירור מבוקר</strong><span>שמירה על טריות המוצר</span></div>
-  <div class="trust-item"><i class="fa-solid fa-clock"></i><strong>אספקה יומית</strong><span>לפי זמני המטבח</span></div>
-  <div class="trust-item"><i class="fa-solid fa-kitchen-set"></i><strong>חיתוך לפי דרישה</strong><span>קוביות, דסקיות, קצוץ ועוד</span></div>
-</section>
-
-<main>
-  <div id="vip-welcome-banner">
-    <div class="vip-card">
-      <div class="vip-card-main">
-        <div class="vip-user-info">
-          <div class="vip-avatar" id="vipAvatar">?</div>
-          <div class="vip-welcome-text">
-            <span class="vip-name" id="vipTopName"></span>
-          </div>
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <p class="accent-line">טרי מהבוקר, ישר למטבח</p>
+        <h1>ירקות קלופים וחתוכים,<br>מוכנים לעבודה</h1>
+        <p class="lead">קולפים, שוטפים וחותכים בשבילכם תפוחי אדמה, בצל, גזר, שום ועוד. באריזה מסודרת, לפי החיתוך שהמטבח שלכם צריך, עם אספקה יומית.</p>
+        <div class="hero-cta">
+          <a href="#catalog" class="btn btn-primary btn-lg">לקטלוג המוצרים</a>
+          <button type="button" class="btn btn-ghost btn-lg" data-open="account" id="heroLoginBtn">הרשמה ללקוחות</button>
         </div>
-        <button onclick="clearUserDetails()" class="btn-vip-logout">
-          <i class="fas fa-right-from-bracket"></i> התנתק
-        </button>
+        <ul class="hero-facts">
+          <li><strong>30+</strong> שנות ניסיון</li>
+          <li><strong id="productCount">23</strong> מוצרים בקטלוג</li>
+          <li><strong><bdi dir="ltr">1–10</bdi></strong> ק״ג למארז</li>
+        </ul>
       </div>
-      <div class="vip-card-footer">
-        <i class="fa-solid fa-clock-rotate-left"></i>
-        <span>לחץ על <strong>״הזמנה חוזרת״</strong> על כל הזמנה קודמת — והמוצרים יופיעו מיד בעגלה.</span>
+
+      <div class="hero-visual">
+        <div class="hero-blob" aria-hidden="true"></div>
+        <img class="hero-logo" src="img/logo-720.webp" width="360" height="360" alt="">
       </div>
     </div>
-  </div>
+    <svg class="edge edge-bottom" viewBox="0 0 1440 48" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 C 160 6, 320 44, 480 26 S 800 4, 960 24 S 1280 46, 1440 18 L1440 48 L0 48 Z"/></svg>
+  </section>
 
-  <div id="about-wrapper">
-    <section class="section glass-panel reveal" id="about">
-      <div class="about-grid">
+  <!-- ============ קטגוריות ============ -->
+  <section class="section section-sand" id="categories" aria-labelledby="catTitle">
+    <div class="container">
+      <div class="section-head">
+        <p class="accent-line">מה מכינים היום?</p>
+        <h2 id="catTitle">בחרו קטגוריה</h2>
+      </div>
+      <div class="cat-tiles" id="catTiles"></div>
+    </div>
+  </section>
+
+  <!-- ============ קטלוג ============ -->
+  <section class="section" id="catalog" aria-labelledby="catalogTitle">
+    <div class="container">
+      <div class="catalog-head">
         <div>
-          <h2 class="section-title" style="text-align:right;">הסדר במטבח שלך</h2>
-          <p>ב״משה קילופים״ אנחנו מספקים ירקות קלופים וחתוכים למטבחים מקצועיים, קייטרינגים, מוסדות ועסקים שצריכים סחורה טרייה, נקייה, אחידה ומוכנה לעבודה.</p>
-          <p>עובדים עם החברות הגדולות במשק, בפיקוח כשרות מקומית ושארית ישראל, ומספקים מוצרים שנכנסים ישירות לתהליך העבודה — בלי בזבוז זמן ובלי פחת.</p>
-          <p class="about-strong">מוכן לעבודה. מהרגע הראשון.</p>
+          <h2 id="catalogTitle">הקטלוג שלנו</h2>
+          <p class="muted">המחיר נקבע לפי המוצר והכמות. בוחרים מוצרים, ואנחנו שולחים הצעת מחיר מסודרת.</p>
         </div>
-        <div class="about-image badge-wrapper">
-          <img src="seder.webp" alt="ירקות חתוכים ומופרדים במגש למסעדות" loading="lazy" onerror="this.src='opening.webp'">
-          <div class="badge-30" id="badge30">30+<br>שנות ניסיון</div>
-        </div>
+        <p class="result-count" id="resultCount" aria-live="polite"></p>
       </div>
-    </section>
-    <div class="sector-divider"><i class="fa-solid fa-leaf"></i></div>
-  </div>
+      <div class="chips" id="chips" role="tablist" aria-label="סינון לפי קטגוריה"></div>
+      <div class="grid" id="productGrid"></div>
+      <div class="empty-results" id="noResults" hidden>
+        <p><strong>לא מצאנו מוצר כזה.</strong> נסו מילה אחרת, או <a href="https://wa.me/972527495162" target="_blank" rel="noopener">שאלו אותנו בוואטסאפ</a>.</p>
+      </div>
+    </div>
+  </section>
 
-  <div id="audience-wrapper">
-    <section class="section glass-panel reveal" id="audience">
-      <h2 class="section-title">למי אנחנו מספקים?</h2>
-      <p class="section-subtitle">פתרון קבוע למטבחים שצריכים סחורה נקייה, אחידה ומוכנה לעבודה.</p>
-      <div class="audience-grid">
-        <div class="audience-card"><i class="fa-solid fa-utensils"></i><h3>מסעדות</h3><p>חיתוך אחיד ועבודה מהירה במטבח.</p></div>
-        <div class="audience-card"><i class="fa-solid fa-truck-fast"></i><h3>קייטרינגים</h3><p>מוצרים מוכנים להזמנות בכמויות גדולות.</p></div>
-        <div class="audience-card"><i class="fa-solid fa-building-columns"></i><h3>מוסדות וארגונים</h3><p>אספקה מסודרת למטבחים מוסדיים.</p></div>
-        <div class="audience-card"><i class="fa-solid fa-hospital"></i><h3>בתי חולים</h3><p>טריות, ניקיון ועמידה בסטנדרט מקצועי.</p></div>
+  <!-- ============ איך מזמינים ============ -->
+  <section class="section section-sand" id="how" aria-labelledby="howTitle">
+    <svg class="edge edge-top" viewBox="0 0 1440 48" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 C 180 44, 360 6, 560 22 S 900 46, 1100 24 S 1340 4, 1440 26 L1440 0 L0 0 Z"/></svg>
+    <div class="container">
+      <div class="section-head">
+        <p class="accent-line">פשוט וקצר</p>
+        <h2 id="howTitle">איך מזמינים?</h2>
       </div>
-    </section>
-    <div class="sector-divider"><i class="fa-solid fa-carrot"></i></div>
-  </div>
+      <ol class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <h3>בוחרים מוצרים</h3>
+          <p>מוסיפים לסל את המוצרים ואת מספר המארזים. המשקל הכולל מחושב אוטומטית.</p>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <h3>בוחרים יום אספקה</h3>
+          <p>מסמנים מתי הסחורה צריכה להגיע, ומוסיפים הערות אם צריך חיתוך מיוחד.</p>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <h3>שולחים ומקבלים הצעה</h3>
+          <p>ההזמנה נשלחת בוואטסאפ, בטלפון או במייל, ואנחנו חוזרים אליכם עם הצעת מחיר.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
 
-  <div id="products-wrapper">
-    <section class="section glass-panel reveal" id="products">
-      <h2 class="section-title">המוצרים שלנו</h2>
-      <p class="section-subtitle">לחצו על מוצר לפרטים, או הוסיפו ישירות לסל</p>
-      <div class="search-wrap">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="catalogSearch" placeholder="חפשו מוצר... (למשל: קוביות, שום, פרוס)" oninput="onSearch(this.value)" autocomplete="off">
-      </div>
-      <div class="filters">
-        <button class="filter-btn active" onclick="filterProducts('all',this)">הכול</button>
-        <button class="filter-btn" onclick="filterProducts('שום',this)">שום</button>
-        <button class="filter-btn" onclick="filterProducts('תפוחי אדמה',this)">תפוחי אדמה</button>
-        <button class="filter-btn" onclick="filterProducts('ירקות מבושלים',this)">ירקות מבושלים</button>
-        <button class="filter-btn" onclick="filterProducts('ירקות קצוצים',this)">ירקות קצוצים</button>
-        <button class="filter-btn" onclick="filterProducts('גזר',this)">גזר</button>
-        <button class="filter-btn" onclick="filterProducts('בצל',this)">בצל</button>
-        <button class="filter-btn" onclick="filterProducts('בטטה',this)">בטטה</button>
-      </div>
-      <div class="products-grid" id="productsGrid"></div>
-      <p id="noResultsMsg" style="display:none;text-align:center;color:var(--muted);font-weight:700;margin-top:24px;">לא נמצאו מוצרים תואמים. נסו מילה אחרת.</p>
-    </section>
-    <div class="sector-divider"><i class="fa-solid fa-basket-shopping"></i></div>
-  </div>
-
-  <div id="cart-wrapper">
-    <section class="section glass-panel reveal" id="cart-page">
-      <h2 class="section-title" id="cartSectionTitle">עגלת הקניות</h2>
-      <p class="section-subtitle">בחרו מוצרים ושלחו בקשה להצעת מחיר בערוץ שנוח לכם</p>
-      <div class="cart-page-layout">
-        <div class="cart-page-items" id="cartPageItems"></div>
-        <aside class="cart-summary-box">
-          <h3>סיכום הזמנה</h3>
-          <div class="cart-summary-line"><span>סוגי מוצרים</span><span id="summaryProducts">0</span></div>
-          <p class="cart-price-note">המחיר נקבע לפי סוג המוצר והכמות הרצויה</p>
-          <div id="newUserForm" class="quote-form">
-            <input id="quoteName" placeholder="שם מלא (חובה)" autocomplete="name">
-            <input id="quotePhone" placeholder="טלפון (חובה)" autocomplete="tel" inputmode="tel">
-            <input id="quoteBusiness" placeholder="שם עסק / מוסד" autocomplete="organization">
-            <input id="quoteCity" placeholder="עיר אספקה">
-            <input id="quoteDeliveryDate" type="date" title="תאריך אספקה רצוי">
-          </div>
-          <div class="quote-form">
-            <textarea id="quoteNotes" placeholder="הערות להזמנה (אופציונלי)"></textarea>
-          </div>
-          <div class="quote-actions">
-            <button id="mainOrderBtn" class="quote-whatsapp" onclick="sendQuoteWhatsApp()"><i class="fa-brands fa-whatsapp"></i> קבלת הצעה בוואטסאפ</button>
-            <a id="phoneOrderBtn" class="quote-phone" href="tel:098911191" onclick="handlePhoneOrder(event)"><i class="fas fa-phone"></i> קבלת הצעה בטלפון</a>
-            <button id="mailOrderBtn" class="quote-mail" onclick="sendQuoteEmail()"><i class="fas fa-envelope"></i> קבלת הצעה במייל</button>
-          </div>
-          <p class="quote-help-text">נחזור אליך עם הצעת מחיר מסודרת לפי הכמויות שבחרת</p>
-          <div class="orders-history-panel" id="ordersHistoryPanel" style="display:none;">
-            <h4><i class="fa-solid fa-clock-rotate-left"></i> הזמנות קודמות</h4>
-            <div id="ordersHistoryList"></div>
-          </div>
-        </aside>
-      </div>
-    </section>
-    <div class="sector-divider"><i class="fa-solid fa-headset"></i></div>
-  </div>
-
-  <div id="contact-wrapper">
-    <section class="section reveal" id="quick-contact">
-      <div class="glass-panel quick-contact-panel">
-        <h2 class="section-title">צור קשר ונדאג לך</h2>
-        <p class="section-subtitle">זמינים לכל שאלה</p>
-        <div class="contact-icons">
-          <a href="https://wa.me/972527495162" target="_blank" class="contact-card whatsapp"><i class="fab fa-whatsapp"></i><span>וואטסאפ</span><small>שליחת הודעה</small></a>
-          <a href="tel:098911191" class="contact-card phone"><i class="fas fa-phone"></i><span>טלפון</span><small>חיוג מהיר</small></a>
-          <a href="mailto:Mk.orders3@gmail.com" class="contact-card mail"><i class="fas fa-envelope"></i><span>אימייל</span><small>שליחת מייל</small></a>
+  <!-- ============ עלינו ============ -->
+  <section class="section section-brown" id="about" aria-labelledby="aboutTitle">
+    <div class="section-art" aria-hidden="true">
+      <img class="art-color" src="img/hero-color.webp" alt="" width="1536" height="1024" loading="lazy">
+      <img class="art-lines" src="img/hero-lines-light.webp" alt="" width="1536" height="1024" loading="lazy">
+    </div>
+    <div class="container about-grid">
+      <div class="about-text">
+        <p class="accent-line on-dark">מי אנחנו</p>
+        <h2 id="aboutTitle"><span class="big-num">30+</span> שנים של קילוף וחיתוך ירקות</h2>
+        <p>משה קילופים מספקת ירקות קלופים וחתוכים למסעדות, קייטרינגים, מוסדות ומטבחים מקצועיים. אנחנו עובדים עם הספקים הגדולים במשק, והסחורה מגיעה נקייה, אחידה ומוכנה להיכנס ישר לעבודה. בלי זמן קילוף ובלי פחת.</p>
+        <ul class="facts">
+          <li><svg class="ic"><use href="#i-snow"/></svg><div><strong>קירור מבוקר</strong><span>שומרים על טריות המוצר עד המטבח</span></div></li>
+          <li><svg class="ic"><use href="#i-truck"/></svg><div><strong>אספקה יומית</strong><span>לפי זמני העבודה של המטבח</span></div></li>
+          <li><svg class="ic"><use href="#i-knife"/></svg><div><strong>חיתוך לפי דרישה</strong><span>קוביות, טבעות, פרוס, קצוץ ועוד</span></div></li>
+          <li><svg class="ic"><use href="#i-box"/></svg><div><strong>מארזים מסודרים</strong><span>מ-1 ועד 10 ק״ג למארז</span></div></li>
+        </ul>
+        <div class="kashrut">
+          <img src="img/kashrut-sherit-israel.webp" width="120" height="77" loading="lazy" alt="כשרות בד״ץ שארית ישראל">
+          <p><strong>כשרות מקומית ובד״ץ שארית ישראל</strong><br>מתאים למטבחים מוסדיים ולאירועים</p>
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
+
+  <!-- ============ למי ============ -->
+  <section class="section" id="clients" aria-labelledby="clientsTitle">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="clientsTitle">למי אנחנו מספקים</h2>
+      </div>
+      <ul class="clients">
+        <li><strong>מסעדות</strong><span>חיתוך אחיד ועבודה מהירה על הקו</span></li>
+        <li><strong>קייטרינגים</strong><span>כמויות גדולות, מוכנות לאירוע</span></li>
+        <li><strong>מוסדות וארגונים</strong><span>אספקה קבועה ומסודרת</span></li>
+        <li><strong>בתי חולים</strong><span>טריות, ניקיון וסטנדרט מקצועי</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ קשר ============ -->
+  <section class="section section-sand" id="contact" aria-labelledby="contactTitle">
+    <div class="container">
+      <div class="section-head">
+        <p class="accent-line">נשמח לעזור</p>
+        <h2 id="contactTitle">דברו איתנו</h2>
+      </div>
+      <div class="contact-grid">
+        <a class="contact-card" href="https://wa.me/972527495162" target="_blank" rel="noopener">
+          <span class="contact-ic wa"><svg class="ic"><use href="#i-chat"/></svg></span>
+          <strong>וואטסאפ</strong><span dir="ltr">052-749-5162</span>
+        </a>
+        <a class="contact-card" href="tel:098911191">
+          <span class="contact-ic"><svg class="ic"><use href="#i-phone"/></svg></span>
+          <strong>טלפון</strong><span dir="ltr">09-891-1191</span>
+        </a>
+        <a class="contact-card" href="mailto:Mk.orders3@gmail.com">
+          <span class="contact-ic"><svg class="ic"><use href="#i-mail"/></svg></span>
+          <strong>אימייל</strong><span>Mk.orders3@gmail.com</span>
+        </a>
+      </div>
+      <p class="hours"><svg class="ic"><use href="#i-clock"/></svg> <span>שעות מענה: א׳–ג׳ וה׳ <bdi dir="ltr">08:00–16:00</bdi></span> <span>· יום ד׳ 24 שעות</span></p>
+    </div>
+  </section>
 </main>
 
-<!-- PRODUCT MODAL -->
-<section class="product-page" id="productPage" aria-hidden="true">
-  <div class="product-page-card">
-    <button class="product-close" onclick="closeProduct()">×</button>
-    <div class="product-page-image">
-      <img id="productDetailImage" src="" alt="" loading="lazy" onerror="this.style.display='none';document.getElementById('productDetailFallback').style.display='flex';">
-      <span id="productDetailFallback" class="product-detail-fallback"></span>
+<!-- ============ פוטר ============ -->
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="img/logo-160.webp" width="72" height="72" alt="" loading="lazy">
+      <div>
+        <strong>משה קילופים</strong>
+        <p>ירקות קלופים וחתוכים למטבחים מקצועיים ומוסדיים.</p>
+      </div>
     </div>
-    <div class="product-page-content">
-      <span id="productDetailCategory" class="product-category"></span>
-      <h2 id="productDetailName"></h2>
-      <p id="productDetailDesc"></p>
-      <div class="detail-info">
-        <div><strong>איך המוצר מגיע?</strong><span id="productDetailPack"></span></div>
-        <div><strong>מתאים ל:</strong><span>מסעדות, קייטרינגים, מוסדות ומטבחים מקצועיים</span></div>
-      </div>
-      <div class="detail-order">
-        <label for="detailQty">כמות מארזים</label>
-        <input id="detailQty" type="number" min="1" value="1" inputmode="numeric">
-        <button class="btn-add" onclick="addCurrentProductToCart()">הוסף לסל</button>
-      </div>
+    <nav class="footer-links" aria-label="קישורים">
+      <a href="#catalog">קטלוג</a>
+      <a href="#how">איך מזמינים</a>
+      <a href="#about">עלינו</a>
+      <a href="#contact">צור קשר</a>
+      <a href="accessibility.html">הצהרת נגישות</a>
+    </nav>
+    <div class="footer-contact">
+      <a href="tel:098911191" dir="ltr">09-891-1191</a>
+      <a href="https://wa.me/972527495162" target="_blank" rel="noopener" dir="ltr">052-749-5162</a>
+      <a href="mailto:Mk.orders3@gmail.com">Mk.orders3@gmail.com</a>
     </div>
   </div>
-</section>
+  <div class="container footer-bottom">© <span id="year">2026</span> משה קילופים · כל הזכויות שמורות</div>
+</footer>
 
-<!-- SUCCESS OVERLAY -->
-<div class="success-overlay" id="successOverlay">
-  <div class="success-card">
-    <div class="success-icon" id="successIcon"><i id="successIconEl"></i></div>
+<!-- ============ ניווט תחתון (מובייל) ============ -->
+<nav class="bottom-nav" aria-label="ניווט מהיר">
+  <a href="#catalog" class="bn-item"><svg class="ic"><use href="#i-grid"/></svg><span>מוצרים</span></a>
+  <button type="button" class="bn-item" data-open="account"><svg class="ic"><use href="#i-user"/></svg><span>אזור אישי</span></button>
+  <button type="button" class="bn-fab" data-open="cart" id="bnCart" aria-label="סל ההזמנה">
+    <span class="bn-fab-circle"><svg class="ic"><use href="#i-cart"/></svg><span class="count-badge" id="bnCount" hidden>0</span></span>
+    <span class="bn-fab-label">סל</span>
+  </button>
+  <button type="button" class="bn-item" data-open="account" data-focus="history"><svg class="ic"><use href="#i-list"/></svg><span>הזמנות</span></button>
+  <a href="#contact" class="bn-item"><svg class="ic"><use href="#i-phone"/></svg><span>קשר</span></a>
+</nav>
+
+<!-- כפתור וואטסאפ צף (מחשב בלבד) -->
+<a class="wa-float" href="https://wa.me/972527495162" target="_blank" rel="noopener" aria-label="שליחת הודעה בוואטסאפ"><svg class="ic"><use href="#i-chat"/></svg></a>
+
+<!-- ============ נגישות ============ -->
+<button type="button" class="a11y-btn" id="a11yBtn" aria-haspopup="dialog" aria-controls="a11yPanel" aria-label="תפריט נגישות"><svg class="ic"><use href="#i-a11y"/></svg></button>
+<div class="a11y-panel" id="a11yPanel" role="dialog" aria-modal="false" aria-labelledby="a11yTitle" hidden>
+  <div class="a11y-head">
+    <h2 id="a11yTitle">התאמות נגישות</h2>
+    <button type="button" class="icon-btn" id="a11yClose" aria-label="סגירת תפריט הנגישות"><svg class="ic"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="a11y-size" role="group" aria-labelledby="a11ySizeLbl">
+    <span id="a11ySizeLbl">גודל טקסט</span>
+    <div>
+      <button type="button" data-a11y-size="-1" aria-label="הקטנת טקסט">א-</button>
+      <output id="a11ySizeVal">100%</output>
+      <button type="button" data-a11y-size="1" aria-label="הגדלת טקסט">א+</button>
+    </div>
+  </div>
+  <div class="a11y-opts">
+    <button type="button" data-a11y="contrast" aria-pressed="false">ניגודיות גבוהה</button>
+    <button type="button" data-a11y="gray" aria-pressed="false">גווני אפור</button>
+    <button type="button" data-a11y="links" aria-pressed="false">הדגשת קישורים</button>
+    <button type="button" data-a11y="font" aria-pressed="false">גופן קריא</button>
+    <button type="button" data-a11y="still" aria-pressed="false">עצירת אנימציות</button>
+    <button type="button" data-a11y="spacing" aria-pressed="false">ריווח טקסט</button>
+  </div>
+  <div class="a11y-foot">
+    <button type="button" class="btn btn-soft btn-sm" id="a11yReset">איפוס הגדרות</button>
+    <a href="accessibility.html">הצהרת נגישות</a>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+
+<!-- ============ מגירת סל ============ -->
+<aside class="drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle" hidden>
+  <div class="drawer-head">
+    <h2 id="cartTitle">סל ההזמנה</h2>
+    <button type="button" class="icon-btn" data-close aria-label="סגירה"><svg class="ic"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="drawer-body" id="cartBody">
+    <!-- מתמלא מ-JS -->
+  </div>
+</aside>
+
+<!-- ============ מגירת אזור אישי ============ -->
+<aside class="drawer" id="accountDrawer" role="dialog" aria-modal="true" aria-labelledby="accountTitle" hidden>
+  <div class="drawer-head">
+    <h2 id="accountTitle">אזור אישי</h2>
+    <button type="button" class="icon-btn" data-close aria-label="סגירה"><svg class="ic"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="drawer-body" id="accountBody"></div>
+</aside>
+
+<!-- ============ חלון מוצר ============ -->
+<div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="pmName" hidden>
+  <div class="modal-card product-modal">
+    <button type="button" class="icon-btn modal-close" data-close aria-label="סגירה"><svg class="ic"><use href="#i-close"/></svg></button>
+    <img id="pmImage" src="" alt="" width="800" height="533">
+    <div class="pm-body">
+      <p class="pm-cat" id="pmCat"></p>
+      <h2 id="pmName"></h2>
+      <p id="pmDesc"></p>
+      <p class="pm-pack"><svg class="ic"><use href="#i-box"/></svg> <span id="pmPack"></span></p>
+      <p class="pm-fit">מתאים ל: מסעדות, קייטרינגים, מוסדות ומטבחים מקצועיים</p>
+      <div class="pm-actions">
+        <div class="stepper stepper-lg">
+          <button type="button" id="pmMinus" aria-label="פחות"><svg class="ic"><use href="#i-minus"/></svg></button>
+          <output id="pmQty">1</output>
+          <button type="button" id="pmPlus" aria-label="עוד"><svg class="ic"><use href="#i-plus"/></svg></button>
+        </div>
+        <button type="button" class="btn btn-primary btn-lg" id="pmAdd">הוספה לסל</button>
+      </div>
+      <p class="pm-weight" id="pmWeight"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ הצלחה ============ -->
+<div class="modal" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle" hidden>
+  <div class="modal-card success-card">
+    <span class="success-ic" id="successIc"><svg class="ic"><use href="#i-check"/></svg></span>
     <h2 id="successTitle"></h2>
     <p id="successMsg"></p>
-    <div class="success-time"><i class="fa-solid fa-clock"></i> <span id="successTimeText"></span></div>
-    <button class="btn-close-success" onclick="closeSuccess()">תודה, חזרה לאתר</button>
+    <p class="success-note" id="successNote"></p>
+    <button type="button" class="btn btn-primary" data-close>תודה, חזרה לאתר</button>
   </div>
 </div>
 
-  <div id="pwaInstallBanner" class="pwa-install-banner">...</div>
-  
-  <!-- מודל הסבר התקנה (iOS / Android) -->
-<div class="success-overlay" id="installGuideModal">
-  <div class="success-card" style="max-width: 420px; padding: 40px 24px; position: relative;">
-    <button class="product-close" style="top: 14px; left: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onclick="document.getElementById('installGuideModal').classList.remove('open'); document.body.style.overflow='';">×</button>
-    
-    <div class="success-icon" style="background: linear-gradient(135deg, var(--olive), var(--olive-light)); box-shadow: 0 12px 25px rgba(61,70,22,0.3); margin-bottom: 20px;">
-      <i class="fas fa-download"></i>
-    </div>
-    
-    <h2 style="font-size: 1.7rem; margin-bottom: 12px; font-family: var(--font-heading); color: var(--olive);">התקנת האפליקציה</h2>
-    <p style="color: var(--muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
-      לגישה מהירה להזמנות הבאות, שמרו את האתר על מסך הבית:
-    </p>
-    
-    <div id="installGuideSteps" style="display: flex; justify-content: center; gap: 12px; align-items: center; font-weight: 800; color: var(--olive); background: rgba(200,150,93,0.15); padding: 18px 10px; border-radius: 16px; font-size: 0.95rem;">
-      <!-- השלבים יוזרקו לכאן בהתאם לסוג המכשיר -->
-    </div>
-    
-    <button class="btn-close-success" style="margin-top: 24px; width: 100%;" onclick="document.getElementById('installGuideModal').classList.remove('open'); document.body.style.overflow='';">הבנתי, תודה</button>
+<!-- ============ הדרכת התקנה ============ -->
+<div class="modal" id="installModal" role="dialog" aria-modal="true" aria-labelledby="installTitle" hidden>
+  <div class="modal-card install-card">
+    <button type="button" class="icon-btn modal-close" data-close aria-label="סגירה"><svg class="ic"><use href="#i-close"/></svg></button>
+    <img src="img/logo-160.webp" width="72" height="72" alt="">
+    <h2 id="installTitle">התקנת האפליקציה</h2>
+    <ol class="install-steps" id="installSteps"></ol>
+    <button type="button" class="btn btn-primary" data-close>הבנתי, תודה</button>
   </div>
 </div>
 
-
-  <a class="floating-contact" href="https://wa.me/972527495162" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
-
-
-
-<div id="mobileCartBar" class="mobile-cart-bar">
-  <div class="cart-bar-info"><i class="fa-solid fa-basket-shopping"></i><span id="cartBarText">עגלה (0)</span></div>
-  <button class="cart-bar-btn" onclick="document.getElementById('cart-wrapper').scrollIntoView({behavior:'smooth',block:'start'})">לעגלת הזמנה</button>
-</div>
-<div class="success-overlay" id="registerModal">
-  <div class="success-card" style="max-width: 400px; padding: 40px 24px; position: relative;">
-    <button class="product-close" onclick="closeRegisterModal()" style="top: 14px; left: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">×</button>
-    
-    <div class="success-icon" style="background: linear-gradient(135deg, var(--gold), #dcb27f); box-shadow: 0 12px 25px rgba(200,150,93,0.3); margin-bottom: 20px;">
-      <i class="fas fa-user-plus"></i>
-    </div>
-    
-    <h2 style="font-size: 1.7rem; margin-bottom: 12px; font-family: var(--font-heading); color: var(--olive);">הרשמה למערכת</h2>
-    <p style="color: var(--muted); font-size: 1rem; line-height: 1.5; margin-bottom: 24px; font-weight: 600;">
-      הזן פרטים כדי שנוכל לשמור את העדפות ההזמנה שלך.
-    </p>
-    
-    <div class="quote-form" style="text-align: right;">
-      <input id="regName" placeholder="שם מלא (חובה)" autocomplete="name">
-      <input id="regPhone" placeholder="טלפון (חובה)" inputmode="tel" autocomplete="tel">
-      <input id="regBiz" placeholder="שם עסק / מוסד" autocomplete="organization">
-      <input id="regCity" placeholder="עיר אספקה">
-      <button class="btn-add" style="margin-top: 15px; font-size: 1.1rem; padding: 14px;" onclick="submitRegistration()">הרשם ושמור פרטים</button>
-    </div>
-  </div>
+<!-- ============ באנר התקנה (מובייל) ============ -->
+<div class="pwa-banner" id="pwaBanner" hidden>
+  <img src="img/icon-192.png" width="44" height="44" alt="">
+  <div><strong>משה קילופים</strong><span>התקינו לגישה מהירה להזמנות</span></div>
+  <button type="button" class="btn btn-primary btn-sm" id="pwaInstall">התקנה</button>
+  <button type="button" class="icon-btn" id="pwaDismiss" aria-label="סגירה"><svg class="ic"><use href="#i-close"/></svg></button>
 </div>
 
-<footer><strong>משה קילופים</strong><br>ירקות קלופים וחתוכים למטבחים מוסדיים · © 2026 כל הזכויות שמורות</footer>
-
-<!-- Mobile Flow Modals -->
-<div class="success-overlay" id="mobDateModal">
-  <div class="success-card" style="max-width:400px; width:90%; padding:30px 20px; border-radius:24px; text-align:center; position:relative;">
-    <button class="product-close" style="top: 14px; left: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onclick="closeMobDateModal()">×</button>
-    
-    <div style="width:50px; height:50px; background:var(--olive); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 15px; box-shadow:0 6px 15px rgba(61,70,22,0.3);">
-      <i class="fas fa-calendar-alt"></i>
-    </div>
-    
-    <h3 style="font-family:var(--font-heading); color:var(--olive); font-size:1.4rem; margin-bottom:20px;">בחר תאריך אספקה</h3>
-    <div id="mobDateCarousel" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:15px; scrollbar-width:none;">
-    </div>
-  </div>
-</div>
-
-<div class="success-overlay" id="mobNotesModal">
-  <div class="success-card" style="max-width:400px; width:90%; padding:30px 20px; border-radius:24px; text-align:center; position:relative;">
-    <button class="product-close" style="top: 14px; left: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onclick="closeMobNotesModal()">×</button>
-    
-    <div style="width:50px; height:50px; background:var(--gold); color:#171717; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 15px; box-shadow:0 6px 15px rgba(200,150,93,0.3);">
-      <i class="fas fa-pen-to-square"></i>
-    </div>
-    
-    <h3 style="font-family:var(--font-heading); color:var(--olive); font-size:1.4rem; margin-bottom:20px;">הערות להזמנה</h3>
-    <textarea id="mobNotesInput" placeholder="הכנס הערות מיוחדות, בקשות לאריזה וכד׳" style="width:100%; height:120px; padding:15px; border-radius:12px; border:1px solid #ddd; font-family:inherit; font-size:1rem; resize:none; margin-bottom:20px; outline:none; background:#fdfdf9;"></textarea>
-    <button onclick="saveMobNotes()" style="width:100%; background:var(--olive); color:#fff; padding:15px; border-radius:12px; font-weight:800; font-size:1.1rem; border:none; cursor:pointer;">שמור הערות</button>
-  </div>
-</div>
-
-<div id="floatingAddMsg" class="floating-add-msg">
-      <i class="fas fa-check"></i> נוסף להזמנה
-    </div>
-
-<script>
-/* ══ CONSTANTS ══ */
-const WHATSAPP_NUMBER = "972527495162";
-const BUSINESS_EMAIL = "Mk.orders3@gmail.com";
-const POPULAR = ["תפוח אדמה לבן","בצל מקולף","שיני שום קלופות","גזר מקולף","כרוב לבן קצוץ"];
-const MAX_HISTORY = 6;
-
-const products = [
-  {name:"שיני שום קלופות",pack:"מארז 1 ק״ג",category:"שום",desc:"שיני שום קלופות, נקיות ומוכנות לשימוש במטבח מקצועי.",image:"shum.webp",emoji:"🧄"},
-  {name:"שום כתוש",pack:"מארז 3 ק״ג",category:"שום",desc:"שום כתוש מוכן לשימוש, מתאים לתיבול, בישול והכנות בכמות גדולה.",image:"shum_katush.webp",emoji:"🧄"},
-  {name:"תפוח אדמה ענק",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוחי אדמה גדולים במיוחד, מתאימים לאפייה, מילוי ומנות גדולות.",image:"bigpotteto.webp",emoji:"🥔"},
-  {name:"תפוח אדמה נייר כסף",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוחי אדמה המתאימים לאפייה בנייר כסף, שטופים ומוכנים לעבודה.",image:"kesefpotteto.webp",emoji:"🥔"},
-  {name:"תפוח אדמה לבן",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה לבן קלוף ומוכן לשימוש, מתאים לבישול, פירה ותוספות.",image:"ragilpotteto.webp",emoji:"🥔"},
-  {name:"תפוח אדמה אדום",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה אדום, מתאים לתבשילים, אפייה ותוספות.",image:"redpotteto.webp",emoji:"🥔"},
-  {name:"תפוח אדמה פרוס",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה פרוס בחיתוך אחיד, מתאים לתנור, גרטן ומטבחים מוסדיים.",image:"prusotpotteto.webp",emoji:"🥔"},
-  {name:"תפוח אדמה גולש",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה חתוך לגולש, מתאים לתבשילים ומנות חמות.",image:"gulashpotteto.webp",emoji:"🥔"},
-  {name:"תפוח אדמה הום פרייז",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"חיתוך הום פרייז, מוכן לטיגון/אפייה ולשימוש מהיר במטבח.",image:"homefries.webp",emoji:"🥔"},
-  {name:"תפוח אדמה קוביות קטנות 10/10",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"קוביות תפוח אדמה קטנות בחיתוך 10/10, אחידות ומוכנות לבישול.",image:"kubiotpotteto.webp",emoji:"🥔"},
-  {name:"צ׳יפס",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה חתוך לצ׳יפס, מתאים למטבחים מוסדיים, מסעדות וקייטרינג.",image:"fries.webp",emoji:"🍟"},
-  {name:"תפוח אדמה פריזיאן",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"תפוח אדמה פריזיאן, חיתוך עגול ומוכן לבישול/צלייה.",image:"farezian.webp",emoji:"🥔"},
-  {name:"סלק מבושל בוואקום",pack:"מארז 2.8 ק״ג · 5 שקיות בקרטון",category:"ירקות מבושלים",desc:"סלק מבושל באריזות וואקום, מוכן לשימוש לסלטים, תוספות ומטבחים מוסדיים.",image:"selekvacoum.webp",emoji:"🟥"},
-  {name:"סירות תפוח אדמה",pack:"מארז 10 ק״ג",category:"תפוחי אדמה",desc:"סירות תפוח אדמה בחיתוך אחיד, מתאימות לתנור, תוספות והגשה.",image:"sirot.webp",emoji:"🥔"},
-  {name:"כרוב לבן קצוץ",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"כרוב לבן קצוץ ומוכן לשימוש לסלטים, מוקפצים ותוספות.",image:"kruvlavan.webp",emoji:"🥬"},
-  {name:"כרוב אדום קצוץ",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"כרוב אדום קצוץ, מתאים לסלטים, חמוצים ותוספות.",image:"kruvadom.webp",emoji:"🥬"},
-  {name:"חסה קצוצה",pack:"מארז 10 ק״ג",category:"ירקות קצוצים",desc:"חסה קצוצה ומוכנה לשימוש, מתאימה לסלטים והגשה מהירה.",image:"hasa.webp",emoji:"🥬"},
-  {name:"גזר מקולף",pack:"מארז 10 ק״ג",category:"גזר",desc:"גזר מקולף, שטוף ומוכן לחיתוך, בישול או הגשה.",image:"carrot.webp",emoji:"🥕"},
-  {name:"גזר קוביות",pack:"מארז 10 ק״ג",category:"גזר",desc:"גזר חתוך לקוביות, מתאים למרקים, תבשילים ומטבח מוסדי.",image:"kubiot.webp",emoji:"🥕"},
-  {name:"גזר טבעות",pack:"מארז 10 ק״ג",category:"גזר",desc:"טבעות גזר אחידות, מתאימות לקוסקוס, מרקים ותבשילים.",image:"diskiot.webp",emoji:"🥕"},
-  {name:"בצל מקולף",pack:"מארז 10 ק״ג",category:"בצל",desc:"בצל לבן מקולף, נקי ומוכן לחיתוך או בישול.",image:"onion.webp",emoji:"🧅"},
-  {name:"בצל סגול מקולף",pack:"מארז 10 ק״ג",category:"בצל",desc:"בצל סגול מקולף, מתאים לסלטים, בישול והכנות מטבח.",image:"redonion.webp",emoji:"🧅"},
-  {name:"בטטה מקולפת",pack:"מארז 10 ק״ג",category:"בטטה",desc:"בטטה מקולפת, נקייה ומוכנה לחיתוך, אפייה ובישול.",image:"batata.webp",emoji:"🍠"}
-];
-
-let currentProductIndex = null;
-const cart = [];
-function getWeightStr(p, qty) {
-  if(!p || !p.pack) return "";
-  const m = p.pack.match(/([0-9.]+)\s*ק״ג/);
-  if(!m) return "";
-  const w = parseFloat(m[1]) * qty;
-  return ` (${w % 1 === 0 ? w : w.toFixed(1)} ק״ג)`;
-}
-let currentCategory = 'all';
-let currentSearch = '';
-
-/* ── STORAGE ── */
-function saveCartToStorage(){ try{ localStorage.setItem("mosheCart",JSON.stringify(cart)); }catch(e){} }
-function loadCartFromStorage(){ try{ const s=localStorage.getItem("mosheCart"); if(s) JSON.parse(s).forEach(i=>cart.push(i)); }catch(e){} }
-
-/* ── ORDER HISTORY ── */
-function getOrderHistory(){ try{ return JSON.parse(localStorage.getItem("mosheOrderHistory")||"[]"); }catch(e){ return []; } }
-function saveOrderToHistory(snap){
-  const h=getOrderHistory();
-  h.unshift({date:new Date().toLocaleDateString('he-IL'),items:snap});
-  if(h.length>MAX_HISTORY) h.length=MAX_HISTORY;
-  localStorage.setItem("mosheOrderHistory",JSON.stringify(h));
-  localStorage.setItem("mosheLastOrder",JSON.stringify(snap));
-}
-
-/* ── USER ── */
-function validatePhone(p){ return /^0[2-9]\d{7,8}$/.test(p.replace(/[-\s]/g,'')); }
-function clearUserDetails(){ localStorage.removeItem("mosheUserDetails"); location.reload(); }
-/* ── REGISTRATION SYSTEM ── */
-function openRegisterModal() {
-  document.getElementById('registerModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeRegisterModal() {
-  document.getElementById('registerModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function submitRegistration() {
-  const name = document.getElementById('regName').value.trim();
-  const phone = document.getElementById('regPhone').value.trim();
-  const biz = document.getElementById('regBiz').value.trim();
-  const city = document.getElementById('regCity').value.trim();
-
-  const nameEl = document.getElementById('regName');
-  const phoneEl = document.getElementById('regPhone');
-  
-  // איפוס שגיאות
-  nameEl.style.border = "1.5px solid rgba(0,0,0,0.12)";
-  phoneEl.style.border = "1.5px solid rgba(0,0,0,0.12)";
-
-  let ok = true;
-  if (!name) { nameEl.style.border = "2px solid #dc3545"; ok = false; }
-  if (!phone || !validatePhone(phone)) { phoneEl.style.border = "2px solid #dc3545"; ok = false; }
-
-  if (!ok) {
-    alert("אנא מלאו שם וטלפון תקין.");
-    return;
-  }
-
-  // שמירה ל-LocalStorage
-  const u = { name, phone, business: biz, city };
-  localStorage.setItem("mosheUserDetails", JSON.stringify(u));
-
-  closeRegisterModal();
-  
-  // רענון הממשק
-  checkUserStatus();
-  if (typeof mobRefreshPersonal === 'function') mobRefreshPersonal();
-  if (typeof mobRefreshOrderScreen === 'function') mobRefreshOrderScreen();
-
-  // הלוגיקה החדשה: מפעילים את מסך הטעינה בתוך האפליקציה
-  if (isRunningAsPWA()) {
-      // מעבירים למצב אפליקציה מאחורי הקלעים
-      document.body.classList.add('mobile-app-mode');
-      document.getElementById('mobileApp').style.display = 'flex';
-      mobRenderProducts();
-      appSwitchMainTab('appScreenPersonal', 'navTabPersonal');
-      
-      // מקפיצים את מסך הטעינה ("מכינים את המטבח...")
-      const splash = document.getElementById('splashScreen');
-      splash.style.display = 'flex';
-      splash.classList.remove('fade-out');
-      
-      // מעלימים אותו אחרי 2 שניות ומציגים את הודעת ה"ברוך הבא!"
-      setTimeout(() => {
-          splash.classList.add('fade-out');
-          setTimeout(() => {
-              splash.style.display = 'none';
-              showSuccess('register');
-          }, 600);
-      }, 2200);
-  } else {
-      // אם זה בוצע סתם מהדפדפן
-      showSuccess('register');
-  }
-}
-
-/* ── SHARED CART ── */
-function addToCart(name,qty,scroll=false){
-  const ex=cart.find(i=>i.name===name);
-  if(ex) ex.qty+=qty; else cart.push({name,qty});
-  renderCart(); mobRefreshOrderScreen(); saveCartToStorage();
-  if(scroll) document.getElementById("cart-wrapper")?.scrollIntoView({behavior:"smooth",block:"start"});
-}
-function changeCartQty(index,delta){
-  if(!cart[index]) return;
-  cart[index].qty+=delta;
-  if(cart[index].qty<=0) cart.splice(index,1);
-  renderCart(); mobRefreshOrderScreen(); saveCartToStorage();
-}
-function removeFromCart(index){ cart.splice(index,1); renderCart(); mobRefreshOrderScreen(); saveCartToStorage(); }
-
-/* ── ORDER TEXT ── */
-function buildOrderText(u,notes,date){
-  const pt=cart.map(item=>{ const p=products.find(p=>p.name===item.name); return `• ${item.name} - ${item.qty} מארזים${p ? getWeightStr(p, item.qty) : ""}`; }).join("\n");
-  const isExisting = typeof getOrderHistory === 'function' && getOrderHistory().length > 0;
-  let greeting = "שלום, אשמח לקבל הצעת מחיר ממשה קילופים:";
-  if (isExisting) {
-    greeting = u.business ? `שלום זה ${u.name} מ-${u.business},` : `שלום זה ${u.name},`;
-  }
-  return `${greeting}\n\n*פרטי לקוח:*\n*שם:* ${u.name}\n*טלפון:* ${u.phone}\n*עסק/מוסד:* ${u.business||"-"}\n*עיר אספקה:* ${u.city||"-"}${date?'\n*תאריך אספקה:* '+date:''}\n\n*מוצרים:*\n${pt}${notes?'\n\n*הערות:*\n'+notes:''}`;
-}
-function clearAfterOrder(){
-  saveOrderToHistory([...cart]);
-  cart.length=0; saveCartToStorage();
-  renderCart(); mobRefreshOrderScreen(); mobRefreshPersonal(); mobRefreshHistory();
-  checkUserStatus();
-}
-
-/* ── MOBILE MODALS LOGIC ── */
-let selectedMobDate = '';
-let selectedMobNotes = '';
-
-function openMobDateModal() {
-  const c = document.getElementById('mobDateCarousel');
-  if(!c.querySelector('.date-card')) {
-    let html = '';
-    const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-    for(let i=1; i<=7; i++) {
-      const d = new Date();
-      d.setDate(d.getDate() + i);
-      if(d.getDay() === 6) continue; // Skip Saturday
-      const dayName = i === 1 ? 'מחר' : days[d.getDay()];
-      const dateStr = d.toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit'});
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      const isoDate = `${year}-${month}-${day}`;
-      html += `<div onclick="selectMobDate('${isoDate}', '${dayName} ${dateStr}')" style="flex-shrink:0; width:100px; height:100px; border:2px solid #eaeaea; border-radius:16px; display:flex; flex-direction:column; justify-content:center; align-items:center; cursor:pointer; background:#fff; transition:0.2s;" class="date-card" data-val="${isoDate}">
-        <span style="font-weight:800; color:var(--olive); font-size:1.2rem;">${dayName}</span>
-        <span style="color:var(--muted); font-size:0.95rem; margin-top:5px; font-weight:600;">${dateStr}</span>
-      </div>`;
-    }
-    c.innerHTML = html;
-  }
-  // Highlight currently selected date card
-  const cards = c.querySelectorAll('.date-card');
-  cards.forEach(card => {
-    const val = card.getAttribute('data-val');
-    if (val === selectedMobDate) {
-      card.style.borderColor = 'var(--gold)';
-      card.style.background = 'rgba(200,150,93,0.1)';
-      card.style.transform = 'scale(1.05)';
-    } else {
-      card.style.borderColor = '#eaeaea';
-      card.style.background = '#fff';
-      card.style.transform = '';
-    }
-  });
-  document.getElementById('mobDateModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function selectMobDate(isoDate, displayStr) {
-  selectedMobDate = isoDate;
-  document.getElementById('mobODate').value = isoDate;
-  document.getElementById('btnMobDate').innerHTML = `
-    <div style="width:45px; height:45px; background:var(--olive); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 4px 10px rgba(61,70,22,0.3);">
-       <i class="fas fa-calendar-check" style="font-size:1.3rem;"></i>
-    </div>
-    <span style="color:var(--olive); font-size:0.95rem; font-weight:800;">${displayStr}</span>
-  `;
-  document.getElementById('btnMobDate').style.borderColor = "var(--olive)";
-  document.getElementById('btnMobDate').style.background = "#f4f7f4";
-  closeMobDateModal();
-}
-
-function closeMobDateModal() {
-  document.getElementById('mobDateModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function openMobNotesModal() {
-  document.getElementById('mobNotesInput').value = selectedMobNotes;
-  document.getElementById('mobNotesModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMobNotesModal() {
-  document.getElementById('mobNotesModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function saveMobNotes() {
-  selectedMobNotes = document.getElementById('mobNotesInput').value.trim();
-  document.getElementById('mobONotes').value = selectedMobNotes;
-  const btn = document.getElementById('btnMobNotes');
-  if(selectedMobNotes) {
-    btn.innerHTML = `
-      <div style="width:45px; height:45px; background:var(--olive); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 4px 10px rgba(61,70,22,0.3);">
-         <i class="fas fa-comment-dots" style="font-size:1.3rem;"></i>
-      </div>
-      <span style="color:var(--olive); font-size:0.95rem; font-weight:800;">נשמרו הערות</span>
-    `;
-    btn.style.background = "#f4f7f4";
-    btn.style.borderColor = "var(--olive)";
-  } else {
-    btn.innerHTML = `
-      <div style="width:45px; height:45px; background:rgba(200,150,93,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-         <i class="fas fa-pen-to-square" style="font-size:1.3rem; color:var(--gold);"></i>
-      </div>
-      <span style="font-size:1rem; font-weight:800; color:var(--olive);">הערות להזמנה</span>
-    `;
-    btn.style.background = "#fff";
-    btn.style.borderColor = "#eaeaea";
-  }
-  closeMobNotesModal();
-}
-
-/* ══ DESKTOP LOGIC ══ */
-function renderCart(){
-  const total=cart.reduce((s,i)=>s+i.qty,0);
-  const el=document.getElementById("cartCount");
-  if(el) el.textContent=`סל הזמנות (${total})`;
-  const bar=document.getElementById("mobileCartBar");
-  if(bar){
-    if(total>0){ bar.classList.add("active"); document.body.classList.add("cart-active"); document.getElementById("cartBarText").textContent=`${total} מארזים נבחרו`; }
-    else{ bar.classList.remove("active"); document.body.classList.remove("cart-active"); }
-  }
-  renderCartPage();
-  updateOrderButtonState();
-  updateCartBadge();
-}
-function renderCartPage(){
-  const el=document.getElementById("cartPageItems");
-  const sp=document.getElementById("summaryProducts");
-  if(sp) sp.textContent=cart.length;
-  if(!el) return;
-  if(cart.length===0){
-    const last=localStorage.getItem("mosheLastOrder");
-    const savedU=localStorage.getItem("mosheUserDetails");
-    let html=`<div class="cart-empty"><i class="fa-solid fa-cart-shopping"></i><h3>העגלה עדיין ריקה</h3><p>הוסיפו מוצרים מהקטלוג ונכין לכם הצעת מחיר במהירות</p>`;
-    if(last&&JSON.parse(last).length>0&&savedU) html+=`<button class="btn-restore" onclick="reorder(-1)"><i class="fa-solid fa-rotate-left"></i> שחזר הזמנה אחרונה</button>`;
-    html+=`</div>`; el.innerHTML=html; return;
-  }
-  el.innerHTML="";
-  cart.forEach((item,index)=>{
-    const p=products.find(p=>p.name===item.name)||{};
-    const d=document.createElement("div");
-    d.className="cart-page-item";
-    d.innerHTML=`<img src="${p.image||''}" alt="${item.name}" onerror="this.style.display='none'">
-      <div><h3>${item.name}</h3><p>${p.desc||""}</p><span class="pack-line">${p.pack||""}</span></div>
-      <div class="cart-page-actions">
-        <div style="display:flex; flex-direction:column; align-items:center; gap:4px; width:100%">
-          <div class="cart-qty-control" style="width:100%">
-            <button onclick="changeCartQty(${index},-1)">−</button><strong>${item.qty}</strong>
-            <button onclick="changeCartQty(${index},1)">+</button>
-          </div>
-          <div style="font-size:0.85rem; font-weight:800; color:var(--olive);">${getWeightStr(p, item.qty).trim()}</div>
-        </div>
-        <button class="remove-cart-item" onclick="removeFromCart(${index})"><i class="fa-solid fa-trash-can"></i> הסר</button>
-      </div>`;
-    el.appendChild(d);
-  });
-}
-
-function checkUserStatus(){
-  const saved=localStorage.getItem("mosheUserDetails");
-  const mainBtn=document.getElementById("mainOrderBtn");
-  const phoneBtn=document.getElementById("phoneOrderBtn");
-  const mailBtn=document.getElementById("mailOrderBtn");
-  const title=document.getElementById("cartSectionTitle");
-  
-  // 1. הגדרת כפתורי ההרשמה שיצרנו בשלבים הקודמים
-  const navBtn = document.getElementById("navLoginBtn");
-  const mobBtn = document.getElementById("mobMenuLoginBtn");
-  const mobHeaderBtn = document.getElementById("mobHeaderLoginBtn");
-  const heroBtn = document.getElementById("heroLoginBtn");
-
-  if(saved){
-    const u=JSON.parse(saved);
-    document.body.classList.add('vip-mode');
-    document.getElementById("newUserForm").style.display="none";
-    document.getElementById("vipTopName").textContent=u.business||u.name;
-    document.getElementById("vipAvatar").textContent = (u.business || u.name || "?").charAt(0);
-    const headerAvatar = document.getElementById("headerAvatar");
-    if(headerAvatar) {
-        headerAvatar.textContent = (u.business || u.name || "?").charAt(0);
-        headerAvatar.style.display = "flex";
-    }
-    const headerGreeting = document.getElementById("headerGreeting");
-    if(headerGreeting) {
-        headerGreeting.textContent = "ברוך הבא, " + (u.business || u.name);
-        headerGreeting.style.display = "block";
-    }
-    if(title) title.textContent="הזמנת סחורה";
-    if(mainBtn) mainBtn.innerHTML='<i class="fa-brands fa-whatsapp"></i> הזמנה ב-WhatsApp';
-    if(phoneBtn) phoneBtn.innerHTML='<i class="fas fa-phone"></i> הזמנה טלפונית';
-    if(mailBtn) mailBtn.innerHTML='<i class="fas fa-envelope"></i> הזמנה במייל';
-    
-    // 2. הלקוח מחובר: אנחנו מסתירים את כפתורי ההרשמה
-    if(navBtn) navBtn.style.display = "none";
-    if(mobBtn) mobBtn.style.display = "none";
-    if(mobHeaderBtn) mobHeaderBtn.classList.remove("show");
-    if(heroBtn) heroBtn.style.display = "none";
-    
-    renderOrderHistory();
-  } else {
-    const headerGreeting = document.getElementById("headerGreeting");
-    if(headerGreeting) headerGreeting.style.display = "none";
-    const headerAvatar = document.getElementById("headerAvatar");
-    if(headerAvatar) headerAvatar.style.display = "none";
-    document.body.classList.remove('vip-mode');
-    document.getElementById("newUserForm").style.display="grid";
-    if(title) title.textContent="עגלת הקניות";
-    if(mainBtn) mainBtn.innerHTML='<i class="fa-brands fa-whatsapp"></i> קבלת הצעה בוואטסאפ';
-    if(phoneBtn) phoneBtn.innerHTML='<i class="fas fa-phone"></i> קבלת הצעה בטלפון';
-    if(mailBtn) mailBtn.innerHTML='<i class="fas fa-envelope"></i> קבלת הצעה במייל';
-    
-    // 3. הלקוח חדש: אנחנו מציגים את כפתורי ההרשמה
-    if(navBtn) navBtn.style.display = "inline-block";
-    if(mobBtn) mobBtn.style.display = "block";
-    if(mobHeaderBtn) mobHeaderBtn.classList.add("show");
-    if(heroBtn) heroBtn.style.display = "inline-flex";
-  }
-}
-
-function renderOrderHistory(){
-  const panel=document.getElementById("ordersHistoryPanel");
-  const list=document.getElementById("ordersHistoryList");
-  if(!localStorage.getItem("mosheUserDetails")){ if(panel) panel.style.display="none"; return; }
-  const h=getOrderHistory();
-  if(!h.length){ if(panel) panel.style.display="none"; return; }
-  if(panel) panel.style.display="block";
-  // ההגבלה מתבצעת כאן באמצעות h.slice(0, 2)
-  if(list) list.innerHTML=h.slice(0, 2).map((e,i)=>{
-    const total=e.items.reduce((s,x)=>s+x.qty,0);
-    const names=e.items.slice(0,3).map(x=>x.name).join(", ")+(e.items.length>3?` ועוד ${e.items.length-3}`:"");
-    return `<div class="order-history-item">
-      <div class="order-history-header"><span class="order-history-date"><i class="fa-regular fa-calendar"></i> ${e.date}</span><span class="order-history-count">${total} מארזים</span></div>
-      <div class="order-history-products">${names}</div>
-      <button class="btn-reorder" onclick="reorder(${i})"><i class="fa-solid fa-rotate-left"></i> הזמנה חוזרת</button>
-    </div>`;
-  }).join('');
-}
-
-function reorder(idx){
-  const h=getOrderHistory();
-  const items=idx===-1?(()=>{ try{ return JSON.parse(localStorage.getItem("mosheLastOrder")||"[]"); }catch(e){ return []; } })():(h[idx]||{items:[]}).items;
-  cart.length=0; items.forEach(i=>cart.push(i));
-  saveCartToStorage(); renderCart(); mobRefreshOrderScreen();
-  document.getElementById('cart-wrapper')?.scrollIntoView({behavior:'smooth'});
-}
-
-function renderProducts(){
-  const grid=document.getElementById("productsGrid");
-  const noMsg=document.getElementById("noResultsMsg");
-  if(!grid) return;
-  const h=getOrderHistory();
-  const orderedNames=new Set(h.flatMap(e=>e.items.map(i=>i.name)));
-  const isVip=!!localStorage.getItem("mosheUserDetails");
-  let filtered=products.filter(p=>{
-    const mc=currentCategory==='all'||p.category===currentCategory;
-    const ms=!currentSearch||p.name.toLowerCase().includes(currentSearch)||p.category.toLowerCase().includes(currentSearch)||p.desc.toLowerCase().includes(currentSearch);
-    return mc&&ms;
-  });
-  if(!currentSearch&&isVip) filtered.sort((a,b)=>(orderedNames.has(a.name)?0:1)-(orderedNames.has(b.name)?0:1));
-  grid.innerHTML=""; noMsg.style.display=filtered.length?"none":"block";
-  filtered.forEach(p=>{
-    const idx=products.indexOf(p);
-    const isPop=POPULAR.includes(p.name); const wasOrdered=orderedNames.has(p.name);
-    const ci=cart.find(i=>i.name===p.name);
-    let badge='';
-    if(isVip&&wasOrdered) badge=`<span class="badge-ordered"><i class="fa-solid fa-rotate-left"></i> הזמנת בעבר</span>`;
-    else if(isPop&&!wasOrdered) badge=`<span class="badge-popular">⭐ נפוץ</span>`;
-    const iqcVisible=ci?'visible':''; const addStyle=ci?'display:none':'';
-    grid.innerHTML+=`<article class="product-card" data-category="${p.category}">${badge}
-      <button class="product-image-btn" onclick="openProduct(${idx})">
-        <img loading="lazy" src="${p.image}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-        <span class="product-fallback">${p.emoji}</span>
-      </button>
-      <div class="product-card-body">
-        <span class="product-category">${p.category}</span>
-        <h3>${p.name}</h3><p>${p.pack}</p>
-        <span class="price-note"><i class="fa-solid fa-tags"></i> מחיר לפי כמות</span>
-        <button class="btn-add desk-btn" style="${addStyle}" onclick="quickAddDesktop(event,'${p.name}',this)">הוסף לסל +</button>
-        <div class="inline-qty-ctrl ${iqcVisible}" id="iqc-${idx}">
-          <button onclick="inlineChange(${idx},-1)">−</button>
-          <strong id="iqc-qty-${idx}">${ci?ci.qty:1}</strong>
-          <button onclick="inlineChange(${idx},1)">+</button>
-        </div>
-      </div></article>`;
-  });
-}
-
-function onSearch(val){ currentSearch=val.trim().toLowerCase(); if(currentSearch){ document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); currentCategory='all'; } renderProducts(); }
-function filterProducts(cat,btn){ currentCategory=cat; currentSearch=''; document.getElementById('catalogSearch').value=''; document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active")); btn.classList.add("active"); renderProducts(); }
-function quickAddDesktop(event,name,addBtn){ event.stopPropagation(); addToCart(name,1,false); const idx=products.findIndex(p=>p.name===name); addBtn.style.display='none'; const ctrl=document.getElementById(`iqc-${idx}`); if(ctrl){ ctrl.classList.add('visible'); const q=document.getElementById(`iqc-qty-${idx}`); const ci=cart.find(i=>i.name===name); if(q&&ci) q.textContent=ci.qty; } playAddAnimation(); }
-function inlineChange(idx,delta){ const p=products[idx]; if(!p) return; const ex=cart.find(i=>i.name===p.name); if(!ex&&delta>0){ cart.push({name:p.name,qty:1}); } else if(ex){ ex.qty+=delta; if(ex.qty<=0){ cart.splice(cart.indexOf(ex),1); const ctrl=document.getElementById(`iqc-${idx}`); if(ctrl){ ctrl.classList.remove('visible'); const card=ctrl.closest('.product-card'); if(card){ const ab=card.querySelector('.desk-btn'); if(ab) ab.style.display=''; } } } } const q=document.getElementById(`iqc-qty-${idx}`); if(q){ const ci=cart.find(i=>i.name===p.name); q.textContent=ci?ci.qty:0; } renderCart(); mobRefreshOrderScreen(); saveCartToStorage(); if(delta>0) playAddAnimation(); }
-// quickAdd and updateQuickAddButtons have been removed in favor of unified inline-qty-ctrl
-
-function openProduct(index){ currentProductIndex=index; const p=products[index]; const img=document.getElementById("productDetailImage"); const fb=document.getElementById("productDetailFallback"); img.style.display="block"; fb.style.display="none"; img.src=p.image; img.alt=p.name; fb.textContent=p.emoji; document.getElementById("productDetailCategory").textContent=p.category; document.getElementById("productDetailName").textContent=p.name; document.getElementById("productDetailDesc").textContent=p.desc; document.getElementById("productDetailPack").textContent=p.pack; document.getElementById("detailQty").value=1; const pg=document.getElementById("productPage"); pg.classList.add("open"); pg.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
-function closeProduct(){ const pg=document.getElementById("productPage"); pg.classList.remove("open"); pg.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
-function addCurrentProductToCart(){ if(currentProductIndex===null) return; const p=products[currentProductIndex]; addToCart(p.name,Math.max(1,Number(document.getElementById("detailQty").value||1)),true); closeProduct(); playAddAnimation(); }
-window.addEventListener("keydown",e=>{ if(e.key==="Escape") closeProduct(); });
-document.addEventListener("click",e=>{ if(e.target===document.getElementById("productPage")) closeProduct(); });
-
-function validateOrderForm(nameId,phoneId){ const name=document.getElementById(nameId); const phone=document.getElementById(phoneId); let ok=true; [name,phone].forEach(el=>el.style.border="1.5px solid rgba(0,0,0,0.12)"); if(!name.value.trim()){ name.style.border="2px solid #dc3545"; ok=false; } if(!phone.value.trim()||!validatePhone(phone.value.trim())){ phone.style.border="2px solid #dc3545"; ok=false; if(phone.value.trim()) alert("מספר הטלפון אינו תקין."); } if(!ok&&!phone.value.trim()) alert("אנא מלאו לפחות שם וטלפון."); return ok; }
-function collectUser(nameId="quoteName",phoneId="quotePhone",bizId="quoteBusiness",cityId="quoteCity"){ const s=localStorage.getItem("mosheUserDetails"); if(s) return JSON.parse(s); if(!validateOrderForm(nameId,phoneId)) return null; const u={name:document.getElementById(nameId).value.trim(),phone:document.getElementById(phoneId).value.trim(),business:document.getElementById(bizId).value.trim(),city:document.getElementById(cityId).value.trim()}; localStorage.setItem("mosheUserDetails",JSON.stringify(u)); return u; }
-
-function sendQuoteWhatsApp(){ if(cart.length===0){ alert("העגלה ריקה."); return; } const u=collectUser(); if(!u) return; const notes=document.getElementById("quoteNotes").value.trim(); const date=document.getElementById("quoteDeliveryDate")?.value||''; window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildOrderText(u,notes,date))}`,"_blank"); clearAfterOrder(); showSuccess('whatsapp'); }
-function sendQuoteEmail(){ if(cart.length===0){ alert("העגלה ריקה."); return; } const u=collectUser(); if(!u) return; const notes=document.getElementById("quoteNotes").value.trim(); const date=document.getElementById("quoteDeliveryDate")?.value||''; window.location.href=`mailto:${BUSINESS_EMAIL}?subject=${encodeURIComponent("בקשה להצעת מחיר - משה קילופים")}&body=${encodeURIComponent(buildOrderText(u,notes,date))}`; clearAfterOrder(); showSuccess('mail'); }
-function handlePhoneOrder(event){ if(cart.length===0) return; const u=collectUser(); if(!u){ event.preventDefault(); return; } clearAfterOrder(); showSuccess('phone'); }
-
-function showSuccess(type){ 
-  const icon=document.getElementById("successIcon"); 
-  const iconEl=document.getElementById("successIconEl"); 
-  icon.className="success-icon"; 
-  if(type==='whatsapp'){ 
-    icon.classList.add('wa'); 
-    iconEl.className='fa-brands fa-whatsapp'; 
-    document.getElementById("successTitle").textContent="ההזמנה נשלחה!"; 
-    document.getElementById("successMsg").textContent="ההודעה נפתחה בוואטסאפ. לאחר השליחה נחזור אליכם עם הצעת מחיר מסודרת."; 
-    document.getElementById("successTimeText").textContent=" נודיע לך שקיבלנו את ההזמנה"; 
-  } else if(type==='phone'){ 
-    icon.classList.add('ph'); 
-    iconEl.className='fas fa-phone'; 
-    document.getElementById("successTitle").textContent="מתקשרים אלינו!"; 
-    document.getElementById("successMsg").textContent="אנחנו ממתינים לשיחתך כדי לתאם את ההזמנה."; 
-    document.getElementById("successTimeText").textContent="שעות: א'-ג', ה' 08:00-16:00 | ד' 24 שעות";
-  } else if(type==='register'){ 
-    icon.classList.add('wa'); 
-    iconEl.className='fas fa-user-check'; 
-    document.getElementById("successTitle").textContent="ברוך הבא!"; 
-    document.getElementById("successMsg").textContent="הפרטים שלך נשמרו במערכת בהצלחה."; 
-    document.getElementById("successTimeText").textContent="עכשיו אפשר להזמין בקליק";
-  } else{ 
-    icon.classList.add('ml'); 
-    iconEl.className='fas fa-envelope'; 
-    document.getElementById("successTitle").textContent="המייל נפתח!"; 
-    document.getElementById("successMsg").textContent="לאחר שליחת המייל נחזור אליכם עם הצעת מחיר מסודרת."; 
-    document.getElementById("successTimeText").textContent="נחזור אליך תוך יום עסקים"; 
-  } 
-  document.getElementById("successOverlay").classList.add("open"); 
-  document.body.style.overflow="hidden"; 
-}
-function closeSuccess(){ 
-  document.getElementById("successOverlay").classList.remove("open"); 
-  document.body.style.overflow=""; 
-  sessionStorage.setItem('skipSplash', 'true');
-  window.location.reload();
-}
-
-function revealOnScroll(){ document.querySelectorAll(".reveal").forEach(el=>{ if(el.getBoundingClientRect().top<window.innerHeight-60) el.classList.add("active"); }); const b=document.getElementById("badge30"); if(b&&b.getBoundingClientRect().top<window.innerHeight-80) b.classList.add("active"); }
-window.addEventListener("scroll",revealOnScroll);
-function toggleMenu(){ const m=document.getElementById('mobileMenu'); m.classList.toggle('open'); document.body.style.overflow=m.classList.contains('open')?'hidden':''; }
-
-/* ══ MOBILE APP LOGIC ══ */
-let navStack = [];
-
-const MAIN_SCREENS = ['appScreenProducts','appScreenPersonal','appScreenOrder','appScreenHistory','appScreenContact'];
-const TAB_MAP = {
-  'appScreenProducts':'navTabProducts',
-  'appScreenPersonal':'navTabPersonal',
-  'appScreenOrder':'navFabWrap',
-  'appScreenHistory':'navTabHistory',
-  'appScreenContact':'navTabContact'
-};
-
-function appGetActiveScreen(){ const screens=document.querySelectorAll('.app-screen'); for(const s of screens){ if(s.classList.contains('active')) return s.id; } return null; }
-
-function appShowScreen(targetId, pushToStack=true){
-  const current=appGetActiveScreen();
-  if(current===targetId) return;
-  if(pushToStack&&current) navStack.push(current);
-  const currentEl=document.getElementById(current);
-  if(currentEl){ currentEl.classList.remove('active'); if(!MAIN_SCREENS.includes(targetId)){ currentEl.classList.add('slide-left'); setTimeout(()=>currentEl.classList.remove('slide-left'),350); } }
-  const targetEl=document.getElementById(targetId);
-  if(targetEl){ targetEl.classList.add('active'); targetEl.scrollTop=0; }
-  updateBackButton(); updateTabHighlight(targetId); updateCartBadge();
-}
-
-function updateBackButton(){ const backBtn=document.getElementById('appBackBtn'); const logo=document.querySelector('.app-topbar-logo'); if(navStack.length>0){ backBtn.classList.add('visible'); const prev=navStack[navStack.length-1]; const prevEl=document.getElementById(prev); document.getElementById('appBackLabel').textContent=prevEl?.dataset?.title||'חזור'; if(logo) logo.style.display='none'; } else { backBtn.classList.remove('visible'); if(logo) logo.style.display=''; } }
-function appGoBack(){ if(navStack.length===0) return; const prevScreen=navStack.pop(); const currentEl=document.getElementById(appGetActiveScreen()); if(currentEl) currentEl.classList.remove('active'); const prevEl=document.getElementById(prevScreen); if(prevEl){ prevEl.classList.add('active'); prevEl.scrollTop=0; } updateBackButton(); updateTabHighlight(prevScreen); updateCartBadge(); }
-function updateTabHighlight(screenId){ document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); document.getElementById('navFab')?.classList.remove('active'); document.getElementById('navFabWrap')?.classList.remove('active'); const tabId=TAB_MAP[screenId]; if(tabId){ const tabEl=document.getElementById(tabId); if(tabEl) tabEl.classList.add('active'); } }
-function appSwitchMainTab(screenId, tabId){ navStack=[]; appShowScreen(screenId,false); if(screenId==='appScreenOrder') mobRefreshOrderScreen(); }
-function updateCartBadge(){ const total=cart.reduce((s,i)=>s+i.qty,0); const badge=document.getElementById('appCartBadge'); const badgeText=document.getElementById('appCartBadgeText'); if(badge){ if(total>0){ badge.style.display='flex'; badgeText.textContent=total; } else { badge.style.display='none'; } } }
-
-/* ── Mobile products & Search ── */
-let mobCurrentCat='all';
-let mobSearchQuery='';
-
-function mobOnSearch(val){ 
-  mobSearchQuery = val.trim().toLowerCase();
-  mobRenderProducts(); 
-}
-
-function mobFilter(cat,btn){ 
-  mobCurrentCat=cat; 
-  mobSearchQuery=''; // איפוס החיפוש כשלוחצים על קטגוריה
-  document.getElementById('mobAppSearch').value = ''; // ניקוי שורת החיפוש
-  document.querySelectorAll('.mob-chip').forEach(c=>c.classList.remove('active')); 
-  btn.classList.add('active'); 
-  mobRenderProducts(); 
-}
-
-function mobRenderProducts(){
-  const list=document.getElementById('mobProductsList'); if(!list) return;
-  const h=getOrderHistory();
-  const orderedNames=new Set(h.flatMap(e=>e.items.map(i=>i.name)));
-  const isVip=!!localStorage.getItem("mosheUserDetails");
-  
-  let filtered = products.filter(p => {
-    const matchCat = mobCurrentCat === 'all' || p.category === mobCurrentCat;
-    const matchSearch = !mobSearchQuery || p.name.toLowerCase().includes(mobSearchQuery) || p.category.toLowerCase().includes(mobSearchQuery);
-    return matchCat && matchSearch;
-  });
-  
-  if(isVip && !mobSearchQuery) filtered.sort((a,b)=>(orderedNames.has(a.name)?0:1)-(orderedNames.has(b.name)?0:1));
-  
-  if(filtered.length === 0) {
-      list.innerHTML = `<div style="text-align:center; margin-top:30px; color:var(--muted); font-weight:bold;">לא נמצאו מוצרים תואמים לחיפוש שלך.</div>`;
-      return;
-  }
-
-  list.innerHTML=filtered.map(p=>{
-    const idx=products.indexOf(p);
-    const ci=cart.find(i=>i.name===p.name);
-    const isPop=POPULAR.includes(p.name); const wasOrdered=orderedNames.has(p.name);
-    const badge=isVip&&wasOrdered?`<span class="mob-prod-badge">הזמנת בעבר</span>`:(isPop?`<span class="mob-prod-badge">⭐ נפוץ</span>`:'');
-    const ctrl=ci
-      ?`<div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div class="mob-qty-ctrl" id="mob-ctrl-${idx}"><button onclick="mobDecProd(${idx})">−</button><strong id="mob-qty-${idx}">${ci.qty}</strong><button onclick="mobIncProd(${idx})">+</button></div><div id="mob-weight-${idx}" style="font-size:0.75rem; font-weight:800; color:var(--olive);">${getWeightStr(p, ci.qty).trim()}</div></div>`
-      :`<button class="mob-add-btn" id="mob-ctrl-${idx}" onclick="mobAddProd(${idx})"><i class="fas fa-plus"></i></button>`;
-    return `<div class="mob-product-row">
-      <img class="mob-prod-img" src="${p.image}" alt="${p.name}" onerror="this.style.display='none';document.getElementById('mob-fb-${idx}').style.display='flex';">
-      <div id="mob-fb-${idx}" class="mob-prod-fallback">${p.emoji}</div>
-      <div class="mob-prod-info"><div class="mob-prod-name">${p.name}</div><div class="mob-prod-pack">${p.pack}</div>${badge}</div>
-      <div class="mob-prod-ctrl" id="mob-ctrl-wrap-${idx}">${ctrl}</div>
-    </div>`;
-  }).join('');
-}
-function mobAddProd(idx){ const p=products[idx]; if(!p) return; addToCart(p.name,1,false); mobUpdateProdCtrl(idx); playAddAnimation(); }
-function mobIncProd(idx){ const p=products[idx]; if(!p) return; const ex=cart.find(i=>i.name===p.name); if(ex){ ex.qty++; saveCartToStorage(); renderCart(); updateCartBadge(); playAddAnimation(); } mobUpdateProdQtyDisplay(idx); }
-function mobDecProd(idx){ const p=products[idx]; if(!p) return; const ex=cart.find(i=>i.name===p.name); if(!ex) return; ex.qty--; if(ex.qty<=0){ cart.splice(cart.indexOf(ex),1); mobUpdateProdCtrl(idx); } else { mobUpdateProdQtyDisplay(idx); } saveCartToStorage(); renderCart(); updateCartBadge(); mobRefreshOrderScreen(); }
-function mobUpdateProdQtyDisplay(idx){ const p=products[idx]; if(!p) return; const ci=cart.find(i=>i.name===p.name); const qEl=document.getElementById(`mob-qty-${idx}`); if(qEl&&ci) qEl.textContent=ci.qty; const wEl=document.getElementById(`mob-weight-${idx}`); if(wEl&&ci) wEl.textContent=getWeightStr(p, ci.qty).trim(); }
-function mobUpdateProdCtrl(idx){ const p=products[idx]; if(!p) return; const ci=cart.find(i=>i.name===p.name); const wrap=document.getElementById(`mob-ctrl-wrap-${idx}`); if(!wrap) return; if(ci){ wrap.innerHTML=`<div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div class="mob-qty-ctrl" id="mob-ctrl-${idx}"><button onclick="mobDecProd(${idx})">−</button><strong id="mob-qty-${idx}">${ci.qty}</strong><button onclick="mobIncProd(${idx})">+</button></div><div id="mob-weight-${idx}" style="font-size:0.75rem; font-weight:800; color:var(--olive);">${getWeightStr(p, ci.qty).trim()}</div></div>`; } else { wrap.innerHTML=`<button class="mob-add-btn" id="mob-ctrl-${idx}" onclick="mobAddProd(${idx})"><i class="fas fa-plus"></i></button>`; } updateCartBadge(); mobRefreshOrderScreen(); }
-
-/* ── Mobile Order Screen (all-in-one) ── */
-function mobRefreshOrderScreen(){
-  const isVip=!!localStorage.getItem("mosheUserDetails");
-  const total=cart.reduce((s,i)=>s+i.qty,0);
-  const hasCart=cart.length>0;
-
-  // Restore hint
-  const h=getOrderHistory();
-  const subEl=document.getElementById('mobRestoreSub');
-  if(subEl) subEl.textContent=h[0]?`הזמנה מ-${h[0].date} — ${h[0].items.reduce((s,i)=>s+i.qty,0)} מארזים`:'אין הזמנות קודמות';
-  const restoreWrap=document.getElementById('mobRestoreBigWrap');
-  if(restoreWrap) restoreWrap.style.display=(h.length && !hasCart)?'block':'none';
-
-  // Cart rows
-  const cartBadge=document.getElementById('mobOrderCartBadge');
-  if(cartBadge) cartBadge.textContent=total;
-  const rowsEl=document.getElementById('mobOrderCartRows');
-  if(rowsEl){
-    if(!hasCart){
-      rowsEl.innerHTML=`<div class="mob-order-cart-empty">העגלה ריקה — בחרו מוצרים מהקטלוג</div>`;
-    } else {
-      rowsEl.innerHTML=cart.map((item,index)=>{
-        const p=products.find(p=>p.name===item.name)||{};
-        return `<div class="mob-order-cart-row">
-            <img class="mob-ocr-img" src="${p.image||''}" alt="${item.name}" onerror="this.style.display='none'">
-            <div class="mob-ocr-name">${item.name}</div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
-              <div class="mob-ocr-qty-ctrl">
-                <button onclick="mobOrderCartChange(${index},-1)">−</button>
-                <strong id="mobOCR-qty-${index}">${item.qty}</strong>
-                <button onclick="mobOrderCartChange(${index},1)">+</button>
-              </div>
-              <div style="font-size:0.75rem; font-weight:800; color:var(--olive);">${getWeightStr(p, item.qty).trim()}</div>
-            </div>
-            <button class="mob-ocr-remove" onclick="mobRemoveFromCart(${index})"><i class="fa-solid fa-trash-can"></i></button>
-          </div>`;
-      }).join('');
-    }
-  }
-
-  // Summary
-  const summaryBox=document.getElementById('mobOrderSummaryBox');
-  if(summaryBox) summaryBox.style.display=hasCart?'block':'none';
-  const sp=document.getElementById('mobOSSProducts');
-  if(sp) sp.textContent=cart.length;
-
-  // User form
-  const newUserForm=document.getElementById('mobOrderNewUserForm');
-  if(newUserForm) newUserForm.style.display=isVip?'none':'block';
-
-  // Send button labels
-  const waLbl=document.getElementById('mobWaLabel');
-  if(waLbl) waLbl.textContent="סיים הזמנה";
-
-  // Disable/enable send if cart empty
-  const hint=document.getElementById('mobCartEmptyHint');
-  const btnWa=document.getElementById('mobBtnWa');
-  if(btnWa){ if(hasCart) btnWa.classList.remove('mob-send-disabled'); else btnWa.classList.add('mob-send-disabled'); }
-  if(hint) hint.style.display=hasCart?'none':'block';
-
-  // Recommended products
-  const recEl=document.getElementById('mobRecommendedList');
-  if(recEl){
-    const notInCart = products.filter(p => !cart.some(c => c.name === p.name));
-    const recs = notInCart.slice(0, 3);
-    if(recs.length > 0 && hasCart) {
-      document.getElementById('mobRecommendedSection').style.display = 'block';
-      recEl.innerHTML = recs.map(p => {
-        return `<div style="min-width:130px; background:#fff; border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:12px; display:flex; flex-direction:column; align-items:center; box-shadow:0 3px 8px rgba(0,0,0,0.04);">
-          <img src="${p.image||''}" onerror="this.style.display='none'" style="width:60px; height:60px; object-fit:contain; margin-bottom:8px;">
-          <div style="font-size:0.9rem; font-weight:800; text-align:center; margin-bottom:8px; color:var(--olive); flex-grow:1; display:flex; align-items:center; justify-content:center;">${p.name}</div>
-          <button onclick="addToCart('${p.name}', 1); playAddAnimation();" style="background:var(--gold); color:#171717; border:none; padding:6px 18px; border-radius:20px; font-weight:800; font-size:0.85rem; cursor:pointer; width:100%; margin-top:auto;">הוסף</button>
-        </div>`;
-      }).join('');
-    } else {
-      document.getElementById('mobRecommendedSection').style.display = 'none';
-    }
-  }
-}
-
-function mobOrderCartChange(index,delta){
-  if(!cart[index]) return;
-  cart[index].qty+=delta;
-  if(cart[index].qty<=0) cart.splice(index,1);
-  saveCartToStorage(); renderCart(); mobRenderProducts(); mobRefreshOrderScreen();
-  if(delta > 0) playAddAnimation();
-}
-
-function mobRemoveFromCart(index){
-  cart.splice(index,1);
-  saveCartToStorage(); 
-  renderCart(); 
-  mobRenderProducts(); 
-  mobRefreshOrderScreen();
-}
-
-function mobRestoreAndStay(){
-  const h=getOrderHistory();
-  if(!h.length){ alert("אין הזמנות קודמות לשחזור."); return; }
-  const items=h[0].items;
-  cart.length=0; items.forEach(i=>cart.push(i));
-  saveCartToStorage(); renderCart(); mobRenderProducts(); mobRefreshOrderScreen();
-}
-
-/* ── Mobile order send ── */
-function mobCollectUser(){ const s=localStorage.getItem("mosheUserDetails"); if(s) return JSON.parse(s); if(!validateOrderForm('mobOName','mobOPhone')) return null; const u={name:document.getElementById('mobOName').value.trim(),phone:document.getElementById('mobOPhone').value.trim(),business:document.getElementById('mobOBiz').value.trim(),city:document.getElementById('mobOCity').value.trim()}; localStorage.setItem("mosheUserDetails",JSON.stringify(u)); return u; }
-function mobOrderSendWA() { 
-  if(cart.length===0){ alert("העגלה ריקה."); return; } 
-  const date=document.getElementById('mobODate')?.value||''; 
-  if(!date) {
-    openMobDateModal();
-    return;
-  }
-  const u=mobCollectUser(); 
-  if(!u) return; 
-  const notes=document.getElementById('mobONotes').value.trim(); 
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildOrderText(u,notes,date))}`,"_blank"); 
-  clearAfterOrder(); 
-  showSuccess('whatsapp'); 
-}
-function mobOrderSendMail(){ if(cart.length===0){ alert("העגלה ריקה."); return; } const u=mobCollectUser(); if(!u) return; const notes=document.getElementById('mobONotes').value.trim(); const date=document.getElementById('mobODate')?.value||''; window.location.href=`mailto:${BUSINESS_EMAIL}?subject=${encodeURIComponent("בקשה להצעת מחיר - משה קילופים")}&body=${encodeURIComponent(buildOrderText(u,notes,date))}`; clearAfterOrder(); showSuccess('mail'); }
-function mobOrderHandlePhone(event){ if(cart.length===0){ event.preventDefault(); return; } const u=mobCollectUser(); if(!u){ event.preventDefault(); return; } clearAfterOrder(); showSuccess('phone'); }
-
-/* ── Mobile personal ── */
-
-/* ── Mobile personal & Recommended ── */
-function mobToggleSettings() {
-  document.getElementById('mobSettingsPanel').classList.toggle('open');
-}
-
-function mobRefreshPersonal(){
-  const saved=localStorage.getItem("mosheUserDetails");
-  const h=getOrderHistory();
-  
-  if(saved){
-    const u=JSON.parse(saved);
-    
-    // ברכה לפי שעה
-    const hour = new Date().getHours();
-    let greeting = "שלום";
-    if (hour >= 5 && hour < 12) greeting = "בוקר טוב";
-    else if (hour >= 12 && hour < 17) greeting = "צהריים טובים";
-    else if (hour >= 17 && hour < 21) greeting = "ערב טוב";
-    else greeting = "לילה טוב";
-    
-    // משיכת השם הפרטי בלבד
-    const firstName = u.name ? u.name.split(' ')[0] : 'שף';
-    
-    document.getElementById('mobGreetingTitle').textContent = `${greeting}, ${firstName}`;
-    document.getElementById('mobGreetingSub').textContent = u.business || 'משה קילופים איתך';
-
-    // פרטי הגדרות
-    document.getElementById('mobEName').value=u.name||'';
-    document.getElementById('mobEPhone').value=u.phone||'';
-    document.getElementById('mobEBiz').value=u.business||'';
-    document.getElementById('mobECity').value=u.city||'';
-
-    // הפעלת אלגוריתם "המוצרים שלי"
-    renderMobMyProducts(h);
-  }
-
-  // היסטוריה רגילה
-  const histPanel=document.getElementById('mobPersonalHistory');
-  const histList=document.getElementById('mobPersonalHistoryList');
-  if(h.length>0&&saved){
-    histPanel.style.display='block';
-    histList.innerHTML=h.slice(0, 2).map((e,i)=>`
-      <div class="mob-order-card">
-        <div class="mob-order-head"><span class="mob-order-date"><i class="fas fa-calendar"></i> ${e.date}</span><span class="mob-order-count">${e.items.reduce((s,x)=>s+x.qty,0)} מארזים</span></div>
-        <div class="mob-order-tags">${e.items.slice(0,4).map(x=>`<span class="mob-tag">${x.name}</span>`).join('')}</div>
-        <button class="mob-reorder-btn" onclick="mobReorderAndGo(${i})"><i class="fas fa-rotate-left"></i> הזמנה חוזרת</button>
-      </div>`).join('');
-  } else { histPanel.style.display='none'; }
-
-  // הסתרת כפתור "התקן אפליקציה" אם אנחנו כבר בתוך האפליקציה
-  const installBtn = document.getElementById('mobInstallBtn');
-  if (installBtn && isRunningAsPWA()) {
-      installBtn.style.display = 'none';
-  }
-}
-
-function playAddAnimation() {
-  // רטט עדין במידה ונתמך
-  if (window.navigator && window.navigator.vibrate) {
-    try { window.navigator.vibrate(40); } catch(e){}
-  }
-
-  // חלקיק מעופף +1 מהמקום בו לחצו
-  const ev = window.event;
-  let startX = window.innerWidth / 2;
-  let startY = window.innerHeight / 2;
-  
-  const navFab = document.querySelector('#navFabWrap .nav-fab');
-  if (ev && ev.clientX) {
-      startX = ev.clientX;
-      startY = ev.clientY;
-  } else if (navFab) {
-      const rect = navFab.getBoundingClientRect();
-      startX = rect.left + rect.width / 2;
-      startY = rect.top;
-  }
-
-  const particle = document.createElement('div');
-  particle.className = 'add-particle';
-  particle.innerHTML = '+1';
-  particle.style.left = startX + 'px';
-  particle.style.top = startY + 'px';
-  document.body.appendChild(particle);
-  
-  setTimeout(() => {
-    if(particle.parentNode) particle.parentNode.removeChild(particle);
-  }, 800);
-
-  // 1. אנימציית פולס לכפתור סיכום ההזמנה למטה
-  if(navFab) {
-    navFab.classList.remove('nav-fab-pulse');
-    void navFab.offsetWidth; // trigger reflow
-    navFab.classList.add('nav-fab-pulse');
-    setTimeout(() => {
-      if(navFab) navFab.classList.remove('nav-fab-pulse');
-    }, 450);
-  }
-  
-  // 2. אנימציה לעגלה למעלה
-  const topCartMobile = document.getElementById('appCartBadge');
-  const topCartDesktop = document.querySelector('.cart-container');
-  
-  [topCartMobile, topCartDesktop].forEach(cartEl => {
-    if(cartEl) {
-      cartEl.classList.remove('cart-wiggle');
-      void cartEl.offsetWidth;
-      cartEl.classList.add('cart-wiggle');
-      setTimeout(() => cartEl.classList.remove('cart-wiggle'), 400);
-    }
-  });
-
-  // 3. עדכון כפתור ההזמנה למטה
-  updateOrderButtonState();
-}
-
-function updateOrderButtonState() {
-  const navOrderBtn = document.getElementById('navFabWrap'); 
-  if(!navOrderBtn) return;
-
-  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-  const fabIcon = document.querySelector('#navFabWrap .nav-fab');
-  const fabLabel = document.querySelector('#navFabWrap .nav-fab-label');
-
-  if(totalItems > 0) {
-    navOrderBtn.classList.add('nav-pop-active', 'active');
-    if(fabIcon) fabIcon.innerHTML = '<i class="fa-solid fa-cart-shopping"></i>';
-    if(fabLabel) fabLabel.textContent = 'סיכום הזמנה';
-  } else {
-    navOrderBtn.classList.remove('nav-pop-active', 'active');
-    if(fabIcon) fabIcon.innerHTML = '<i class="fas fa-plus"></i>';
-    if(fabLabel) fabLabel.textContent = 'הזמנה';
-  }
-}
-
-// הפונקציה שלומדת מה הלקוח מזמין הכי הרבה!
-// הפונקציה שלומדת מה הלקוח מזמין או מציגה מומלצים ללקוח חדש
-function renderMobMyProducts(history) {
-    const myProdSec = document.getElementById('mobMyProductsSection');
-    const myProdList = document.getElementById('mobMyProductsList');
-    const newSec = document.getElementById('mobNewUserRecommendations');
-    const newList = document.getElementById('mobNewUserList');
-    
-    // פונקציית עזר ליצירת כרטיסיית מוצר (כולל חיבור לאנימציה!)
-    const createProductCard = (name) => {
-        const p = products.find(prod => prod.name === name);
-        if(!p) return '';
-        const idx = products.indexOf(p);
-        const ci = cart.find(i => i.name === name);
-        return `
-        <div style="min-width:115px; background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 6px 16px rgba(0,0,0,0.05); text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
-            <div>
-              <img src="${p.image}" alt="${p.name}" style="width:60px; height:60px; object-fit:cover; border-radius:12px; margin:0 auto 8px; display:block;" onerror="this.style.display='none'">
-              <div style="font-size:0.9rem; font-family:var(--font-heading); color:var(--olive); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${p.name}">${p.name}</div>
-            </div>
-            <div style="margin-top:10px;">
-                ${ci 
-                    ? `<div class="mob-qty-ctrl" style="justify-content:center; border:1.5px solid var(--olive); border-radius:10px;">
-                        <button style="width:28px;height:28px;font-size:1rem;background:var(--olive);color:white;border:none;" onclick="mobDecProd(${idx}); mobRefreshPersonal();">−</button>
-                        <strong style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--olive);">${ci.qty}</strong>
-                        <button style="width:28px;height:28px;font-size:1rem;background:var(--olive);color:white;border:none;" onclick="mobIncProd(${idx}); mobRefreshPersonal(); playAddAnimation();">+</button>
-                       </div>` 
-                    : `<button class="mob-add-btn" style="width:100%; height:32px; border-radius:10px; font-size:0.95rem; font-family:var(--font-heading);" onclick="mobAddProd(${idx}); mobRefreshPersonal(); playAddAnimation();">הוסף</button>`
-                }
-            </div>
-        </div>`;
-    };
-
-    // מצב 1: אם אין היסטוריה - מציגים את "המלצות השף" (לקוח חדש)
-    if(!history || history.length === 0) {
-        if(myProdSec) myProdSec.style.display = 'none';
-        if(newSec) {
-            newSec.style.display = 'block';
-            // בוחרים מוצרי דגל פופולריים שיוצגו ללקוח החדש
-            const defaultProducts = ['תפוח אדמה קלוף (שלם)', 'בצל קלוף (שלם)', 'בטטה קלופה', 'שום כתוש טרי'];
-            if(newList) newList.innerHTML = defaultProducts.map(name => createProductCard(name)).join('');
-        }
-        return;
-    }
-
-    // מצב 2: אם יש היסטוריה - מחשבים את "המוצרים שלי"
-    const counts = {};
-    history.forEach(order => {
-        order.items.forEach(item => {
-            counts[item.name] = (counts[item.name] || 0) + item.qty;
-        });
-    });
-
-    const topProducts = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 5);
-    
-    if(topProducts.length === 0) {
-        if(myProdSec) myProdSec.style.display = 'none';
-        if(newSec) newSec.style.display = 'none';
-        return;
-    }
-
-    // מציגים את המוצרים המותאמים אישית ומסתירים את המלצות השף הכלליות
-    if(newSec) newSec.style.display = 'none';
-    if(myProdSec) {
-        myProdSec.style.display = 'block';
-        if(myProdList) myProdList.innerHTML = topProducts.map(name => createProductCard(name)).join('');
-    }
-}
-function mobToggleEdit(){ const f=document.getElementById('mobEditForm'); f.classList.toggle('open'); document.getElementById('mobEditToggle').innerHTML=f.classList.contains('open')?'<i class="fas fa-times"></i> סגור עריכה':'<i class="fas fa-pen"></i> עדכון פרטים'; }
-function mobSaveEdit(){ const name=document.getElementById('mobEName').value.trim(); const phone=document.getElementById('mobEPhone').value.trim(); const biz=document.getElementById('mobEBiz').value.trim(); const city=document.getElementById('mobECity').value.trim(); if(!name||!phone){ alert("שם וטלפון הם שדות חובה."); return; } const u={name,phone,business:biz,city}; localStorage.setItem("mosheUserDetails",JSON.stringify(u)); document.getElementById('mobSettingsPanel').classList.remove('open'); mobRefreshPersonal(); checkUserStatus(); mobRefreshOrderScreen(); }
-
-/* ── Mobile history ── */
-function mobRefreshHistory(){
-  const list=document.getElementById('mobHistoryList'); if(!list) return;
-  const h=getOrderHistory();
-  if(!h.length){ list.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--muted);font-weight:700"><i class="fas fa-clipboard-list" style="font-size:2.5rem;color:var(--gold);display:block;margin-bottom:12px"></i>אין עדיין הזמנות</div>`; return; }
-  list.innerHTML=h.slice(0, 2).map((e,i)=>`
-    <div class="mob-order-card">
-      <div class="mob-order-head"><span class="mob-order-date"><i class="fas fa-calendar"></i> ${e.date}</span><span class="mob-order-count">${e.items.reduce((s,x)=>s+x.qty,0)} מארזים</span></div>
-      <div class="mob-order-tags">${e.items.map(x=>`<span class="mob-tag">${x.name}</span>`).join('')}</div>
-      <button class="mob-reorder-btn" onclick="mobReorderAndGo(${i})"><i class="fas fa-rotate-left"></i> הזמנה חוזרת</button>
-    </div>`).join('');
-}
-function mobReorderAndGo(idx){ const h=getOrderHistory(); const items=(h[idx]||{items:[]}).items; cart.length=0; items.forEach(i=>cart.push(i)); saveCartToStorage(); renderCart(); mobRenderProducts(); mobRefreshOrderScreen(); navStack=[]; appSwitchMainTab('appScreenOrder','navFabWrap'); }
-
-
-/* ── Init ── */
-window.addEventListener("load",()=>{
-
-  // בדיקה אם המשתמש כבר מחובר ושמירת מצב ההתחברות בריענון הדף
-  const savedUser = localStorage.getItem("mosheUserDetails");
-  if (savedUser) {
-      // עדכון תפריט המחשב
-      const navLoginBtn = document.getElementById('navLoginBtn');
-      if (navLoginBtn) {
-          navLoginBtn.innerHTML = '<i class="fas fa-user"></i> אזור אישי';
-          navLoginBtn.onclick = () => { window.location.href = '#personal-wrapper'; return false; };
-      }
-      
-      // עדכון תפריט המובייל הצדדי
-      const mobMenuLoginBtn = document.getElementById('mobMenuLoginBtn');
-      if (mobMenuLoginBtn) {
-          mobMenuLoginBtn.innerHTML = '<i class="fas fa-user"></i> אזור אישי';
-          mobMenuLoginBtn.onclick = () => { toggleMenu(); showAppScreen('appScreenPersonal'); return false; };
-      }
-      
-      // הסתרת כפתור ההרשמה ממסך הפתיחה
-      const heroLoginBtn = document.getElementById('heroLoginBtn');
-      if (heroLoginBtn) {
-          heroLoginBtn.style.display = 'none';
-      }
-      
-      // עדכון הנתונים האישיים באפליקציה
-      if (typeof mobRefreshPersonal === 'function') {
-          mobRefreshPersonal();
-      }
-  }
-
-  // הוספת מזהה ל-body כדי להעלים כפתורי התקנה מתוך האפליקציה
-  if (isRunningAsPWA()) {
-      document.body.classList.add('is-pwa');
-  }
-
-  // הסתרת מסך הטעינה (בלי למחוק אותו) אלא אם אנחנו בתהליך הרשמה ראשוני
-  setTimeout(() => {
-    const splash = document.getElementById('splashScreen');
-    if (splash && splash.style.display !== 'none') {
-      splash.classList.add('fade-out');
-      setTimeout(() => splash.style.display = 'none', 600); 
-    }
-  }, 200);
-  
-  loadCartFromStorage();
-  const isMobile = window.innerWidth < 768;
-  const isVip = !!localStorage.getItem("mosheUserDetails"); // בודק האם יש פרטי משתמש שמורים
-  
-  // מפעיל את אפליקציית המובייל רק אם זה מובייל *וגם* לקוח חוזר (VIP)
-  if(isMobile && isVip){
-    document.body.classList.add('mobile-app-mode');
-    document.getElementById('mobileApp').style.display='flex';
-    mobRenderProducts(); mobRefreshPersonal(); mobRefreshHistory(); mobRefreshOrderScreen();
-    updateCartBadge(); updateBackButton();
-    const qd=document.getElementById('mobODate');
-    if(qd){ const t=new Date(); t.setDate(t.getDate()+1); qd.min=t.toISOString().split('T')[0]; }
-    
-    // מעביר אוטומטית לאזור האישי
-    appSwitchMainTab('appScreenPersonal', 'navTabPersonal');
-  } 
-  // לקוח חדש במובייל (או דסקטופ) - יראה את האתר הרגיל
-  else {
-    document.body.classList.remove('mobile-app-mode');
-    document.getElementById('mobileApp').style.display='none';
-  }
-  
-  renderCart(); checkUserStatus(); renderProducts(); revealOnScroll();
-  const di=document.getElementById("quoteDeliveryDate");
-  if(di){ const t=new Date(); t.setDate(t.getDate()+1); di.min=t.toISOString().split('T')[0]; }
-});
-
-// מטפל בשינויי גודל מסך (סיבוב הטלפון וכו')
-let _resizeTimer;
-window.addEventListener('resize',()=>{ 
-  clearTimeout(_resizeTimer); 
-  _resizeTimer=setTimeout(()=>{ 
-    const isMobile = window.innerWidth < 768; 
-    const isVip = !!localStorage.getItem("mosheUserDetails");
-    
-    if(isMobile && isVip){ 
-      document.body.classList.add('mobile-app-mode'); 
-      document.getElementById('mobileApp').style.display='flex'; 
-    } else { 
-      document.body.classList.remove('mobile-app-mode'); 
-      document.getElementById('mobileApp').style.display='none'; 
-    } 
-  },150); 
-});
-
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-/* ── SMART INSTALLATION SYSTEM (PWA) ── */
-let deferredPrompt;
-const pwaBanner = document.getElementById('pwaInstallBanner');
-
-// יצירה והצגה של הבאנר התחתון
-function renderPwaBanner(isIOS) {
-  pwaBanner.innerHTML = `
-    <div class="pwa-banner-content">
-      <img src="icon-192.png" class="pwa-banner-logo" alt="לוגו">
-      <div class="pwa-banner-text">
-        <strong>משה קילופים</strong>
-        <span>התקן לגישה מהירה להזמנות</span>
-      </div>
-    </div>
-    <button class="pwa-install-btn" onclick="openInstallGuide(${isIOS})">התקן</button>
-    <button class="pwa-close-btn" onclick="dismissPwaBanner()">×</button>
-  `;
-  pwaBanner.style.display = 'flex';
-}
-
-// פונקציית סגירה: שומרים את הזמן הנוכחי במילישניות כדי שנדע מתי לחשב את השבוע
-function dismissPwaBanner() {
-  document.getElementById('pwaInstallBanner').style.display = 'none';
-  localStorage.setItem('moshePwaDismissedTime', Date.now()); 
-}
-
-// פונקציה חכמה שבודקת אם צריך להסתיר את הבאנר
-
-function shouldHideBanner() {
-  // הסתרה מוחלטת במסכים גדולים (מחשב/טאבלט גדול)
-  if (window.innerWidth >= 768) return true;
-
-  // אם הוא כבר התקין את האפליקציה - מסתירים לתמיד
-  if (localStorage.getItem('mosheAppInstalled') === 'true') return true;
-  
-  // בודקים מתי הוא סגר את הבאנר בפעם האחרונה
-  const dismissedTime = localStorage.getItem('moshePwaDismissedTime');
-  if (dismissedTime) {
-    const twoWeeksInMs = 14 * 24 * 60 * 60 * 1000; // 14 ימים בדיוק במילישניות
-    const timePassed = Date.now() - parseInt(dismissedTime);
-    
-    if (timePassed < twoWeeksInMs) {
-      return true; // עדיין לא עברו שבועיים, להסתיר את הבאנר
-    } else {
-      localStorage.removeItem('moshePwaDismissedTime'); // עברו שבועיים, מאפסים כדי שיקפוץ שוב
-    }
-  }
-  return false; // צריך להציג את הבאנר
-}
-
-// 1. תפיסת אירוע התקנה: ברגע שהמשתמש התקין בהצלחה, נשמור זיכרון לתמיד
-window.addEventListener('appinstalled', () => {
-  localStorage.setItem('mosheAppInstalled', 'true');
-  document.getElementById('pwaInstallBanner').style.display = 'none';
-  deferredPrompt = null;
-});
-
-// 2. תפיסת האירוע באנדרואיד (Chrome)
-window.addEventListener('beforeinstallprompt', (e) => {
-  // בודקים מול הפונקציה החכמה אם להסתיר
-  if (shouldHideBanner()) return;
-  
-  e.preventDefault();
-  deferredPrompt = e;
-  renderPwaBanner(false);
-});
-
-// 3. בדיקה לאייפון (iOS) ומצב אפליקציה כללי אחרי טעינת העמוד
-window.addEventListener('load', () => {
-  // בודק אם אנחנו גולשים עכשיו מתוך האפליקציה המותקנת (מסך מלא)
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  
-  // אם אנחנו באפליקציה, או שהפונקציה החכמה החליטה שצריך להסתיר - עוצרים כאן.
-  if (isStandalone || shouldHideBanner()) return; 
-
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  
-  if (isIOS) {
-    setTimeout(() => { renderPwaBanner(true); }, 2500); 
-  }
-});
-
-// ═══ ניהול התקנת אפליקציה ═══
-
-
-
-// הפונקציה שמופעלת בלחיצה על כפתור ההתקנה באזור האישי
-async function handleInstallClick() {
-  if (deferredPrompt) {
-    // 1. אנדרואיד: התקנה מהירה בקליק אחד
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null; // איפוס
-  } else {
-    // 2. אייפון (או דפדפן שלא תומך בקליק אחד): הקפצת בועית ההדרכה
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    openInstallGuide(isIOS);
-  }
-}
-
-// פתיחת בועית ההסבר המפורטת
-async function openInstallGuide(isIOS) {
-  // אם זה אנדרואיד שהצליח לתפוס את ההתקנה המובנית - פשוט נפעיל אותה
-  if (!isIOS && deferredPrompt) {
-    pwaBanner.style.display = 'none';
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    return;
-  }
-  
-  // אחרת, נפתח את המודל המעוצב שלנו עם ההסבר
-  pwaBanner.style.display = 'none';
-  const stepsEl = document.getElementById('installGuideSteps');
-  
- if (isIOS) {
-    // הוראות מפורטות מאוד לאייפון
-    stepsEl.innerHTML = `
-      <div style="display:flex; flex-direction:column; gap:18px; text-align:right; width:100%;">
-        <div style="display:flex; align-items:flex-start; gap:14px;">
-          <div class="icon-wrapper" style="flex-shrink:0; margin-top:4px;">
-            <i class="fas fa-arrow-up-from-bracket" style="font-size:1.8rem;color:var(--gold);"></i>
-            <span class="pulse-dot"></span>
-          </div>
-          <div>
-            <strong style="color:var(--olive); font-size:1.1rem;">שלב 1: פתיחת אפשרויות השיתוף</strong>
-            <p style="margin:4px 0 0; color:var(--muted); font-size:0.95rem; line-height:1.4; font-weight:600;">ודאו שאתם גולשים בדפדפן ספארי (Safari). בתחתית המסך, חפשו את כפתור השיתוף – אייקון של ריבוע עם חץ שפונה כלפי מעלה, ולחצו עליו.</p>
-          </div>
-        </div>
-        <div style="display:flex; align-items:flex-start; gap:14px;">
-          <div class="icon-wrapper" style="flex-shrink:0; margin-top:4px;">
-            <i class="fas fa-plus-square" style="font-size:1.8rem;color:var(--gold);"></i>
-            <span class="pulse-dot"></span>
-          </div>
-          <div>
-            <strong style="color:var(--olive); font-size:1.1rem;">שלב 2: הוספה לאייפון שלכם</strong>
-            <p style="margin:4px 0 0; color:var(--muted); font-size:0.95rem; line-height:1.4; font-weight:600;">בתפריט שנפתח, גללו מעט למטה ולחצו על השורה ״הוסף למסך הבית״ (Add to Home Screen). לאחר מכן, לחצו על ״הוסף״ בפינה העליונה לאישור.</p>
-          </div>
-        </div>
-      </div>
-    `;
-  } else {
-    // הוראות מפורטות מאוד לאנדרואיד
-    stepsEl.innerHTML = `
-      <div style="display:flex; flex-direction:column; gap:18px; text-align:right; width:100%;">
-        <div style="display:flex; align-items:flex-start; gap:14px;">
-          <div class="icon-wrapper" style="flex-shrink:0; margin-top:4px;">
-            <i class="fas fa-ellipsis-v" style="font-size:1.8rem;color:var(--gold);"></i>
-            <span class="pulse-dot"></span>
-          </div>
-          <div>
-            <strong style="color:var(--olive); font-size:1.1rem;">שלב 1: פתיחת תפריט הדפדפן</strong>
-            <p style="margin:4px 0 0; color:var(--muted); font-size:0.95rem; line-height:1.4; font-weight:600;">ודאו שאתם גולשים בדפדפן כרום (Chrome). בפינה העליונה של המסך, לחצו על כפתור התפריט המורכב משלוש נקודות אנכיות.</p>
-          </div>
-        </div>
-        <div style="display:flex; align-items:flex-start; gap:14px;">
-          <div class="icon-wrapper" style="flex-shrink:0; margin-top:4px;">
-            <i class="fas fa-mobile-screen" style="font-size:1.8rem;color:var(--gold);"></i>
-            <span class="pulse-dot"></span>
-          </div>
-          <div>
-            <strong style="color:var(--olive); font-size:1.1rem;">שלב 2: התקנה על מסך הבית</strong>
-            <p style="margin:4px 0 0; color:var(--muted); font-size:0.95rem; line-height:1.4; font-weight:600;">בתפריט שנפתח, חפשו את האפשרות ״הוסף למסך הבית״ או ״התקן אפליקציה״ ולחצו עליה. אשרו את הפעולה בחלונית שתקפוץ.</p>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-  
-  // מציגים את המודל
-  document.getElementById('installGuideModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-</script>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/products.js"></script>
+<script src="js/app.js"></script>
+<script src="js/a11y.js"></script>
 </body>
 </html>

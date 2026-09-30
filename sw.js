@@ -1,53 +1,43 @@
-const CACHE_NAME = 'moshe-v3';
-const urlsToCache = [
-  '/',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+// Service worker — רשת קודם, ואם אין אינטרנט: הגרסה השמורה.
+// כשמעלים גרסה חדשה של האתר, מעלים את מספר הגרסה כאן.
+const CACHE_NAME = "mk-site-v1";
+const CORE = [
+  "./",
+  "./index.html",
+  "./css/style.css",
+  "./js/products.js",
+  "./js/app.js",
+  "./manifest.json",
+  "./img/logo-160.webp",
+  "./img/logo-720.webp",
+  "./img/icon-192.png",
+  "./img/icon-512.png"
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
-  // כופה על הדפדפן להתקין את העדכון החדש מיד בלי לחכות שייסגרו כל החלונות
+self.addEventListener("install", event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE)));
   self.skipWaiting();
 });
 
-// מחיקת גרסאות ישנות של ה-Cache כשיש גרסה חדשה
-self.addEventListener('activate', event => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.filter(name => name !== CACHE_NAME)
-                  .map(name => caches.delete(name))
-      );
-    }).then(() => self.clients.claim())
+    caches.keys()
+      .then(names => Promise.all(names.filter(n => n !== CACHE_NAME).map(n => caches.delete(n))))
+      .then(() => self.clients.claim())
   );
 });
 
-// אסטרטגיית רשת קודם (Network First) עם גיבוי של מטמון
-self.addEventListener('fetch', event => {
-  // קודם כל מנסים למשוך את הגרסה הכי חדשה מהרשת
+self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        // אם הצלחנו להביא גרסה חדשה מהרשת, נשמור אותה ב-Cache לפעם הבאה
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
+        if (response && response.status === 200 && response.type === "basic") {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         }
         return response;
       })
-      .catch(() => {
-        // אם אין אינטרנט או שהרשת נפלה - נשתמש בגרסה האחרונה ששמרנו ב-Cache
-        return caches.match(event.request);
-      })
+      .catch(() => caches.match(event.request))
   );
 });
