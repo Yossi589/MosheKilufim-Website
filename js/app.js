@@ -476,6 +476,20 @@
     }).catch(err => console.warn("place_order:", err));
   }
 
+  /* רישום באתר: לקוח מוכר מזוהה; טלפון חדש נשמר כפנייה, ועופר יוצר קשר */
+  function registerInDb(u) {
+    if (!DB) return;
+    DB.rpc("register_customer", {
+      p_name: u.name, p_phone: u.phone, p_business: u.business || "", p_city: u.city || ""
+    }).then(({ data, error }) => {
+      if (error) { console.warn("register_customer:", error.message); return; }
+      const note = $("#successNote");
+      if (!note || $("#successModal").hidden || !data) return;
+      if (data.result === "known") note.textContent = "זיהינו אתכם כלקוחות קיימים של משה קילופים";
+      else if (data.result === "request") note.textContent = "קיבלנו את פרטיכם. נחזור אליכם לפתיחת חשבון לקוח";
+    }).catch(err => console.warn("register_customer:", err));
+  }
+
   function send(type, ev) {
     if (!state.cart.length) { if (ev) ev.preventDefault(); return; }
     const notesEl = $("#oNotes"); if (notesEl) state.notes = notesEl.value.trim();
@@ -622,7 +636,9 @@
     markField("rphone", !validPhone(phone));
     if (!name || !validPhone(phone)) { (!name ? $("#rName") : $("#rPhone")).focus(); return; }
     const wasUser = !!getUser();
-    store.set(KEYS.user, { name, phone, business: $("#rBiz").value.trim(), city: $("#rCity").value.trim() });
+    const u = { name, phone, business: $("#rBiz").value.trim(), city: $("#rCity").value.trim() };
+    store.set(KEYS.user, u);
+    registerInDb(u);
     refreshUserUI();
     renderProducts();
     if (wasUser) { renderAccount(); toast("הפרטים עודכנו"); }
