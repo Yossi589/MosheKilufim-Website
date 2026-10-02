@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#3b2314">
+  <title>עמדת ייצור · משה קילופים</title>
+  <link rel="icon" type="image/png" href="../img/favicon-64.png">
+  <link rel="apple-touch-icon" href="../img/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Rubik:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tablet.css">
+</head>
+<body>
+
+<!-- ===== כניסה ===== -->
+<main id="loginView" class="center" hidden>
+  <form id="loginForm" class="login-card" novalidate>
+    <img src="../img/logo-160.webp" width="96" height="96" alt="">
+    <h1>עמדת ייצור</h1>
+    <label for="email">משתמש</label>
+    <input id="email" type="email" autocomplete="username" dir="ltr" required>
+    <label for="password">סיסמה</label>
+    <input id="password" type="password" autocomplete="current-password" dir="ltr" required>
+    <p class="form-error" id="loginError" role="alert"></p>
+    <button type="submit" class="btn btn-primary btn-xl" id="loginBtn">כניסה</button>
+  </form>
+</main>
+
+<main id="deniedView" class="center" hidden>
+  <div class="login-card">
+    <h1>אין הרשאה לעמדת ייצור</h1>
+    <p>המשתמש <bdi id="deniedEmail"></bdi> לא רשום כעמדת ייצור.</p>
+    <button type="button" class="btn btn-xl" data-logout>יציאה</button>
+  </div>
+</main>
+
+<!-- ===== מסך העבודה ===== -->
+<div id="appView" hidden>
+  <header class="bar">
+    <div class="brand">
+      <img src="../img/logo-160.webp" width="44" height="44" alt="">
+      <div>
+        <strong>הזמנות להכנה</strong>
+        <span class="count" id="count">–</span>
+      </div>
+    </div>
+    <div class="bar-mid">
+      <span class="status" id="status">מתחבר…</span>
+    </div>
+    <div class="bar-end">
+      <span class="clock" id="clock"></span>
+      <button type="button" class="btn btn-sm" id="fullBtn">מסך מלא</button>
+    </div>
+  </header>
+
+  <div class="offline" id="offline" hidden>אין חיבור לאינטרנט. ההזמנות לא מתעדכנות, ואי אפשר לסמן "הוכן" עד שהחיבור יחזור.</div>
+  <div class="alert" id="alert" hidden></div>
+
+  <main class="layout">
+    <section class="queue" id="queue" aria-live="polite"></section>
+    <div class="empty" id="empty" hidden>
+      <div class="empty-ic">✓</div>
+      <h2>אין הזמנות להכנה</h2>
+      <p>הזמנה חדשה תופיע כאן ברגע שהמנהל יאשר אותה.</p>
+    </div>
+
+    <aside class="pick">
+      <h2>סה״כ להכנה</h2>
+      <table><tbody id="pickBody"></tbody></table>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span id="updated"></span>
+    <button type="button" class="link" data-logout>יציאה מהעמדה</button>
+  </footer>
+</div>
+
+<!-- ===== אישור "הוכן" ===== -->
+<div class="overlay" id="confirm" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="cTitle">
+    <h2 id="cTitle"></h2>
+    <p id="cText"></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-done btn-xl" id="cYes">כן, הוכן</button>
+      <button type="button" class="btn btn-xl" id="cNo">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== הפעלת צליל (דפדפנים דורשים נגיעה ראשונה) ===== -->
+<div class="overlay" id="soundGate" hidden>
+  <button type="button" class="btn btn-primary btn-xl" id="soundBtn">לחצו כדי להתחיל</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="tablet.js"></script>
+</body>
+</html>

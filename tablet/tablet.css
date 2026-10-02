@@ -1,0 +1,107 @@
+:root {
+  --brown: #3b2314; --orange: #b5541a; --cream: #f8f4ea; --sand: #efe6d4;
+  --ink: #2a1c12; --muted: #6b5a4c; --line: rgba(59, 35, 20, .16); --white: #fff;
+  --green: #2e7d32; --green-d: #1f5f23; --danger: #b3261e; --new: #fff3e6;
+  --f-head: "Rubik", "Heebo", system-ui, sans-serif;
+  --f-body: "Heebo", system-ui, sans-serif;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; font-family: var(--f-body); color: var(--ink); background: var(--cream); font-size: 18px; }
+h1, h2 { font-family: var(--f-head); color: var(--brown); margin: 0; }
+[hidden] { display: none !important; }
+.muted { color: var(--muted); }
+button { font: inherit; touch-action: manipulation; }
+:focus-visible { outline: 4px solid var(--orange); outline-offset: 3px; }
+
+/* כפתורים גדולים: נוח עם כפפות */
+.btn { font-weight: 700; border: 2px solid var(--line); background: var(--white); color: var(--brown); border-radius: 16px; padding: 12px 20px; cursor: pointer; }
+.btn-sm { padding: 8px 14px; font-size: 1rem; border-radius: 12px; }
+.btn-xl { font-size: 1.35rem; padding: 18px 28px; min-height: 68px; }
+.btn-primary { background: var(--orange); border-color: var(--orange); color: #fff; }
+.btn-done { background: var(--green); border-color: var(--green); color: #fff; width: 100%; }
+.btn-done:active { background: var(--green-d); }
+.btn:disabled { opacity: .55; }
+.link { background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 8px; }
+
+/* כניסה */
+.center { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
+.login-card { background: var(--white); border-radius: 24px; padding: 32px; width: min(460px, 100%); box-shadow: 0 12px 34px rgba(59,35,20,.14); display: flex; flex-direction: column; gap: 8px; text-align: center; }
+.login-card img { margin: 0 auto 4px; }
+.login-card label { text-align: start; font-weight: 700; margin-top: 8px; }
+.login-card input { font: inherit; font-size: 1.15rem; padding: 14px; border: 2px solid var(--line); border-radius: 14px; }
+.login-card .btn { margin-top: 16px; }
+.form-error { color: var(--danger); min-height: 1.3em; margin: 6px 0 0; }
+
+/* פס עליון */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px; background: var(--brown); color: var(--cream); position: sticky; top: 0; z-index: 5; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand img { background: var(--cream); border-radius: 50%; }
+.brand strong { font-family: var(--f-head); font-size: 1.4rem; display: block; line-height: 1.1; }
+.count { font-size: 1rem; opacity: .85; }
+.status { font-size: .9rem; font-weight: 700; border: 1.5px solid rgba(248,244,234,.35); border-radius: 999px; padding: 3px 12px; }
+.status::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #c9bfb4; margin-inline-end: 6px; vertical-align: middle; }
+.status.on::before { background: #6fd36f; }
+.bar-end { display: flex; align-items: center; gap: 12px; }
+.clock { font-family: var(--f-head); font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.bar .btn-sm { background: transparent; color: var(--cream); border-color: rgba(248,244,234,.35); }
+
+.offline, .alert { padding: 14px 20px; font-weight: 700; font-size: 1.15rem; text-align: center; }
+.offline { background: #5a5a5a; color: #fff; }
+.alert { background: var(--danger); color: #fff; }
+
+/* פריסה */
+.layout { display: grid; grid-template-columns: 1fr 300px; gap: 18px; padding: 18px 20px 80px; align-items: start; }
+.queue { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.empty { grid-column: 1; text-align: center; padding: 70px 20px; color: var(--muted); }
+.empty-ic { width: 84px; height: 84px; margin: 0 auto 14px; border-radius: 50%; background: #e3f1e3; color: var(--green); display: grid; place-items: center; font-size: 2.6rem; font-weight: 800; }
+.empty h2 { font-size: 1.7rem; margin-bottom: 6px; }
+
+/* כרטיס הזמנה */
+.ticket { position: relative; background: var(--white); border-radius: 20px; padding: 18px; box-shadow: 0 0 0 2px var(--line); display: flex; flex-direction: column; gap: 12px; transition: transform .35s, opacity .35s; }
+.ticket.is-new { background: var(--new); box-shadow: 0 0 0 3px var(--orange); animation: pulse 1.6s ease-in-out 3; }
+.ticket.is-urgent .due { background: var(--danger); color: #fff; }
+.ticket.leaving { transform: scale(.9); opacity: 0; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(181,84,26,.35); } }
+.ticket header { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.who strong { display: block; font-family: var(--f-head); font-size: 1.45rem; color: var(--brown); line-height: 1.2; }
+.who span { color: var(--muted); font-size: .95rem; }
+.when { text-align: end; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; font-size: .9rem; }
+.due { background: var(--sand); color: var(--brown); font-weight: 800; border-radius: 999px; padding: 4px 12px; font-size: 1rem; }
+.new-flag { position: absolute; top: -12px; inset-inline-start: 16px; background: var(--orange); color: #fff; font-weight: 800; font-size: .9rem; padding: 3px 12px; border-radius: 999px; }
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.items li { display: grid; grid-template-columns: 64px 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.items li:last-child { border-bottom: none; }
+.items .q { grid-row: span 2; font-family: var(--f-head); font-size: 2rem; font-weight: 800; color: var(--orange); text-align: center; background: var(--cream); border-radius: 12px; padding: 4px 0; }
+.items .p { font-size: 1.25rem; font-weight: 700; }
+.items .u { font-size: .9rem; color: var(--muted); }
+.notes { margin: 0; padding: 10px 12px; background: #fff7d6; border-radius: 12px; font-weight: 700; color: #6b4a00; }
+.notes::before { content: "הערה: "; }
+
+/* סה"כ להכנה */
+.pick { background: var(--white); border-radius: 20px; padding: 16px 18px; box-shadow: 0 0 0 2px var(--line); position: sticky; top: 90px; }
+.pick h2 { font-size: 1.3rem; margin-bottom: 8px; }
+.pick table { width: 100%; border-collapse: collapse; }
+.pick td { padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 1.05rem; }
+.pick td.q { text-align: end; font-family: var(--f-head); font-weight: 800; font-size: 1.3rem; color: var(--orange); }
+
+.foot { position: fixed; bottom: 0; inset-inline: 0; display: flex; justify-content: space-between; align-items: center; padding: 6px 20px; background: rgba(248,244,234,.95); border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+
+/* חלונות */
+.overlay { position: fixed; inset: 0; background: rgba(42,28,18,.55); display: grid; place-items: center; padding: 20px; z-index: 30; }
+.dialog { background: var(--white); border-radius: 24px; padding: 30px; width: min(520px, 100%); text-align: center; }
+.dialog h2 { font-size: 1.9rem; margin-bottom: 6px; }
+.dialog p { font-size: 1.3rem; margin: 0 0 22px; }
+.dialog-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+
+.toast { position: fixed; bottom: 60px; left: 50%; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: var(--brown); color: var(--cream); padding: 14px 24px; border-radius: 999px; font-size: 1.1rem; font-weight: 700; transition: .25s; z-index: 40; max-width: 90vw; text-align: center; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { background: var(--danger); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .pick { position: static; order: -1; }
+  .clock { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ticket, .ticket.is-new { animation: none; transition: none; } }
+.when .muted { white-space: nowrap; }

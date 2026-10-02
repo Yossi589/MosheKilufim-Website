@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>ניהול הזמנות · משה קילופים</title>
+  <link rel="icon" type="image/png" href="../img/favicon-64.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ============ מסך התחברות ============ -->
+<main id="loginView" class="login" hidden>
+  <form id="loginForm" class="login-card" novalidate>
+    <img src="../img/logo-160.webp" width="88" height="88" alt="">
+    <h1>ניהול הזמנות</h1>
+    <p class="muted">כניסה למנהלים בלבד</p>
+    <label for="email">מייל</label>
+    <input id="email" type="email" autocomplete="username" dir="ltr" required>
+    <label for="password">סיסמה</label>
+    <input id="password" type="password" autocomplete="current-password" dir="ltr" required>
+    <p class="form-error" id="loginError" role="alert"></p>
+    <button type="submit" class="btn btn-primary" id="loginBtn">כניסה</button>
+  </form>
+</main>
+
+<!-- ============ אין הרשאה ============ -->
+<main id="deniedView" class="login" hidden>
+  <div class="login-card">
+    <h1>אין הרשאת מנהל</h1>
+    <p>המשתמש <bdi id="deniedEmail"></bdi> מחובר, אבל הוא לא מופיע ברשימת המנהלים.</p>
+    <button type="button" class="btn" data-logout>התנתקות</button>
+  </div>
+</main>
+
+<!-- ============ מסך הניהול ============ -->
+<div id="appView" hidden>
+  <header class="topbar">
+    <div class="brand">
+      <img src="../img/logo-160.webp" width="40" height="40" alt="">
+      <strong>ניהול הזמנות</strong>
+      <span class="live" id="liveDot" title="חיבור להתראות בזמן אמת">מנותק</span>
+    </div>
+    <div class="user">
+      <button type="button" class="btn btn-sm" id="notifyBtn" hidden>הפעלת התראות</button>
+      <bdi id="userEmail"></bdi>
+      <button type="button" class="btn btn-sm" data-logout>התנתקות</button>
+    </div>
+  </header>
+
+  <!-- לשוניות -->
+  <nav class="tabs" role="tablist" aria-label="תצוגות">
+    <button type="button" class="tab" role="tab" data-tab="pending" id="tab-pending">ממתינות לאישור <span class="badge" id="badgePending" hidden></span></button>
+    <button type="button" class="tab" role="tab" data-tab="requests" id="tab-requests">לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
+    <button type="button" class="tab" role="tab" data-tab="day" id="tab-day">הזמנות לפי יום</button>
+  </nav>
+
+  <main class="wrap">
+    <!-- סיכום -->
+    <section class="cards" aria-label="סיכום">
+      <div class="card hot"><span>ממתינות לאישור</span><strong id="sumPending">–</strong></div>
+      <div class="card"><span>בייצור</span><strong id="sumProduction">–</strong></div>
+      <div class="card"><span>הוכנו היום</span><strong id="sumPrepared">–</strong></div>
+      <div class="card"><span>לקוחות חדשים</span><strong id="sumRequests">–</strong></div>
+    </section>
+
+    <!-- ===== לשונית: ממתינות לאישור ===== -->
+    <section class="panel" id="view-pending" hidden>
+      <div class="panel-head">
+        <h2>ממתינות לאישור</h2>
+        <p class="muted small">כל ההזמנות שנכנסו ועוד לא אושרו, מהישנה לחדשה. אישור שולח את ההזמנה לפס הייצור.</p>
+      </div>
+      <div id="pendingList" class="cardlist"></div>
+      <div class="empty" id="pendingEmpty" hidden><p>אין הזמנות שממתינות לאישור.</p></div>
+    </section>
+
+    <!-- ===== לשונית: לקוחות חדשים ===== -->
+    <section class="panel" id="view-requests" hidden>
+      <div class="panel-head">
+        <h2>לקוחות חדשים</h2>
+        <p class="muted small">אנשים שנרשמו או ניסו להזמין מהאתר עם טלפון שלא קיים במערכת. צרו קשר, ואז פתחו להם כרטיס לקוח.</p>
+      </div>
+      <div id="requestsList" class="cardlist"></div>
+      <div class="empty" id="requestsEmpty" hidden><p>אין לקוחות חדשים שמחכים.</p></div>
+    </section>
+
+    <!-- ===== לשונית: הזמנות לפי יום ===== -->
+    <section id="view-day" hidden>
+      <section class="daybar">
+        <button type="button" class="btn btn-sm" id="prevDay" aria-label="יום קודם">→ יום קודם</button>
+        <input type="date" id="dayInput" aria-label="תאריך">
+        <button type="button" class="btn btn-sm" id="nextDay" aria-label="יום הבא">יום הבא ←</button>
+        <button type="button" class="btn btn-sm" id="todayBtn">היום</button>
+        <span class="day-label" id="dayLabel"></span>
+      </section>
+
+      <div class="cols">
+        <section class="panel orders-panel">
+          <div class="panel-head">
+            <h2>הזמנות <span class="muted small" id="dayCount"></span></h2>
+            <div class="filters">
+              <input type="search" id="searchInput" placeholder="חיפוש לקוח">
+              <select id="statusFilter" aria-label="סינון לפי סטטוס">
+                <option value="">כל הסטטוסים</option>
+              </select>
+              <select id="driverFilter" aria-label="סינון לפי נהג">
+                <option value="">כל הנהגים</option>
+                <option value="none">בלי נהג</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="orders">
+              <thead>
+                <tr><th>#</th><th>שעה</th><th>לקוח</th><th>מוצרים</th><th>אספקה</th><th>נהג</th><th>סטטוס</th></tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="emptyState" hidden>
+            <p>אין הזמנות ביום הזה.</p>
+            <button type="button" class="btn btn-sm" id="lastDayBtn">ליום האחרון שיש בו הזמנות</button>
+          </div>
+        </section>
+
+        <aside class="side">
+          <section class="panel">
+            <h2>רשימת ליקוט</h2>
+            <p class="muted small">סה״כ מארזים מכל מוצר, בלי הזמנות שבוטלו</p>
+            <table class="mini"><tbody id="pickBody"></tbody></table>
+          </section>
+          <section class="panel">
+            <h2>לפי נהג</h2>
+            <table class="mini"><tbody id="driverBody"></tbody></table>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ חלון: פתיחת לקוח ============ -->
+<div class="modal-wrap" id="custModal" hidden>
+  <form class="modal" id="custForm" role="dialog" aria-modal="true" aria-labelledby="custTitle" novalidate>
+    <h2 id="custTitle">פתיחת כרטיס לקוח</h2>
+    <p class="muted small" id="custSub"></p>
+    <label for="cName">שם הלקוח / העסק *</label>
+    <input id="cName" required>
+    <label for="cCategory">סוג לקוח *</label>
+    <select id="cCategory" required>
+      <option value="פרטי">פרטי</option>
+      <option value="מוסדי">מוסדי</option>
+    </select>
+    <label for="cAdress">כתובת אספקה *</label>
+    <input id="cAdress" placeholder="רחוב ומספר, עיר" required>
+    <label for="cPhone">טלפון</label>
+    <input id="cPhone" dir="ltr" readonly>
+    <div id="cOrderBox" class="order-box" hidden>
+      <label class="check"><input type="checkbox" id="cMakeOrder" checked> ליצור גם הזמנה מהמוצרים שביקש</label>
+      <div class="muted small" id="cItems"></div>
+      <label for="cDate">תאריך אספקה</label>
+      <input type="date" id="cDate">
+    </div>
+    <p class="form-error" id="custError" role="alert"></p>
+    <div class="modal-actions">
+      <button type="submit" class="btn btn-primary" id="custSave">פתיחת לקוח</button>
+      <button type="button" class="btn" data-close-modal>ביטול</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="loading" id="loading" hidden>טוען…</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
