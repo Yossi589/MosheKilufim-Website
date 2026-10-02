@@ -70,10 +70,13 @@ button { font: inherit; touch-action: manipulation; }
 .due { background: var(--sand); color: var(--brown); font-weight: 800; border-radius: 999px; padding: 4px 12px; font-size: 1rem; }
 .new-flag { position: absolute; top: -12px; inset-inline-start: 16px; background: var(--orange); color: #fff; font-weight: 800; font-size: .9rem; padding: 3px 12px; border-radius: 999px; }
 .items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.items li { display: grid; grid-template-columns: 64px 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.items li { display: grid; grid-template-columns: 64px 56px 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .items li:last-child { border-bottom: none; }
 .items .q { grid-row: span 2; font-family: var(--f-head); font-size: 2rem; font-weight: 800; color: var(--orange); text-align: center; background: var(--cream); border-radius: 12px; padding: 4px 0; }
+.items .ph { grid-row: span 2; width: 56px; height: 56px; border-radius: 12px; object-fit: cover; background: var(--sand); }
 .items .p { font-size: 1.25rem; font-weight: 700; }
+.pk { display: flex; align-items: center; gap: 10px; }
+.pk .ph { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; background: var(--sand); flex: none; }
 .items .u { font-size: .9rem; color: var(--muted); }
 .notes { margin: 0; padding: 10px 12px; background: #fff7d6; border-radius: 12px; font-weight: 700; color: #6b4a00; }
 .notes::before { content: "הערה: "; }

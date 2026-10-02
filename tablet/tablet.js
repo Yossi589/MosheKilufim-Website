@@ -14,7 +14,12 @@
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const num = n => new Intl.NumberFormat("he-IL", { maximumFractionDigits: 1 }).format(n || 0);
-  const NEW_MS = 10 * 60 * 1000;           // הזמנה "חדשה" = אושרה ב-10 הדקות האחרונות
+  const NEW_MS = 10 * 60 * 1000;
+  // תמונות המוצרים: אותו קטלוג של האתר (js/products.js), לפי שם המוצר
+  const IMG = new Map((window.MK_PRODUCTS || []).map(p => [p.name, p.image]));
+  const thumb = name => IMG.has(name)
+    ? `<img class="ph" src="../img/thumbs/${esc(IMG.get(name))}" alt="" width="56" height="56" loading="lazy">`
+    : `<span class="ph"></span>`;           // הזמנה "חדשה" = אושרה ב-10 הדקות האחרונות
 
   const state = { orders: [], seen: new Set(), first: true, channel: null, busy: false, pendingId: null, wake: null };
 
@@ -118,7 +123,7 @@
     $("#queue").innerHTML = list.map(o => {
       const isNew = freshIds.has(o.order_id) || (o.approved_at && Date.now() - new Date(o.approved_at) < NEW_MS);
       const due = dayLabel(o.delivery_date);
-      const items = (o.items || []).map(i => `<li><span class="q">${num(i.quantity)}</span><span class="p">${esc(i.product)}</span><span class="u">${esc(i.unit || "")}</span></li>`).join("");
+      const items = (o.items || []).map(i => `<li><span class="q">${num(i.quantity)}</span>${thumb(i.product)}<span class="p">${esc(i.product)}</span><span class="u">${esc(i.unit || "")}</span></li>`).join("");
       return `<article class="ticket${isNew ? " is-new" : ""}${due === "באיחור" || due === "היום" ? " is-urgent" : ""}" data-id="${o.order_id}">
         <header>
           <div class="who"><strong>${esc(o.customer_name)}</strong><span>הזמנה ${o.order_id}</span></div>
@@ -137,7 +142,7 @@
       cur.q += Number(i.quantity); pick.set(k, cur);
     }));
     $("#pickBody").innerHTML = [...pick.entries()].sort((a, b) => b[1].q - a[1].q)
-      .map(([p, v]) => `<tr><td>${esc(p)}</td><td class="q">${num(v.q)}</td></tr>`).join("") || `<tr><td class="muted">אין</td></tr>`;
+      .map(([p, v]) => `<tr><td><span class="pk">${thumb(p)}${esc(p)}</span></td><td class="q">${num(v.q)}</td></tr>`).join("") || `<tr><td class="muted">אין</td></tr>`;
   }
 
   /* ----- "הוכן" ----- */
