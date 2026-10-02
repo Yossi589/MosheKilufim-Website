@@ -628,3 +628,5 @@ html.a11y-still *, html.a11y-still *::before, html.a11y-still *::after { animati
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+.dates-note { margin: 8px 0 0; font-size: .9rem; color: var(--muted, #6b5a4c); }

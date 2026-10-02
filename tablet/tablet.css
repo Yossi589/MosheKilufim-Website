@@ -108,3 +108,35 @@ button { font: inherit; touch-action: manipulation; }
 }
 @media (prefers-reduced-motion: reduce) { .ticket, .ticket.is-new { animation: none; transition: none; } }
 .when .muted { white-space: nowrap; }
+
+/* ===== גרסה 2: קבוצות לפי יום, סימון פריטים, התקדמות, ביטול ===== */
+.bar-mid { display: flex; align-items: center; gap: 16px; }
+.prog { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
+.prog-text { font-size: .9rem; font-weight: 700; }
+.prog-track { height: 8px; border-radius: 999px; background: rgba(248,244,234,.2); overflow: hidden; }
+.prog-fill { display: block; height: 100%; width: 0; background: #6fd36f; border-radius: 999px; transition: width .4s; }
+
+.group { grid-column: 1 / -1; font-size: 1.25rem; margin: 6px 0 -4px; display: flex; align-items: center; gap: 10px; }
+.group:not(:first-child) { margin-top: 18px; }
+.group span { font-size: .95rem; background: var(--sand); color: var(--brown); border-radius: 999px; padding: 1px 12px; }
+.group.urgent { color: var(--danger); }
+.group.urgent span { background: var(--danger); color: #fff; }
+
+.items li { grid-template-columns: 64px 56px 1fr; cursor: pointer; border-radius: 12px; padding: 8px 6px; transition: background .15s; user-select: none; }
+.items li:active { background: var(--sand); }
+.items li.ticked { background: #eaf5ea; }
+.items li.ticked .q { background: var(--green); color: #fff; }
+.items li.ticked .p { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--muted); }
+.items li.ticked .ph { opacity: .5; }
+.tick-count { font-weight: 800; font-size: 1rem; color: var(--brown); }
+.ticket.all-ticked { box-shadow: 0 0 0 3px var(--green); }
+.ticket.all-ticked .btn-done { animation: ready 1.4s ease-in-out infinite; }
+@keyframes ready { 50% { box-shadow: 0 0 0 6px rgba(46,125,50,.3); } }
+
+.ticket.is-undo > *:not(.undo-layer) { opacity: .25; }
+.undo-layer { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(234,245,234,.85); border-radius: 20px; }
+.undo-layer strong { font-family: var(--f-head); font-size: 1.6rem; color: var(--green-d); }
+.btn-undo { background: var(--white); border-color: var(--brown); min-width: 200px; }
+
+@media (max-width: 900px) { .prog { min-width: 140px; } .status { display: none; } }
+@media (prefers-reduced-motion: reduce) { .ticket.all-ticked .btn-done { animation: none; } }

@@ -212,18 +212,38 @@
   /* ==========================================================
      סל ההזמנה
      ========================================================== */
+  /* חוק ההזמנות: אספקה תמיד ליום שאחרי. עד 12:00 (שעון ישראל) אפשר להזמין למחר,
+     אחרי 12:00 המועד הראשון הוא מחרתיים. אין אספקה בשבת.
+     אותו חוק נאכף גם בשרת (earliest_delivery_date ב-place_order). */
+  const CUTOFF_HOUR = 12;
+  function israelNow() {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23"
+    }).formatToParts(new Date()).reduce((o, x) => (o[x.type] = x.value, o), {});
+    return { y: +parts.year, m: +parts.month, d: +parts.day, h: +parts.hour };
+  }
   function nextDeliveryDays() {
     const names = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+    const now = israelNow();
+    const first = now.h < CUTOFF_HOUR ? 1 : 2;
     const out = [];
-    for (let i = 1; out.length < 6 && i < 12; i++) {
-      const d = new Date(); d.setDate(d.getDate() + i);
+    for (let i = first; out.length < 6 && i < 14; i++) {
+      const d = new Date(now.y, now.m - 1, now.d + i, 12);
       if (d.getDay() === 6) continue; // אין אספקה בשבת
       const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      const dm = d.toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit" });
-      const day = i === 1 ? "מחר" : names[d.getDay()];
-      out.push({ iso, day, dm, label: `${i === 1 ? "מחר, " : "יום "}${names[d.getDay()]} ${dm}` });
+      const dm = `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const day = i === 1 ? "מחר" : i === 2 ? "מחרתיים" : names[d.getDay()];
+      const pre = i === 1 ? "מחר, " : i === 2 ? "מחרתיים, " : "יום ";
+      out.push({ iso, day, dm, label: `${pre}${names[d.getDay()]} ${dm}` });
     }
     return out;
+  }
+  function cutoffNote() {
+    const first = nextDeliveryDays()[0];
+    const when = first ? first.label : "";
+    return israelNow().h < CUTOFF_HOUR
+      ? `הזמנה עד ${CUTOFF_HOUR}:00 מסופקת למחרת. האספקה הקרובה: ${when}`
+      : `עברה השעה ${CUTOFF_HOUR}:00, לכן האספקה הקרובה: ${when}`;
   }
 
   function historyCards(limit) {
@@ -345,6 +365,7 @@
               <strong>${esc(d.day)}</strong><span>${esc(d.dm)}</span>
             </button>`).join("")}
         </div>
+        <p class="dates-note">${esc(cutoffNote())}</p>
         <p class="dates-err">בחרו יום אספקה</p>
       </div>
 
@@ -420,6 +441,11 @@
   }
 
   function checkDate() {
+    // אם הדף נשאר פתוח ועברה השעה 12:00, תאריך שנבחר קודם כבר לא תקף
+    if (state.deliveryDate && !nextDeliveryDays().some(d => d.iso === state.deliveryDate)) {
+      state.deliveryDate = ""; state.deliveryLabel = "";
+      renderCartDrawer();
+    }
     const ok = !!state.deliveryDate;
     $("#datesWrap").classList.toggle("invalid", !ok);
     return ok;

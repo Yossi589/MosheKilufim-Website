@@ -140,3 +140,55 @@ table { border-collapse: collapse; width: 100%; }
   .cardlist { grid-template-columns: 1fr; }
   .tabs { top: 0; position: static; }
 }
+
+/* ===== גרסה 3: גרפים + חשבשבת ===== */
+.statbar, .hashbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.hashbar input[type=date] { font: inherit; padding: 6px 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); }
+.hashbar label { font-weight: 600; }
+.hashbar .spacer { flex: 1; }
+.seg { display: inline-flex; background: var(--white); border-radius: 999px; box-shadow: 0 0 0 1px var(--line); padding: 3px; }
+.seg-btn { font: inherit; font-size: .9rem; font-weight: 600; border: 0; background: none; color: var(--muted); padding: 5px 14px; border-radius: 999px; cursor: pointer; }
+.seg-btn.is-active { background: var(--brown); color: var(--cream); }
+
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 10px; }
+.chart-panel.wide { grid-column: 1 / -1; }
+.chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.chart-head .small { margin: 0; }
+
+/* עמודות אנכיות: הזמנות לפי יום. ציר הזמן רץ מימין (ישן) לשמאל (חדש), כמו קריאה בעברית */
+.vbars { --h: 200px; position: relative; height: var(--h); display: flex; align-items: flex-end; gap: 2px;
+  border-bottom: 1px solid rgba(59,35,20,.35);
+  background: repeating-linear-gradient(to top, transparent 0 calc(var(--h) / 4 - 1px), rgba(59,35,20,.08) calc(var(--h) / 4 - 1px) calc(var(--h) / 4)); }
+.vbar { flex: 1; min-width: 3px; background: var(--orange); border-radius: 4px 4px 0 0; position: relative; cursor: default; }
+.vbar.zero { background: transparent; }
+.vbar.wknd.zero::after { content: ""; position: absolute; bottom: 0; inset-inline: 0; height: 2px; background: rgba(59,35,20,.15); }
+.vbar:hover, .vbar:focus-visible { background: #8f4013; outline: none; }
+.vbar.zero:hover { background: rgba(59,35,20,.08); }
+.vbar-hit { position: absolute; inset: calc(-1 * var(--h)) -1px 0; }
+.vbars-max { position: absolute; top: -2px; inset-inline-end: 0; font-size: .75rem; color: var(--muted); background: var(--white); padding: 0 4px; transform: translateY(-50%); }
+.vbars-x { display: flex; gap: 2px; margin-top: 4px; font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.vbars-x span { flex: 1; min-width: 3px; text-align: center; white-space: nowrap; overflow: visible; }
+
+/* עמודות אופקיות */
+.hbars { display: flex; flex-direction: column; gap: 7px; }
+.hrow { display: grid; grid-template-columns: minmax(110px, 38%) 1fr; align-items: center; gap: 10px; font-size: .9rem; }
+.hrow .lbl { text-align: start; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hrow .track { display: flex; align-items: center; gap: 6px; }
+.hrow .bar { height: 16px; background: var(--orange); border-radius: 0 4px 4px 0; min-width: 2px; }
+[dir=rtl] .hrow .bar { border-radius: 4px 0 0 4px; }
+.hrow .val { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--ink); font-size: .85rem; white-space: nowrap; }
+.hrow:hover .bar { background: #8f4013; }
+
+.chart-tip { position: fixed; z-index: 40; pointer-events: none; background: var(--brown); color: var(--cream); font-size: .85rem; padding: 6px 10px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,.18); white-space: nowrap; }
+.chart-tip strong { font-family: var(--f-head); }
+
+.exp-yes { color: #2f6b2f; font-weight: 700; }
+.exp-no { color: var(--muted); }
+.row-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.hash-key { font-variant-numeric: tabular-nums; }
+.hash-key.fallback { color: var(--muted); }
+
+@media (max-width: 900px) {
+  .charts { grid-template-columns: 1fr; }
+  .vbars-x span:not(.lab) { visibility: hidden; }
+}

@@ -50,6 +50,7 @@
       </div>
     </div>
     <div class="bar-mid">
+      <div class="prog" aria-live="polite"><span class="prog-text" id="progText"></span><span class="prog-track"><span class="prog-fill" id="progFill"></span></span></div>
       <span class="status" id="status">מתחבר…</span>
     </div>
     <div class="bar-end">
@@ -79,18 +80,6 @@
     <span id="updated"></span>
     <button type="button" class="link" data-logout>יציאה מהעמדה</button>
   </footer>
-</div>
-
-<!-- ===== אישור "הוכן" ===== -->
-<div class="overlay" id="confirm" hidden>
-  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="cTitle">
-    <h2 id="cTitle"></h2>
-    <p id="cText"></p>
-    <div class="dialog-actions">
-      <button type="button" class="btn btn-done btn-xl" id="cYes">כן, הוכן</button>
-      <button type="button" class="btn btn-xl" id="cNo">ביטול</button>
-    </div>
-  </div>
 </div>
 
 <!-- ===== הפעלת צליל (דפדפנים דורשים נגיעה ראשונה) ===== -->

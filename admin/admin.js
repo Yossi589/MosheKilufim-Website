@@ -90,12 +90,14 @@
   function setTab(tab) {
     state.tab = tab;
     $$(".tab").forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle("is-active", on); b.setAttribute("aria-selected", on); });
-    ["pending", "requests", "day"].forEach(t => { $("#view-" + t).hidden = t !== tab; });
+    ["pending", "requests", "day", "stats", "hash"].forEach(t => { $("#view-" + t).hidden = t !== tab; });
     refreshTab();
   }
   function refreshTab() {
     if (state.tab === "pending") return loadPending();
     if (state.tab === "requests") return loadRequests();
+    if (state.tab === "stats") return loadStats();
+    if (state.tab === "hash") return loadHash();
     return loadDay();
   }
 
@@ -454,6 +456,264 @@
       if (!state.channel || !$("#liveDot").classList.contains("on")) { beep(); refreshTab(); }
     }
   }, 60000);
+
+  /* ==========================================================
+     לשונית: גרפים (נתונים מ-dashboard_stats בשרת)
+     ========================================================== */
+  state.statDays = 30;
+  const dayNames = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
+
+  async function loadStats() {
+    loading(true);
+    const { data, error } = await db.rpc("dashboard_stats", { p_days: state.statDays });
+    loading(false);
+    if (error) { toast("שגיאה בטעינת הגרפים: " + error.message, true); return; }
+    $("#statRange").textContent = `${fmtShort(data.from)} – ${fmtShort(data.to)}`;
+    renderByDay(data.by_day || []);
+    renderHBars("#chartTop", (data.top_products || []).map(r => ({ label: r.name, value: Number(r.qty) })), "מארזים");
+    const totalSrc = (data.by_source || []).reduce((s, r) => s + Number(r.orders), 0) || 1;
+    renderHBars("#chartSource", (data.by_source || []).map(r => ({ label: r.source, value: Number(r.orders), pct: Math.round(100 * r.orders / totalSrc) })), "הזמנות");
+  }
+  const fmtShort = iso => { const [, m, d] = String(iso).split("-"); return `${+d}.${+m}`; };
+
+  function renderByDay(rows) {
+    const max = Math.max(1, ...rows.map(r => r.orders));
+    const total = rows.reduce((s, r) => s + r.orders, 0);
+    const days = rows.filter(r => r.orders > 0).length || 1;
+    $("#byDaySum").textContent = `סה״כ ${num(total)} הזמנות · ממוצע ${num(total / days)} ביום עבודה`;
+    const step = rows.length > 45 ? 14 : rows.length > 10 ? 5 : 1;
+    $("#chartByDay").innerHTML = `<span class="vbars-max">${num(max)}</span>` + rows.map(r => {
+      const d = new Date(r.day + "T12:00:00");
+      const tip = `יום ${dayNames[d.getDay()]} ${fmtShort(r.day)} · <strong>${num(r.orders)}</strong> הזמנות`;
+      return `<div class="vbar${r.orders ? "" : " zero"}${d.getDay() === 6 ? " wknd" : ""}" style="height:${r.orders ? Math.max(2, 100 * r.orders / max) : 100}%" tabindex="0" data-tip="${esc(tip)}"></div>`;
+    }).join("");
+    // תאריכים מתחת לעמודות: כל כמה ימים, והיום האחרון תמיד
+    $("#chartByDayX").innerHTML = rows.map((r, i) => {
+      const show = i === rows.length - 1 || (rows.length - 1 - i) % step === 0;
+      return `<span class="${show ? "lab" : ""}">${show ? fmtShort(r.day) : ""}</span>`;
+    }).join("");
+  }
+
+  function renderHBars(sel, rows, unit) {
+    const max = Math.max(1, ...rows.map(r => r.value));
+    $(sel).innerHTML = rows.length ? rows.map(r => `
+      <div class="hrow" data-tip="${esc(esc(r.label))} · <strong>${num(r.value)}</strong> ${unit}${r.pct != null ? ` (<bdi>${r.pct}%</bdi>)` : ""}">
+        <span class="lbl" title="${esc(r.label)}">${esc(r.label)}</span>
+        <span class="track"><span class="bar" style="width:${Math.max(1, 85 * r.value / max)}%"></span><span class="val"><bdi>${num(r.value)}</bdi>${r.pct != null ? ` · <bdi>${r.pct}%</bdi>` : ""}</span></span>
+      </div>`).join("") : `<p class="muted">אין נתונים בתקופה הזו</p>`;
+  }
+
+  /* טולטיפ אחד לכל הגרפים */
+  function showTip(el, x, y) {
+    const tip = $("#chartTip"); tip.innerHTML = el.dataset.tip; tip.hidden = false;
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.min(window.innerWidth - w - 8, Math.max(8, x - w / 2)) + "px";
+    tip.style.top = Math.max(8, y - h - 12) + "px";
+  }
+  document.addEventListener("mouseover", e => { const el = e.target.closest("#view-stats [data-tip]"); if (el) { const r = el.getBoundingClientRect(); showTip(el, r.left + r.width / 2, r.top); } });
+  document.addEventListener("mouseout", e => { if (e.target.closest("#view-stats [data-tip]")) $("#chartTip").hidden = true; });
+  document.addEventListener("focusin", e => { const el = e.target.closest("#view-stats [data-tip]"); if (el) { const r = el.getBoundingClientRect(); showTip(el, r.left + r.width / 2, r.top); } });
+  document.addEventListener("focusout", () => { $("#chartTip").hidden = true; });
+
+  $$(".seg-btn").forEach(b => b.addEventListener("click", () => {
+    $$(".seg-btn").forEach(x => x.classList.toggle("is-active", x === b));
+    state.statDays = Number(b.dataset.days); loadStats();
+  }));
+
+  /* ==========================================================
+     לשונית: חשבשבת — הזמנת לקוח (מסמך 30)
+     אקסל: קובץ קריא להקלדה. קובץ קליטה: IMOVEIN.DOC ברוחב קבוע, בקידוד Windows-1255,
+     יחד עם IMOVEIN.PRM שמגדיר איפה כל שדה נמצא בשורה.
+     ========================================================== */
+  const VAT = 18;                 // % מע"מ
+  const HASH_DOC_TYPE = 30;       // הזמנה מלקוח
+  const APPROVED = ["בייצור", "הוכנה", "בדרך", "נמסרה"];
+  state.hashDate = "";
+  state.hashOrders = [];
+
+  const custKey = c => (c?.hash_key || String(c?.customer_id ?? "")).trim();
+  const itemKey = p => (p?.hash_key || String(p?.product_id ?? "")).trim();
+  const lineTotal = l => Number(l.quantity) * Number(l.unit_price || 0);
+  const orderNet = o => (o.order_lines || []).reduce((s, l) => s + lineTotal(l), 0);
+  const money = n => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", minimumFractionDigits: 2 }).format(n || 0);
+  const ddmmyyyy = v => { const d = new Date(v.length === 10 ? v + "T12:00:00" : v); return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`; };
+
+  async function loadHash() {
+    if (!state.hashDate) state.hashDate = nextDeliveryDay();
+    $("#hashDate").value = state.hashDate;
+    loading(true);
+    let q = db.from("orders")
+      .select(`order_id, order_date, delivery_date, status, adress, notes, hash_exported_at,
+               customers ( customer_id, name, phone_number, adress, hash_key ),
+               drivers ( name ),
+               order_lines ( quantity, unit_price, product ( product_id, name, unit, hash_key ) )`)
+      .eq("delivery_date", state.hashDate).in("status", APPROVED).order("order_id");
+    if ($("#hashOnlyNew").checked) q = q.is("hash_exported_at", null);
+    const { data, error } = await q;
+    loading(false);
+    if (error) { toast("שגיאה בטעינה: " + error.message, true); return; }
+    state.hashOrders = data;
+    $("#hashEmpty").hidden = data.length > 0;
+    $("#hashBody").innerHTML = data.map(o => {
+      const c = o.customers || {};
+      return `<tr data-id="${o.order_id}">
+        <td class="num">${o.order_id}</td>
+        <td class="cust"><strong>${esc(c.name)}</strong><small>${esc(o.adress || c.adress || "")}</small></td>
+        <td class="hash-key${c.hash_key ? "" : " fallback"}" title="${c.hash_key ? "" : "אין מפתח חשבשבת ללקוח, משתמשים במספר הלקוח שלנו"}">${esc(custKey(c))}</td>
+        <td class="items">${itemsText(o.order_lines)}</td>
+        <td class="num">${money(orderNet(o))}</td>
+        <td>${esc(o.status)}</td>
+        <td>${o.hash_exported_at ? `<span class="exp-yes" title="${esc(fmtTime(o.hash_exported_at))}">✓ יוצא</span>` : `<span class="exp-no">עוד לא</span>`}</td>
+        <td><div class="row-btns"><button type="button" class="btn btn-sm" data-hx="${o.order_id}">אקסל</button><button type="button" class="btn btn-sm" data-hd="${o.order_id}">קליטה</button></div></td>
+      </tr>`;
+    }).join("");
+    const net = data.reduce((s, o) => s + orderNet(o), 0);
+    $("#hashTotals").textContent = data.length
+      ? `${data.length} הזמנות · לפני מע״מ ${money(net)} · מע״מ ${VAT}% ${money(net * VAT / 100)} · כולל מע״מ ${money(net * (1 + VAT / 100))}`
+      : "";
+  }
+
+  /* ---------- אקסל (SheetJS נטען רק כשצריך) ---------- */
+  let xlsxReady;
+  function loadXlsx() {
+    if (window.XLSX) return Promise.resolve();
+    xlsxReady = xlsxReady || new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+      s.onload = res; s.onerror = () => { xlsxReady = null; rej(new Error("טעינת ספריית האקסל נכשלה")); };
+      document.head.appendChild(s);
+    });
+    return xlsxReady;
+  }
+
+  async function exportXlsx(orders, name) {
+    await loadXlsx();
+    const X = window.XLSX;
+    const head = orders.map(o => {
+      const c = o.customers || {}, net = orderNet(o);
+      return {
+        "אסמכתא (מס׳ הזמנה)": o.order_id, "סוג מסמך": `${HASH_DOC_TYPE} - הזמנה מלקוח`,
+        "מפתח לקוח": custKey(c), "שם לקוח": c.name || "", "כתובת": o.adress || c.adress || "", "טלפון": c.phone_number || "",
+        "תאריך הזמנה": ddmmyyyy(o.order_date), "תאריך אספקה": o.delivery_date ? ddmmyyyy(o.delivery_date) : "",
+        "נהג": o.drivers?.name || "", "הערות": o.notes || "",
+        "סה״כ לפני מע״מ": +net.toFixed(2), [`מע״מ ${VAT}%`]: +(net * VAT / 100).toFixed(2), "סה״כ כולל מע״מ": +(net * (1 + VAT / 100)).toFixed(2)
+      };
+    });
+    const lines = [];
+    orders.forEach(o => (o.order_lines || []).forEach(l => lines.push({
+      "אסמכתא (מס׳ הזמנה)": o.order_id, "מפתח לקוח": custKey(o.customers), "שם לקוח": o.customers?.name || "",
+      "תאריך אספקה": o.delivery_date ? ddmmyyyy(o.delivery_date) : "",
+      "מפתח פריט": itemKey(l.product), "שם פריט": l.product?.name || "", "יחידה": l.product?.unit || "",
+      "כמות": Number(l.quantity), "מחיר ליחידה": Number(l.unit_price || 0), "סה״כ שורה": +lineTotal(l).toFixed(2)
+    })));
+    const help = [
+      ["איך מקלידים בחשבשבת"],
+      [`1. בחשבשבת: מסמכים ← הזמנה מלקוח (סוג ${HASH_DOC_TYPE}).`],
+      ["2. לכל הזמנה בגיליון 'הזמנות': מפתח לקוח, תאריך, ובשדה אסמכתא את מספר ההזמנה שלנו."],
+      ["3. את הפריטים מקלידים מגיליון 'שורות' (מסננים לפי אסמכתא)."],
+      ["המחירים לפני מע״מ. מפתח לקוח/פריט אפור במערכת = עוד לא הוגדר מפתח חשבשבת, ומופיע המספר שלנו."]
+    ];
+    const wb = X.utils.book_new();
+    wb.Workbook = { Views: [{ RTL: true }] };
+    const ws1 = X.utils.json_to_sheet(head), ws2 = X.utils.json_to_sheet(lines), ws3 = X.utils.aoa_to_sheet(help);
+    ws1["!cols"] = [10, 16, 10, 24, 28, 13, 12, 12, 12, 30, 13, 11, 14].map(w => ({ wch: w }));
+    ws2["!cols"] = [10, 10, 24, 12, 10, 28, 14, 8, 11, 11].map(w => ({ wch: w }));
+    ws3["!cols"] = [{ wch: 90 }];
+    X.utils.book_append_sheet(wb, ws1, "הזמנות");
+    X.utils.book_append_sheet(wb, ws2, "שורות");
+    X.utils.book_append_sheet(wb, ws3, "הוראות");
+    X.writeFile(wb, name);
+  }
+
+  /* ---------- קובץ קליטה IMOVEIN ---------- */
+  // שורות 2 ומעלה בקובץ ה-PRM, לפי מפרט "ממשק קלט תנועות מלאי (מסמכים)". רוחב 0 = שדה שלא בשימוש.
+  const IMOVEIN_FIELDS = [
+    ["custKey", 15, "t"], ["docNo", 0], ["docType", 2, "n"], ["custName", 50, "t"], ["address", 50, "t"], ["city", 0],
+    ["ref", 9, "n"], ["refDate", 10, "t"], ["valDate", 10, "t"], ["agent", 0], ["store", 0], ["details", 50, "t"],
+    ["srcStore", 0], ["srcAgent", 0], ["priceList", 0], ["discount", 0], ["vatPct", 0], ["copies", 0], ["cur", 0], ["rate", 0],
+    ["itemKey", 20, "t"], ["qty", 10, "q"], ["price", 10, "q"], ["lineCur", 0], ["lineDisc", 0], ["lineRate", 0],
+    ["itemName", 50, "t"], ["unit", 0], ["purchTax", 0], ["altKey", 0], ["commission", 0], ["packs", 0], ["vatFree", 0],
+    ["phone", 30, "t"]
+  ];
+  function prmText() {
+    let pos = 1; const out = [];
+    IMOVEIN_FIELDS.forEach(([, w]) => { if (w) { out.push(`${pos} ${pos + w - 1}`); pos += w; } else out.push("0 0"); });
+    return [String(pos - 1), ...out].join("\r\n") + "\r\n";
+  }
+  // מקודד ל-Windows-1255 (עברית בחשבשבת). תו שלא קיים בקידוד הופך לרווח.
+  function cp1255(str) {
+    const bytes = [];
+    for (const ch of str) {
+      const c = ch.codePointAt(0);
+      if (c < 128) bytes.push(c);
+      else if (c >= 0x05D0 && c <= 0x05EA) bytes.push(c - 0x05D0 + 0xE0);
+      else if (c === 0x05F4 || c === 0x201C || c === 0x201D) bytes.push(0x22);
+      else if (c === 0x05F3 || c === 0x2018 || c === 0x2019) bytes.push(0x27);
+      else if (c === 0x2013 || c === 0x2014) bytes.push(0x2D);
+      else if (c === 0x20AA) bytes.push(0xA4);
+      else bytes.push(0x20);
+    }
+    return new Uint8Array(bytes);
+  }
+  const clean = s => String(s ?? "").replace(/[\r\n\t]+/g, " ").trim();
+  function fit(v, w, kind) {
+    if (kind === "q") return Number(v || 0).toFixed(3).padStart(w, " ").slice(-w);
+    if (kind === "n") return String(v ?? "").padStart(w, " ").slice(-w);
+    return [...clean(v)].slice(0, w).join("").padEnd(w, " ");
+  }
+  function docText(orders) {
+    const rows = [];
+    orders.forEach(o => {
+      const c = o.customers || {};
+      (o.order_lines || []).forEach(l => {
+        const v = {
+          custKey: custKey(c), docType: HASH_DOC_TYPE, custName: c.name, address: o.adress || c.adress,
+          ref: o.order_id, refDate: ddmmyyyy(o.order_date), valDate: o.delivery_date ? ddmmyyyy(o.delivery_date) : ddmmyyyy(o.order_date),
+          details: o.notes || `הזמנה ${o.order_id} מהמערכת`, itemKey: itemKey(l.product), qty: l.quantity, price: l.unit_price,
+          itemName: l.product?.name, phone: c.phone_number
+        };
+        rows.push(IMOVEIN_FIELDS.filter(f => f[1]).map(([k, w, kind]) => fit(v[k], w, kind)).join(""));
+      });
+    });
+    return rows.join("\r\n") + "\r\n";
+  }
+  function download(bytes, name) {
+    const url = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: name });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  async function markExported(orders) {
+    const ids = orders.filter(o => !o.hash_exported_at).map(o => o.order_id);
+    if (!ids.length) return;
+    const { error } = await db.from("orders").update({ hash_exported_at: new Date().toISOString() }).in("order_id", ids);
+    if (error) toast("הקובץ ירד, אבל הסימון 'יוצא' נכשל: " + error.message, true);
+  }
+
+  async function runExport(kind, orders) {
+    if (!orders.length) { toast("אין הזמנות לייצוא", true); return; }
+    const tag = orders.length === 1 ? `הזמנה_${orders[0].order_id}` : `אספקה_${state.hashDate}`;
+    try {
+      if (kind === "xlsx") await exportXlsx(orders, `חשבשבת_${tag}.xlsx`);
+      else download(cp1255(docText(orders)), "IMOVEIN.DOC");
+    } catch (err) { toast(err.message || "הייצוא נכשל", true); return; }
+    await markExported(orders);
+    toast(kind === "xlsx" ? `האקסל ירד (${orders.length} הזמנות)` : `קובץ הקליטה ירד (${orders.length} הזמנות)`);
+    loadHash();
+  }
+
+  $("#hashDate").addEventListener("change", e => { if (e.target.value) { state.hashDate = e.target.value; loadHash(); } });
+  $("#hashOnlyNew").addEventListener("change", loadHash);
+  $("#hashXlsx").addEventListener("click", () => runExport("xlsx", state.hashOrders));
+  $("#hashDoc").addEventListener("click", () => runExport("doc", state.hashOrders));
+  $("#hashPrm").addEventListener("click", () => download(cp1255(prmText()), "IMOVEIN.PRM"));
+  $("#hashBody").addEventListener("click", e => {
+    const b = e.target.closest("[data-hx],[data-hd]"); if (!b) return;
+    const id = Number(b.dataset.hx || b.dataset.hd);
+    const o = state.hashOrders.find(x => x.order_id === id);
+    if (o) runExport(b.dataset.hx ? "xlsx" : "doc", [o]);
+  });
 
   /* ---------- אירועים ---------- */
   document.addEventListener("click", async e => {

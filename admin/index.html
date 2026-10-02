@@ -57,6 +57,8 @@
     <button type="button" class="tab" role="tab" data-tab="pending" id="tab-pending">ממתינות לאישור <span class="badge" id="badgePending" hidden></span></button>
     <button type="button" class="tab" role="tab" data-tab="requests" id="tab-requests">לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
     <button type="button" class="tab" role="tab" data-tab="day" id="tab-day">הזמנות לפי יום</button>
+    <button type="button" class="tab" role="tab" data-tab="stats" id="tab-stats">גרפים</button>
+    <button type="button" class="tab" role="tab" data-tab="hash" id="tab-hash">חשבשבת</button>
   </nav>
 
   <main class="wrap">
@@ -140,6 +142,61 @@
         </aside>
       </div>
     </section>
+    <!-- ===== לשונית: גרפים ===== -->
+    <section id="view-stats" hidden>
+      <div class="statbar">
+        <span class="muted">תקופה:</span>
+        <div class="seg" role="radiogroup" aria-label="תקופה">
+          <button type="button" class="seg-btn" data-days="7">7 ימים</button>
+          <button type="button" class="seg-btn is-active" data-days="30">30 יום</button>
+          <button type="button" class="seg-btn" data-days="90">90 יום</button>
+        </div>
+        <span class="muted small" id="statRange"></span>
+      </div>
+      <div class="charts">
+        <section class="panel chart-panel wide">
+          <div class="chart-head"><h2>הזמנות לפי יום</h2><span class="muted small" id="byDaySum"></span></div>
+          <div class="vbars" id="chartByDay" role="img" aria-label="מספר הזמנות בכל יום"></div>
+          <div class="vbars-x" id="chartByDayX" aria-hidden="true"></div>
+        </section>
+        <section class="panel chart-panel">
+          <div class="chart-head"><h2>מוצרים מובילים</h2><span class="muted small">מארזים</span></div>
+          <div class="hbars" id="chartTop"></div>
+        </section>
+        <section class="panel chart-panel">
+          <div class="chart-head"><h2>מקור ההזמנות</h2><span class="muted small">מספר הזמנות</span></div>
+          <div class="hbars" id="chartSource"></div>
+        </section>
+      </div>
+      <p class="muted small">הזמנות שבוטלו לא נספרות. מעבירים עכבר מעל עמודה כדי לראות את המספר המדויק.</p>
+    </section>
+
+    <!-- ===== לשונית: חשבשבת ===== -->
+    <section id="view-hash" hidden>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>הזמנות לקוח לחשבשבת</h2>
+          <p class="muted small">כל ההזמנות שאושרו (בייצור / הוכנה / בדרך / נמסרה) לתאריך האספקה שנבחר. אקסל: לקריאה ולהקלדה. קובץ קליטה (IMOVEIN): לקליטה אוטומטית בחשבשבת, מסמך מסוג 30 "הזמנה מלקוח".</p>
+        </div>
+        <div class="hashbar">
+          <label for="hashDate">תאריך אספקה</label>
+          <input type="date" id="hashDate">
+          <label class="check"><input type="checkbox" id="hashOnlyNew" checked> רק הזמנות שעוד לא יוצאו</label>
+          <span class="spacer"></span>
+          <button type="button" class="btn btn-primary" id="hashXlsx">אקסל לכל היום</button>
+          <button type="button" class="btn" id="hashDoc">קובץ קליטה לכל היום</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="hashPrm" title="קובץ ההגדרות של הקליטה. מורידים פעם אחת ושומרים באותה תיקייה">קובץ הגדרות (IMOVEIN.PRM)</button>
+        </div>
+        <div class="table-wrap">
+          <table class="orders">
+            <thead><tr><th>#</th><th>לקוח</th><th>מפתח בחשבשבת</th><th>פריטים</th><th>סה״כ לפני מע״מ</th><th>סטטוס</th><th>יוצא</th><th></th></tr></thead>
+            <tbody id="hashBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="hashEmpty" hidden><p>אין הזמנות מאושרות לתאריך הזה.</p></div>
+        <p class="muted small" id="hashTotals"></p>
+      </section>
+    </section>
   </main>
 </div>
 
@@ -174,6 +231,7 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="chart-tip" id="chartTip" role="tooltip" hidden></div>
 <div class="loading" id="loading" hidden>טוען…</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
