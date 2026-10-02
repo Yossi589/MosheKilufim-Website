@@ -462,18 +462,61 @@
         { auth: { persistSession: false } })
     : null;
 
+  /* מחזיר Promise עם התשובה מהשרת ({result:"order"|"request"}), או null אם נכשל / לקח יותר מדי זמן */
   function saveOrderToDb(u, items, date, notes) {
-    if (!DB || !items.length || !date) return;
-    DB.rpc("place_order", {
+    if (!DB || !items.length || !date) return Promise.resolve(null);
+    const call = DB.rpc("place_order", {
       p_name: u.name, p_phone: u.phone, p_business: u.business || "", p_city: u.city || "",
       p_delivery_date: date, p_notes: notes || "", p_items: items
     }).then(({ data, error }) => {
-      if (error) { console.warn("place_order:", error.message); return; }
-      const note = $("#successNote");
-      if (!note || $("#successModal").hidden || !data) return;
-      if (data.result === "order") note.textContent = `ההזמנה נרשמה במערכת · מספר ${data.order_id}`;
-      else if (data.result === "request") note.textContent = "קיבלנו את פרטיכם. נחזור אליכם לפתיחת חשבון לקוח";
-    }).catch(err => console.warn("place_order:", err));
+      if (error) { console.warn("place_order:", error.message); return null; }
+      return data || null;
+    }).catch(err => { console.warn("place_order:", err); return null; });
+    const timeout = new Promise(res => setTimeout(() => res(null), 8000));
+    return Promise.race([call, timeout]);
+  }
+
+  /* חלון "שולחים..." ואחריו הודעה לפי התשובה, ואז מעבר לוואטסאפ */
+  let waTimer = null;
+  function showOrderPending(waUrl) {
+    const ic = $("#successIc");
+    ic.className = "success-ic";
+    ic.innerHTML = icon("chat");
+    $("#successTitle").textContent = "שולחים את ההזמנה…";
+    $("#successMsg").textContent = "רק רגע";
+    $("#successNote").textContent = "";
+    const wa = $("#successWa");
+    wa.href = waUrl; wa.hidden = true;
+    openLayer("successModal");
+  }
+  function showOrderResult(data, waUrl) {
+    const ic = $("#successIc");
+    ic.className = "success-ic";
+    let title, msg;
+    if (data && data.result === "order") {
+      ic.innerHTML = icon("check");
+      title = "הזמנתך נרשמה!";
+      msg = "מעבירים אותך לוואטסאפ…";
+      $("#successNote").textContent = `מספר הזמנה ${data.order_id}`;
+    } else if (data && data.result === "request") {
+      ic.innerHTML = icon("check");
+      title = "קיבלנו את ההזמנה שלך";
+      msg = "בקרוב ניצור איתך קשר. מעבירים אותך לוואטסאפ…";
+      $("#successNote").textContent = "";
+    } else {
+      ic.innerHTML = icon("chat");
+      title = "ההזמנה מוכנה בוואטסאפ";
+      msg = "מעבירים אותך לוואטסאפ, לחצו שם 'שליחה'.";
+      $("#successNote").textContent = "";
+    }
+    $("#successTitle").textContent = title;
+    $("#successMsg").textContent = msg;
+    const wa = $("#successWa");
+    wa.href = waUrl; wa.hidden = false;
+    clearTimeout(waTimer);
+    waTimer = setTimeout(() => {
+      if (!$("#successModal").hidden) window.location.href = waUrl;
+    }, 2500);
   }
 
   /* רישום באתר: לקוח מוכר מזוהה; טלפון חדש נשמר כפנייה, ועופר יוצר קשר */
@@ -506,15 +549,26 @@
     }
     if (!getUser()) store.set(KEYS.user, u);
     const text = buildOrderText(u);
-    if (type !== "phone") {
-      const items = state.cart
-        .map(i => ({ pid: (byName.get(i.name) || {}).pid, qty: i.qty }))
-        .filter(i => i.pid);
-      saveOrderToDb(u, items, state.deliveryDate, state.notes);
-    }
+    const items = state.cart
+      .map(i => ({ pid: (byName.get(i.name) || {}).pid, qty: i.qty }))
+      .filter(i => i.pid);
     if (type === "whatsapp") {
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
-    } else if (type === "mail") {
+      // קודם שומרים במערכת ומציגים הודעה, ורק אז עוברים לוואטסאפ
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      const date = state.deliveryDate, notes = state.notes;
+      finishOrder();
+      closeLayer("cartDrawer");
+      showOrderPending(waUrl);
+      saveOrderToDb(u, items, date, notes).then(data => showOrderResult(data, waUrl));
+      return;
+    }
+    if (type === "mail") {
+      saveOrderToDb(u, items, state.deliveryDate, state.notes).then(data => {
+        const note = $("#successNote");
+        if (!data || !note || $("#successModal").hidden) return;
+        if (data.result === "order") note.textContent = `הזמנתך נרשמה · מספר ${data.order_id}`;
+        else if (data.result === "request") note.textContent = "קיבלנו את ההזמנה שלך, בקרוב ניצור איתך קשר";
+      });
       window.location.href = `mailto:${BUSINESS_EMAIL}?subject=${encodeURIComponent("הזמנה / בקשה להצעת מחיר — משה קילופים")}&body=${encodeURIComponent(text)}`;
     } // phone: הקישור tel: עצמו מחייג
     finishOrder();
@@ -537,6 +591,7 @@
     $("#successTitle").textContent = title;
     $("#successMsg").textContent = msg;
     $("#successNote").textContent = note;
+    const wa = $("#successWa"); if (wa) wa.hidden = true;
     openLayer("successModal");
   }
 
