@@ -454,6 +454,28 @@
     renderProducts();
   }
 
+  /* ---------- שמירת ההזמנה במערכת (רץ במקביל לוואטסאפ) ----------
+     האתר שולח לפונקציה place_order רק פרטי מזמין, תאריך, הערות ו-{pid, qty}.
+     המחיר מחושב בבסיס הנתונים. אם אין חיבור, הוואטסאפ ממשיך לעבוד כרגיל. */
+  const DB = (window.supabase && window.MK_CONFIG)
+    ? window.supabase.createClient(window.MK_CONFIG.SUPABASE_URL, window.MK_CONFIG.SUPABASE_KEY,
+        { auth: { persistSession: false } })
+    : null;
+
+  function saveOrderToDb(u, items, date, notes) {
+    if (!DB || !items.length || !date) return;
+    DB.rpc("place_order", {
+      p_name: u.name, p_phone: u.phone, p_business: u.business || "", p_city: u.city || "",
+      p_delivery_date: date, p_notes: notes || "", p_items: items
+    }).then(({ data, error }) => {
+      if (error) { console.warn("place_order:", error.message); return; }
+      const note = $("#successNote");
+      if (!note || $("#successModal").hidden || !data) return;
+      if (data.result === "order") note.textContent = `ההזמנה נרשמה במערכת · מספר ${data.order_id}`;
+      else if (data.result === "request") note.textContent = "קיבלנו את פרטיכם. נחזור אליכם לפתיחת חשבון לקוח";
+    }).catch(err => console.warn("place_order:", err));
+  }
+
   function send(type, ev) {
     if (!state.cart.length) { if (ev) ev.preventDefault(); return; }
     const notesEl = $("#oNotes"); if (notesEl) state.notes = notesEl.value.trim();
@@ -470,6 +492,12 @@
     }
     if (!getUser()) store.set(KEYS.user, u);
     const text = buildOrderText(u);
+    if (type !== "phone") {
+      const items = state.cart
+        .map(i => ({ pid: (byName.get(i.name) || {}).pid, qty: i.qty }))
+        .filter(i => i.pid);
+      saveOrderToDb(u, items, state.deliveryDate, state.notes);
+    }
     if (type === "whatsapp") {
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
     } else if (type === "mail") {

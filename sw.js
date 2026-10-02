@@ -1,10 +1,11 @@
 // Service worker — רשת קודם, ואם אין אינטרנט: הגרסה השמורה.
 // כשמעלים גרסה חדשה של האתר, מעלים את מספר הגרסה כאן.
-const CACHE_NAME = "mk-site-v1";
+const CACHE_NAME = "mk-site-v2";
 const CORE = [
   "./",
   "./index.html",
   "./css/style.css",
+  "./js/config.js",
   "./js/products.js",
   "./js/app.js",
   "./manifest.json",
