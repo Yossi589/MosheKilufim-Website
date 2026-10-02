@@ -592,7 +592,7 @@
     const head = orders.map(o => {
       const c = o.customers || {}, net = orderNet(o);
       return {
-        "אסמכתא (מס׳ הזמנה)": o.order_id, "סוג מסמך": `${HASH_DOC_TYPE} - הזמנה מלקוח`,
+        "מס׳ הזמנה שלנו (אסמכתא 2)": o.order_id, "סוג מסמך": `${HASH_DOC_TYPE} - הזמנה מלקוח`,
         "מפתח לקוח": custKey(c), "שם לקוח": c.name || "", "כתובת": o.adress || c.adress || "", "טלפון": c.phone_number || "",
         "תאריך הזמנה": ddmmyyyy(o.order_date), "תאריך אספקה": o.delivery_date ? ddmmyyyy(o.delivery_date) : "",
         "נהג": o.drivers?.name || "", "הערות": o.notes || "",
@@ -601,7 +601,7 @@
     });
     const lines = [];
     orders.forEach(o => (o.order_lines || []).forEach(l => lines.push({
-      "אסמכתא (מס׳ הזמנה)": o.order_id, "מפתח לקוח": custKey(o.customers), "שם לקוח": o.customers?.name || "",
+      "מס׳ הזמנה שלנו (אסמכתא 2)": o.order_id, "מפתח לקוח": custKey(o.customers), "שם לקוח": o.customers?.name || "",
       "תאריך אספקה": o.delivery_date ? ddmmyyyy(o.delivery_date) : "",
       "מפתח פריט": itemKey(l.product), "שם פריט": l.product?.name || "", "יחידה": l.product?.unit || "",
       "כמות": Number(l.quantity), "מחיר ליחידה": Number(l.unit_price || 0), "סה״כ שורה": +lineTotal(l).toFixed(2)
@@ -609,8 +609,9 @@
     const help = [
       ["איך מקלידים בחשבשבת"],
       [`1. בחשבשבת: מסמכים ← הזמנה מלקוח (סוג ${HASH_DOC_TYPE}).`],
-      ["2. לכל הזמנה בגיליון 'הזמנות': מפתח לקוח, תאריך, ובשדה אסמכתא את מספר ההזמנה שלנו."],
-      ["3. את הפריטים מקלידים מגיליון 'שורות' (מסננים לפי אסמכתא)."],
+      ["2. מפתח לקוח ותאריך אספקה מגיליון 'הזמנות'. את 'אסמכתא' חשבשבת ממלאת לבד (מספר המסמך שלה)."],
+      ["3. את מספר ההזמנה שלנו רושמים בשדה 'אסמכתא 2' (ואם אין כזה בטופס: בשדה 'פרטים')."],
+      ["4. את הפריטים מקלידים מגיליון 'שורות' (מסננים לפי מספר ההזמנה), בודקים סה״כ, ולוחצים הפקה."],
       ["המחירים לפני מע״מ. מפתח לקוח/פריט אפור במערכת = עוד לא הוגדר מפתח חשבשבת, ומופיע המספר שלנו."]
     ];
     const wb = X.utils.book_new();
