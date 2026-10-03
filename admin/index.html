@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>ניהול הזמנות · משה קילופים</title>
+  <title>ניהול · משה קילופים</title>
   <link rel="icon" type="image/png" href="../img/favicon-64.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,33 +41,78 @@
 <div id="appView" hidden>
   <header class="topbar">
     <div class="brand">
-      <img src="../img/logo-160.webp" width="40" height="40" alt="">
-      <strong>ניהול הזמנות</strong>
+      <a href="#" class="brand-home" title="למסך הראשי"><img src="../img/logo-160.webp" width="40" height="40" alt=""><strong id="moduleTitle">משה קילופים · ניהול</strong></a>
       <span class="live" id="liveDot" title="חיבור להתראות בזמן אמת">מנותק</span>
     </div>
     <div class="user">
+      <a href="#" class="btn btn-sm" id="homeBtn" hidden>מסך ראשי</a>
       <button type="button" class="btn btn-sm" id="notifyBtn" hidden>הפעלת התראות</button>
       <bdi id="userEmail"></bdi>
       <button type="button" class="btn btn-sm" data-logout>התנתקות</button>
     </div>
   </header>
 
+  <!-- ============ מסך פתיחה ============ -->
+  <main id="homeView" class="home" hidden>
+    <section class="hero">
+      <img src="../img/logo-320.webp" width="160" height="160" alt="משה קילופים" class="hero-logo">
+      <p class="hero-kicker" id="homeDate"></p>
+      <h1 class="hero-title"><span id="homeGreeting">שלום</span>, <bdi id="homeName"></bdi></h1>
+      <p class="hero-sub">מערכת הניהול של משה קילופים. במה נטפל היום?</p>
+    </section>
+    <nav class="tiles" aria-label="מודולים">
+      <a class="tile" href="#orders">
+        <span class="tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v16.5l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 0 1 1-1z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>
+        <strong>ניהול הזמנות</strong>
+        <span class="tile-sub">אישור הזמנות, הזמנות לפי יום, גרפים וחשבשבת</span>
+        <span class="tile-stat" id="tileOrders"></span>
+      </a>
+      <a class="tile" href="#customers">
+        <span class="tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.7-3.6 3.3-5.5 6.5-5.5s5.8 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5c2.4 0 4 1.5 4.5 4"/></svg></span>
+        <strong>ניהול לקוחות</strong>
+        <span class="tile-sub">לקוחות חדשים לאישור, כרטיסי לקוח ומפתחות חשבשבת</span>
+        <span class="tile-stat" id="tileCustomers"></span>
+      </a>
+      <div class="tile is-soon" aria-disabled="true">
+        <span class="tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+        <strong>ניהול מלאי</strong>
+        <span class="tile-sub">מלאי חומרי גלם ומוצרים מוכנים</span>
+        <span class="soon">בקרוב</span>
+      </div>
+      <div class="tile is-soon" aria-disabled="true">
+        <span class="tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7.5 18c.8-2.2 2.4-3.3 4.5-3.3s3.7 1.1 4.5 3.3"/></svg></span>
+        <strong>ניהול עובדים</strong>
+        <span class="tile-sub">עובדים, משמרות והרשאות</span>
+        <span class="soon">בקרוב</span>
+      </div>
+    </nav>
+  </main>
+
+  <!-- ============ מודול (הזמנות / לקוחות) ============ -->
+  <div id="moduleView" hidden>
   <!-- לשוניות -->
   <nav class="tabs" role="tablist" aria-label="תצוגות">
-    <button type="button" class="tab" role="tab" data-tab="pending" id="tab-pending">ממתינות לאישור <span class="badge" id="badgePending" hidden></span></button>
-    <button type="button" class="tab" role="tab" data-tab="requests" id="tab-requests">לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
-    <button type="button" class="tab" role="tab" data-tab="day" id="tab-day">הזמנות לפי יום</button>
-    <button type="button" class="tab" role="tab" data-tab="stats" id="tab-stats">גרפים</button>
-    <button type="button" class="tab" role="tab" data-tab="hash" id="tab-hash">חשבשבת</button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="pending" id="tab-pending">ממתינות לאישור <span class="badge" id="badgePending" hidden></span></button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="day" id="tab-day">הזמנות לפי יום</button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="stats" id="tab-stats">גרפים</button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="hash" id="tab-hash">חשבשבת</button>
+    <button type="button" class="tab" role="tab" data-mod="customers" data-tab="requests" id="tab-requests">לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
+    <button type="button" class="tab" role="tab" data-mod="customers" data-tab="customers" id="tab-customers">כל הלקוחות</button>
   </nav>
 
   <main class="wrap">
     <!-- סיכום -->
-    <section class="cards" aria-label="סיכום">
+    <section class="cards" data-mod="orders" aria-label="סיכום הזמנות">
       <div class="card hot"><span>ממתינות לאישור</span><strong id="sumPending">–</strong></div>
       <div class="card"><span>בייצור</span><strong id="sumProduction">–</strong></div>
       <div class="card"><span>הוכנו היום</span><strong id="sumPrepared">–</strong></div>
-      <div class="card"><span>לקוחות חדשים</span><strong id="sumRequests">–</strong></div>
+      <div class="card"><span>יוצאו לחשבשבת היום</span><strong id="sumExported">–</strong></div>
+    </section>
+    <section class="cards" data-mod="customers" aria-label="סיכום לקוחות">
+      <div class="card hot"><span>לקוחות חדשים לאישור</span><strong id="sumRequests">–</strong></div>
+      <div class="card"><span>לקוחות במערכת</span><strong id="sumCustomers">–</strong></div>
+      <div class="card"><span>נפתחו החודש</span><strong id="sumCustMonth">–</strong></div>
+      <div class="card"><span>בלי מפתח חשבשבת</span><strong id="sumNoKey">–</strong></div>
     </section>
 
     <!-- ===== לשונית: ממתינות לאישור ===== -->
@@ -84,7 +129,7 @@
     <section class="panel" id="view-requests" hidden>
       <div class="panel-head">
         <h2>לקוחות חדשים</h2>
-        <p class="muted small">אנשים שנרשמו או ניסו להזמין מהאתר עם טלפון שלא קיים במערכת. צרו קשר, ואז פתחו להם כרטיס לקוח.</p>
+        <p class="muted small">אנשים שנרשמו או ניסו להזמין מהאתר עם טלפון שלא קיים במערכת. צרו קשר, ואשרו: נפתח כרטיס לקוח, ואם הם ביקשו מוצרים, ההזמנה עוברת לניהול הזמנות.</p>
       </div>
       <div id="requestsList" class="cardlist"></div>
       <div class="empty" id="requestsEmpty" hidden><p>אין לקוחות חדשים שמחכים.</p></div>
@@ -142,6 +187,29 @@
         </aside>
       </div>
     </section>
+    <!-- ===== לשונית: כל הלקוחות ===== -->
+    <section class="panel" id="view-customers" hidden>
+      <div class="panel-head">
+        <h2>כל הלקוחות <span class="muted small" id="custCount"></span></h2>
+        <div class="filters">
+          <input type="search" id="custSearch" placeholder="חיפוש לפי שם, טלפון או כתובת">
+          <select id="custFilter" aria-label="סינון">
+            <option value="">כל הלקוחות</option>
+            <option value="nokey">בלי מפתח חשבשבת</option>
+            <option value="מוסדי">מוסדי</option>
+            <option value="פרטי">פרטי</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="orders">
+          <thead><tr><th>#</th><th>שם</th><th>סוג</th><th>טלפון</th><th>כתובת</th><th>מפתח חשבשבת</th><th>נפתח</th><th></th></tr></thead>
+          <tbody id="custBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="custEmpty" hidden><p>לא נמצאו לקוחות.</p></div>
+    </section>
+
     <!-- ===== לשונית: גרפים ===== -->
     <section id="view-stats" hidden>
       <div class="statbar">
@@ -198,6 +266,43 @@
       </section>
     </section>
   </main>
+  </div>
+</div>
+
+<!-- ============ חלון: עריכת לקוח ============ -->
+<div class="modal-wrap" id="editModal" hidden>
+  <form class="modal" id="editForm" role="dialog" aria-modal="true" aria-labelledby="editTitle" novalidate>
+    <h2 id="editTitle">כרטיס לקוח</h2>
+    <p class="muted small" id="editSub"></p>
+    <label for="eName">שם הלקוח / העסק *</label>
+    <input id="eName" required>
+    <label for="eCategory">סוג לקוח</label>
+    <select id="eCategory"><option value="פרטי">פרטי</option><option value="מוסדי">מוסדי</option></select>
+    <label for="eAdress">כתובת אספקה *</label>
+    <input id="eAdress" required>
+    <label for="ePhone">טלפון *</label>
+    <input id="ePhone" dir="ltr" inputmode="tel">
+    <label for="eHash">מפתח לקוח בחשבשבת</label>
+    <input id="eHash" dir="ltr" maxlength="15" placeholder="ריק = מספר הלקוח שלנו">
+    <p class="form-error" id="editError" role="alert"></p>
+    <div class="modal-actions">
+      <button type="submit" class="btn btn-primary" id="editSave">שמירה</button>
+      <button type="button" class="btn" data-close-edit>ביטול</button>
+    </div>
+  </form>
+</div>
+
+<!-- ============ חלון: ההזמנה הועברה ============ -->
+<div class="modal-wrap" id="movedModal" hidden>
+  <div class="modal moved" role="dialog" aria-modal="true" aria-labelledby="movedTitle">
+    <span class="moved-ic" aria-hidden="true">✓</span>
+    <h2 id="movedTitle">ההזמנה הועברה לפורום הזמנות</h2>
+    <p id="movedText" class="muted"></p>
+    <div class="modal-actions">
+      <a href="#orders" class="btn btn-primary" id="movedGo">מעבר לניהול הזמנות</a>
+      <button type="button" class="btn" data-close-moved>להישאר בניהול לקוחות</button>
+    </div>
+  </div>
 </div>
 
 <!-- ============ חלון: פתיחת לקוח ============ -->
@@ -216,6 +321,8 @@
     <input id="cAdress" placeholder="רחוב ומספר, עיר" required>
     <label for="cPhone">טלפון</label>
     <input id="cPhone" dir="ltr" readonly>
+    <label for="cHash">מפתח לקוח בחשבשבת <span class="muted">(אפשר גם אחר כך)</span></label>
+    <input id="cHash" dir="ltr" maxlength="15" placeholder="ריק = מספר הלקוח שלנו">
     <div id="cOrderBox" class="order-box" hidden>
       <label class="check"><input type="checkbox" id="cMakeOrder" checked> ליצור גם הזמנה מהמוצרים שביקש</label>
       <div class="muted small" id="cItems"></div>
@@ -224,7 +331,7 @@
     </div>
     <p class="form-error" id="custError" role="alert"></p>
     <div class="modal-actions">
-      <button type="submit" class="btn btn-primary" id="custSave">פתיחת לקוח</button>
+      <button type="submit" class="btn btn-primary" id="custSave">אישור ופתיחת לקוח</button>
       <button type="button" class="btn" data-close-modal>ביטול</button>
     </div>
   </form>

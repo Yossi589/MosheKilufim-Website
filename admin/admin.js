@@ -21,8 +21,15 @@
   const num = n => new Intl.NumberFormat("he-IL", { maximumFractionDigits: 1 }).format(n || 0);
   const BASE_TITLE = document.title;
 
+  /* מודולים: כל מודול והלשוניות שלו. מלאי ועובדים יתווספו בהמשך */
+  const MODULES = {
+    orders:    { title: "ניהול הזמנות", tabs: ["pending", "day", "stats", "hash"] },
+    customers: { title: "ניהול לקוחות", tabs: ["requests", "customers"] }
+  };
+  const ALL_VIEWS = ["pending", "requests", "day", "stats", "hash", "customers"];
+
   const state = {
-    tab: "pending", day: todayISO(),
+    module: "home", tab: "pending", day: todayISO(), customers: [], editing: null,
     orders: [], drivers: [], products: new Map(),
     pending: [], requests: [], counts: { pending: 0, requests: 0 },
     channel: null, currentRequest: null
@@ -90,14 +97,44 @@
   function setTab(tab) {
     state.tab = tab;
     $$(".tab").forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle("is-active", on); b.setAttribute("aria-selected", on); });
-    ["pending", "requests", "day", "stats", "hash"].forEach(t => { $("#view-" + t).hidden = t !== tab; });
+    ALL_VIEWS.forEach(t => { $("#view-" + t).hidden = t !== tab; });
     refreshTab();
+  }
+
+  /* ניווט: #  = מסך פתיחה,  #orders = ניהול הזמנות,  #customers = ניהול לקוחות */
+  function route() {
+    const mod = location.hash.replace("#", "");
+    if (!MODULES[mod]) { showHome(); return; }
+    state.module = mod;
+    $("#homeView").hidden = true; $("#moduleView").hidden = false; $("#homeBtn").hidden = false;
+    $("#moduleTitle").textContent = MODULES[mod].title;
+    $$(".tab").forEach(b => { b.hidden = b.dataset.mod !== mod; });
+    $$(".cards[data-mod]").forEach(c => { c.hidden = c.dataset.mod !== mod; });
+    let tab = MODULES[mod].tabs.includes(state.tab) ? state.tab : MODULES[mod].tabs[0];
+    if (mod === "customers" && !MODULES.customers.tabs.includes(state.tab)) tab = state.counts.requests ? "requests" : "customers";
+    setTab(tab);
+    window.scrollTo(0, 0);
+  }
+  function showHome() {
+    state.module = "home";
+    $("#homeView").hidden = false; $("#moduleView").hidden = true; $("#homeBtn").hidden = true;
+    $("#moduleTitle").textContent = "משה קילופים · ניהול";
+    const h = new Date().getHours();
+    $("#homeGreeting").textContent = h >= 5 && h < 12 ? "בוקר טוב" : h < 17 && h >= 12 ? "צהריים טובים" : h >= 17 && h < 21 ? "ערב טוב" : "שלום";
+    $("#homeDate").textContent = new Date().toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", () => { if (!$("#appView").hidden) route(); });
+  function displayName(user) {
+    const m = user.user_metadata || {};
+    return m.display_name || m.full_name || m.name || (user.email || "").split("@")[0];
   }
   function refreshTab() {
     if (state.tab === "pending") return loadPending();
     if (state.tab === "requests") return loadRequests();
     if (state.tab === "stats") return loadStats();
     if (state.tab === "hash") return loadHash();
+    if (state.tab === "customers") return loadCustomers();
     return loadDay();
   }
 
@@ -109,11 +146,12 @@
     const { data: isAdmin, error } = await db.rpc("is_admin");
     if (error || !isAdmin) { $("#deniedEmail").textContent = session.user.email; show("deniedView"); return; }
     $("#userEmail").textContent = session.user.email;
+    $("#homeName").textContent = displayName(session.user);
     show("appView");
     setupNotifyButton();
     await Promise.all([loadDrivers(), loadProducts()]);
     await loadCounts();
-    setTab(state.counts.pending ? "pending" : (state.counts.requests ? "requests" : "day"));
+    route();
     startRealtime(session);
   }
 
@@ -158,12 +196,23 @@
   }
   async function loadCounts() {
     const [from] = dayRange(todayISO());
-    const [pending, production, prepared, requests] = await Promise.all([
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+    const [pending, production, prepared, requests, exported, customers, custMonth, noKey] = await Promise.all([
       count("orders", q => q.eq("status", PENDING)),
       count("orders", q => q.eq("status", "בייצור")),
       count("orders", q => q.gte("prepared_at", from)),
-      count("customer_requests", q => q.eq("status", "חדשה"))
+      count("customer_requests", q => q.eq("status", "חדשה")),
+      count("orders", q => q.gte("hash_exported_at", from)),
+      count("customers", q => q),
+      count("customers", q => q.gte("created_at", monthStart.toISOString())),
+      count("customers", q => q.is("hash_key", null))
     ]);
+    $("#sumExported").textContent = exported ?? "–";
+    $("#sumCustomers").textContent = customers ?? "–";
+    $("#sumCustMonth").textContent = custMonth ?? "–";
+    $("#sumNoKey").textContent = noKey ?? "–";
+    $("#tileOrders").innerHTML = pending ? `<span class="hot">${pending}</span>ממתינות לאישור` : `${production ?? 0} בייצור · ${prepared ?? 0} הוכנו היום`;
+    $("#tileCustomers").innerHTML = requests ? `<span class="hot">${requests}</span>לקוחות חדשים לאישור` : `${customers ?? 0} לקוחות במערכת`;
     const prev = state.counts;
     state.counts = { pending: pending || 0, requests: requests || 0 };
     $("#sumPending").textContent = pending ?? "–";
@@ -269,7 +318,7 @@
           ${Array.isArray(r.items) && r.items.length ? `<div class="items"><span class="muted">ביקש להזמין:</span><br>${requestItems(r.items)}</div>` : ""}
         </div>
         <footer>
-          <button type="button" class="btn btn-primary" data-open="${r.request_id}">פתיחת לקוח</button>
+          <button type="button" class="btn btn-primary" data-open="${r.request_id}">אישור ופתיחת לקוח</button>
           <a class="btn" href="tel:${esc(r.phone)}">התקשרות</a>
           <button type="button" class="btn btn-ghost" data-dismiss="${r.request_id}">לא רלוונטי</button>
         </footer>
@@ -307,7 +356,77 @@
   }
   function closeModal() { $("#custModal").hidden = true; state.currentRequest = null; }
   $("#custModal").addEventListener("click", e => { if (e.target.id === "custModal" || e.target.closest("[data-close-modal]")) closeModal(); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#custModal").hidden) closeModal(); });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    if (!$("#custModal").hidden) closeModal();
+    if (!$("#editModal").hidden) closeEdit();
+    if (!$("#movedModal").hidden) $("#movedModal").hidden = true;
+  });
+  $("#movedModal").addEventListener("click", e => {
+    if (e.target.id === "movedModal" || e.target.closest("[data-close-moved]") || e.target.closest("#movedGo")) $("#movedModal").hidden = true;
+  });
+
+  /* ==========================================================
+     ניהול לקוחות: רשימת כל הלקוחות + עריכת כרטיס
+     ========================================================== */
+  async function loadCustomers() {
+    loading(true);
+    const { data, error } = await db.from("customers")
+      .select("customer_id, name, customer_category, adress, phone_number, hash_key, created_at")
+      .order("name");
+    loading(false);
+    if (error) { toast("שגיאה בטעינת לקוחות: " + error.message, true); return; }
+    state.customers = data;
+    renderCustomers();
+  }
+  function renderCustomers() {
+    const q = $("#custSearch").value.trim(), f = $("#custFilter").value;
+    const list = state.customers.filter(c =>
+      (!q || [c.name, c.phone_number, c.adress].some(v => (v || "").includes(q))) &&
+      (!f || (f === "nokey" ? !c.hash_key : c.customer_category === f)));
+    $("#custCount").textContent = `(${list.length} מתוך ${state.customers.length})`;
+    $("#custEmpty").hidden = list.length > 0;
+    $("#custBody").innerHTML = list.map(c => `<tr data-id="${c.customer_id}">
+      <td class="num">${c.customer_id}</td>
+      <td class="cust"><strong>${esc(c.name)}</strong></td>
+      <td>${esc(c.customer_category || "")}</td>
+      <td class="num"><a href="tel:${esc(c.phone_number)}"><bdi>${esc(c.phone_number || "")}</bdi></a></td>
+      <td>${esc(c.adress || "")}</td>
+      <td class="hash-key${c.hash_key ? "" : " fallback"}">${c.hash_key ? esc(c.hash_key) : "—"}</td>
+      <td class="num muted">${c.created_at ? esc(new Date(c.created_at).toLocaleDateString("he-IL")) : ""}</td>
+      <td><button type="button" class="btn btn-sm" data-edit="${c.customer_id}">עריכה</button></td>
+    </tr>`).join("");
+  }
+  ["#custSearch", "#custFilter"].forEach(s => $(s).addEventListener("input", renderCustomers));
+  $("#custBody").addEventListener("click", e => {
+    const b = e.target.closest("[data-edit]"); if (!b) return;
+    const c = state.customers.find(x => x.customer_id === Number(b.dataset.edit)); if (!c) return;
+    state.editing = c;
+    $("#editSub").textContent = `לקוח מספר ${c.customer_id}`;
+    $("#eName").value = c.name || ""; $("#eCategory").value = c.customer_category || "פרטי";
+    $("#eAdress").value = c.adress || ""; $("#ePhone").value = c.phone_number || ""; $("#eHash").value = c.hash_key || "";
+    $("#editError").textContent = ""; $("#editModal").hidden = false; $("#eName").focus();
+  });
+  function closeEdit() { $("#editModal").hidden = true; state.editing = null; }
+  $("#editModal").addEventListener("click", e => { if (e.target.id === "editModal" || e.target.closest("[data-close-edit]")) closeEdit(); });
+  $("#editForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const c = state.editing; if (!c) return;
+    const name = $("#eName").value.trim(), adress = $("#eAdress").value.trim();
+    let phone = $("#ePhone").value.replace(/\D/g, ""); if (phone.startsWith("972")) phone = "0" + phone.slice(3);
+    if (!name || adress.length < 3) { $("#editError").textContent = "צריך שם וכתובת אספקה"; return; }
+    if (!/^0\d{8,9}$/.test(phone)) { $("#editError").textContent = "מספר טלפון לא תקין"; return; }
+    if (phone !== c.phone_number && state.customers.some(x => x.phone_number === phone && x.customer_id !== c.customer_id)) {
+      $("#editError").textContent = "הטלפון הזה כבר שייך ללקוח אחר"; return;
+    }
+    const upd = { name, customer_category: $("#eCategory").value, adress, phone_number: phone, hash_key: $("#eHash").value.trim() || null };
+    $("#editSave").disabled = true;
+    const { data, error } = await db.from("customers").update(upd).eq("customer_id", c.customer_id).select("customer_id");
+    $("#editSave").disabled = false;
+    if (error || !data || !data.length) { $("#editError").textContent = "השמירה נכשלה" + (error ? ": " + error.message : ""); return; }
+    Object.assign(c, upd); closeEdit(); renderCustomers(); loadCounts();
+    toast(`כרטיס הלקוח ${name} עודכן`);
+  });
 
   $("#custForm").addEventListener("submit", async e => {
     e.preventDefault();
@@ -318,7 +437,7 @@
 
     // 1. כרטיס לקוח חדש
     const { data: cust, error: e1 } = await db.from("customers")
-      .insert({ name, customer_category: $("#cCategory").value, adress, phone_number: r.phone })
+      .insert({ name, customer_category: $("#cCategory").value, adress, phone_number: r.phone, hash_key: $("#cHash").value.trim() || null })
       .select("customer_id").single();
     if (e1) { $("#custSave").disabled = false; $("#custError").textContent = "שגיאה בפתיחת הלקוח: " + e1.message; return; }
 
@@ -326,17 +445,23 @@
     await db.from("customer_requests").update({ status: "טופלה", customer_id: cust.customer_id }).eq("request_id", r.request_id);
 
     // 3. אם ביקש מוצרים: יצירת הזמנה דרך אותה פונקציה של האתר (המחיר מחושב בשרת)
-    let msg = `נפתח לקוח: ${name}`;
+    let msg = `נפתח לקוח: ${name}`, movedId = null;
     if (!$("#cOrderBox").hidden && $("#cMakeOrder").checked) {
       const { data: res, error: e2 } = await db.rpc("place_order", {
         p_name: r.name, p_phone: r.phone, p_business: r.business || "", p_city: r.city || "",
         p_delivery_date: $("#cDate").value, p_notes: r.notes || "", p_items: r.items
       });
       if (e2) msg += ` · ההזמנה לא נוצרה: ${e2.message}`;
-      else if (res && res.result === "order") msg += ` · נוצרה הזמנה ${res.order_id} (ממתינה לאישור)`;
+      else if (res && res.result === "order") movedId = res.order_id;
     }
     $("#custSave").disabled = false;
-    closeModal(); toast(msg);
+    closeModal();
+    if (movedId) {
+      // הלקוח אושר, וההזמנה שלו עוברת למודול ההזמנות (ממתינה לאישור)
+      $("#movedText").textContent = `הלקוח ${name} נפתח, והזמנה ${movedId} מחכה לאישור בניהול הזמנות.`;
+      $("#movedModal").hidden = false; $("#movedGo").focus();
+    } else toast(msg);
+    $("#cHash").value = "";
     await Promise.all([loadCounts(), loadRequests()]);
   });
 
@@ -440,7 +565,7 @@
   function stopRealtime() { if (state.channel) { db.removeChannel(state.channel); state.channel = null; } setLive(false); }
 
   let refreshTimer;
-  function scheduleRefresh() { clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { loadCounts(); refreshTab(); }, 400); }
+  function scheduleRefresh() { clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { loadCounts(); if (state.module !== "home") refreshTab(); }, 400); }
 
   function onOrderEvent(p) {
     if (p.op === "INSERT" && p.status === PENDING) notify("הזמנה חדשה", `הזמנה ${p.order_id} ממתינה לאישור`);
@@ -453,7 +578,7 @@
     if ($("#appView").hidden) return;
     const prev = await loadCounts();
     if (state.counts.pending > prev.pending || state.counts.requests > prev.requests) {
-      if (!state.channel || !$("#liveDot").classList.contains("on")) { beep(); refreshTab(); }
+      if (!state.channel || !$("#liveDot").classList.contains("on")) { beep(); if (state.module !== "home") refreshTab(); }
     }
   }, 60000);
 
@@ -719,7 +844,7 @@
   /* ---------- אירועים ---------- */
   document.addEventListener("click", async e => {
     if (e.target.closest("[data-logout]")) { stopRealtime(); await db.auth.signOut(); return; }
-    const t = e.target.closest(".tab"); if (t) setTab(t.dataset.tab);
+    const t = e.target.closest(".tab"); if (t && !t.hidden) setTab(t.dataset.tab);
   });
   $("#statusFilter").innerHTML += STATUSES.map(s => `<option>${s}</option>`).join("");
   ["#searchInput", "#statusFilter", "#driverFilter"].forEach(s => $(s).addEventListener("input", renderDay));
