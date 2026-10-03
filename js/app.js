@@ -19,7 +19,8 @@
     history: "mosheOrderHistory",
     last: "mosheLastOrder",
     pwaDismissed: "moshePwaDismissedTime",
-    pwaInstalled: "mosheAppInstalled"
+    pwaInstalled: "mosheAppInstalled",
+    known: "mosheKnownPhones"     // טלפונים שהמערכת זיהתה כלקוחות קיימים
   };
 
   const PRODUCTS = window.MK_PRODUCTS || [];
@@ -60,6 +61,16 @@
   };
 
   const getUser = () => store.get(KEYS.user, null);
+  /* לקוח מוכר = טלפון שהשרת כבר זיהה (הזמנה נרשמה או רישום של לקוח קיים).
+     זה רק לתצוגת הכפתורים; ההחלטה האמיתית תמיד בשרת (place_order). */
+  const normPhone = p => { let d = String(p || "").replace(/\D/g, ""); if (d.startsWith("972")) d = "0" + d.slice(3); return d; };
+  const knownPhones = () => { const k = store.get(KEYS.known, []); return Array.isArray(k) ? k : []; };
+  const isKnown = phone => knownPhones().includes(normPhone(phone));
+  function setKnown(phone, yes) {
+    const n = normPhone(phone); if (!n) return;
+    const k = knownPhones().filter(x => x !== n); if (yes) k.push(n);
+    store.set(KEYS.known, k.slice(-5));
+  }
   const getHistory = () => { const h = store.get(KEYS.history, []); return Array.isArray(h) ? h : []; };
   const orderedNames = () => new Set(getHistory().flatMap(e => (e.items || []).map(i => i.name)));
 
@@ -377,7 +388,13 @@
       </div>
 
       <div class="send">
-        <button type="button" class="btn btn-wa btn-lg" data-send="whatsapp">${icon("chat")} ${user ? "שליחת ההזמנה בוואטסאפ" : "קבלת הצעת מחיר בוואטסאפ"}</button>
+        ${user && isKnown(user.phone) ? `
+        <div class="send-main">
+          <button type="button" class="btn btn-primary btn-lg" data-send="direct">${icon("check")} שליחת הזמנה</button>
+          <button type="button" class="btn btn-wa btn-lg" data-send="whatsapp">${icon("chat")} בוואטסאפ</button>
+        </div>
+        <p class="send-hint">לקוחות קיימים: ההזמנה נשלחת ישר למערכת, בלי וואטסאפ.</p>` : `
+        <button type="button" class="btn btn-wa btn-lg" data-send="whatsapp">${icon("chat")} ${user ? "שליחת ההזמנה בוואטסאפ" : "קבלת הצעת מחיר בוואטסאפ"}</button>`}
         <div class="send-row">
           <a class="btn btn-soft" href="tel:${BUSINESS_PHONE}" data-send="phone">${icon("phone")} בטלפון</a>
           <button type="button" class="btn btn-soft" data-send="mail">${icon("mail")} במייל</button>
@@ -495,7 +512,9 @@
       p_name: u.name, p_phone: u.phone, p_business: u.business || "", p_city: u.city || "",
       p_delivery_date: date, p_notes: notes || "", p_items: items
     }).then(({ data, error }) => {
-      if (error) { console.warn("place_order:", error.message); return null; }
+      if (error) { console.warn("place_order:", error.message); return { result: "error", message: error.message }; }
+      if (data && data.result === "order") setKnown(u.phone, true);
+      if (data && data.result === "request") setKnown(u.phone, false);
       return data || null;
     }).catch(err => { console.warn("place_order:", err); return null; });
     const timeout = new Promise(res => setTimeout(() => res(null), 8000));
@@ -515,6 +534,31 @@
     wa.href = waUrl; wa.hidden = true;
     openLayer("successModal");
   }
+  function showDirectResult(data, waUrl) {
+    const ic = $("#successIc");
+    ic.className = "success-ic";
+    const wa = $("#successWa");
+    if (data && data.result === "order") {
+      ic.innerHTML = icon("check");
+      $("#successTitle").textContent = "הזמנתך נרשמה!";
+      $("#successMsg").textContent = "ההזמנה התקבלה במערכת ותאושר בקרוב. אין צורך לשלוח אותה גם בוואטסאפ.";
+      $("#successNote").textContent = `מספר הזמנה ${data.order_id}`;
+      wa.hidden = true;
+    } else if (data && data.result === "request") {
+      ic.innerHTML = icon("check");
+      $("#successTitle").textContent = "קיבלנו את ההזמנה שלך";
+      $("#successMsg").textContent = "בקרוב ניצור איתך קשר.";
+      $("#successNote").textContent = "";
+      wa.hidden = true;
+    } else {
+      ic.innerHTML = icon("chat");
+      $("#successTitle").textContent = "ההזמנה לא נשלחה";
+      $("#successMsg").textContent = (data && data.message) ? data.message : "הייתה תקלה בחיבור.";
+      $("#successNote").textContent = "אפשר לשלוח את אותה הזמנה בוואטסאפ:";
+      wa.href = waUrl; wa.textContent = "שליחת ההזמנה בוואטסאפ"; wa.hidden = false;
+    }
+  }
+
   function showOrderResult(data, waUrl) {
     const ic = $("#successIc");
     ic.className = "success-ic";
@@ -538,7 +582,7 @@
     $("#successTitle").textContent = title;
     $("#successMsg").textContent = msg;
     const wa = $("#successWa");
-    wa.href = waUrl; wa.hidden = false;
+    wa.href = waUrl; wa.textContent = "מעבר לוואטסאפ עכשיו"; wa.hidden = false;
     clearTimeout(waTimer);
     waTimer = setTimeout(() => {
       if (!$("#successModal").hidden) window.location.href = waUrl;
@@ -552,9 +596,10 @@
       p_name: u.name, p_phone: u.phone, p_business: u.business || "", p_city: u.city || ""
     }).then(({ data, error }) => {
       if (error) { console.warn("register_customer:", error.message); return; }
+      if (data && data.result === "known") setKnown(u.phone, true);
       const note = $("#successNote");
       if (!note || $("#successModal").hidden || !data) return;
-      if (data.result === "known") note.textContent = "זיהינו אתכם כלקוחות קיימים של משה קילופים";
+      if (data.result === "known") { setKnown(u.phone, true); note.textContent = "זיהינו אתכם כלקוחות קיימים של משה קילופים"; refreshCartUI(); }
       else if (data.result === "request") note.textContent = "קיבלנו את פרטיכם. נחזור אליכם לפתיחת חשבון לקוח";
     }).catch(err => console.warn("register_customer:", err));
   }
@@ -578,6 +623,19 @@
     const items = state.cart
       .map(i => ({ pid: (byName.get(i.name) || {}).pid, qty: i.qty }))
       .filter(i => i.pid);
+    if (type === "direct") {
+      // לקוח מוכר: ההזמנה נשלחת רק למערכת. וואטסאפ מוצע רק אם משהו נכשל
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      const date = state.deliveryDate, notes = state.notes;
+      closeLayer("cartDrawer");
+      showOrderPending(waUrl);
+      saveOrderToDb(u, items, date, notes).then(data => {
+        // הסל מתרוקן רק אם ההזמנה באמת נקלטה; בתקלה הוא נשאר כדי לנסות שוב
+        if (data && (data.result === "order" || data.result === "request")) finishOrder();
+        showDirectResult(data, waUrl);
+      });
+      return;
+    }
     if (type === "whatsapp") {
       // קודם שומרים במערכת ומציגים הודעה, ורק אז עוברים לוואטסאפ
       const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;

@@ -630,3 +630,8 @@ html.a11y-still *, html.a11y-still *::before, html.a11y-still *::after { animati
 }
 
 .dates-note { margin: 8px 0 0; font-size: .9rem; color: var(--muted, #6b5a4c); }
+
+/* לקוח מוכר: שליחה ישירה למערכת + וואטסאפ לצידה */
+.send-main { display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; }
+.send-main .btn { padding-inline: 14px; }
+.send-hint { margin: -2px 0 0; font-size: .85rem; color: var(--muted); text-align: center; }
