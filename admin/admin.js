@@ -705,6 +705,8 @@
     xlsxReady = xlsxReady || new Promise((res, rej) => {
       const s = document.createElement("script");
       s.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+      s.integrity = "sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"; // אם הקובץ ב-CDN ישתנה, הדפדפן יסרב להריץ אותו
+      s.crossOrigin = "anonymous";
       s.onload = res; s.onerror = () => { xlsxReady = null; rej(new Error("טעינת ספריית האקסל נכשלה")); };
       document.head.appendChild(s);
     });
