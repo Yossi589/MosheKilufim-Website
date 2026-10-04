@@ -71,17 +71,12 @@
 
   <main class="layout" id="workView">
     <div class="work">
-      <section class="stage" id="stageNew">
-        <h2 class="stage-title">הזמנות חדשות <span id="cntNew">0</span></h2>
-        <p class="stage-sub">אושרו על ידי המנהל. לחצו "נקלטה" כשמתחילים לעבוד על ההזמנה.</p>
-        <div class="queue" id="queueNew" aria-live="polite"></div>
-        <p class="stage-empty" id="emptyNew" hidden>אין הזמנות חדשות</p>
-      </section>
+      <!-- ההזמנות נשלחות לקילוף בבת אחת (אחרי 12:00), ולכן אין שלב "נקלטה": עובדים ישר על כל הזמנה -->
       <section class="stage stage-prod" id="stageProd">
-        <h2 class="stage-title">בתהליך ייצור <span id="cntProd">0</span></h2>
-        <p class="stage-sub">סמנו כל מוצר שהוכן. כשהכול מסומן, כפתור האישור נצבע בירוק.</p>
+        <h2 class="stage-title">הזמנות להכנה <span id="cntProd">0</span></h2>
+        <p class="stage-sub">סמנו כל מוצר שהוכן: הוא נהיה אפור. כשהכול מסומן, כפתור האישור נצבע בירוק.</p>
         <div class="queue" id="queueProd"></div>
-        <p class="stage-empty" id="emptyProd" hidden>אין הזמנות בתהליך ייצור</p>
+        <p class="stage-empty" id="emptyProd" hidden>אין הזמנות להכנה. ההזמנות מגיעות כשהמנהל לוחץ "שלח לקילוף".</p>
       </section>
     </div>
 

@@ -1,8 +1,7 @@
 /* ==========================================================
    עמדת ייצור (טאבלט בפס) · משה קילופים
-   שלושה שלבים:
-   1. הזמנות חדשות   - אושרו ע"י המנהל. "נקלטה" -> start_production(order_id)
-   2. בתהליך ייצור   - מסמנים כל מוצר שהוכן (צ'קבוקס, נשמר בשרת: set_line_prepared). כשהכול מסומן, OK נצבע בירוק
+   ההזמנות נשלחות לטאבלט בבת אחת מהניהול ("שלח לקילוף"), ולכן אין שלב "נקלטה":
+   1. הזמנות להכנה  - מסמנים כל מוצר שהוכן (צ'קבוקס, נשמר בשרת: set_line_prepared). כשהכול מסומן, OK נצבע בירוק
                         -> mark_prepared(order_id), עם כמה שניות לביטול
    3. הוכנו          - לשונית נפרדת: production_done() עם תאריך ושעת ההכנה
    + סה"כ לקילוף     - לשונית: כמה מארזים וכמה ק"ג מכל מוצר בכל ההזמנות, ולמי זה מתחלק
@@ -160,8 +159,8 @@
 
   function render(freshIds = new Set()) {
     const active = state.orders.filter(o => !state.undo.has(o.order_id));
-    const fresh = state.orders.filter(o => !o.started_at);
-    const prod = state.orders.filter(o => o.started_at);
+    const fresh = [];                 // אין יותר שלב "נקלטה"
+    const prod = state.orders;
     const doneToday = state.done.filter(o => isToday(o.prepared_at)).length;
     const left = active.length;
 
@@ -172,13 +171,10 @@
 
     $("#cntWork").textContent = left;
     $("#cntDone").textContent = state.done.length;
-    $("#cntNew").textContent = fresh.length;
     $("#cntProd").textContent = prod.length;
-    $("#emptyNew").hidden = fresh.length > 0;
     $("#emptyProd").hidden = prod.length > 0;
 
-    $("#queueNew").innerHTML = fresh.map(o => newTicket(o, freshIds)).join("");
-    $("#queueProd").innerHTML = prod.map(prodTicket).join("");
+    $("#queueProd").innerHTML = prod.map(o => prodTicket(o, freshIds)).join("");
     renderPeel();
     renderDone();
   }
@@ -206,7 +202,8 @@
   }
 
   /* שלב 2: בתהליך ייצור - אפור, צ'קבוקס לכל מוצר */
-  function prodTicket(o) {
+  function prodTicket(o, freshIds = new Set()) {
+    const isNew = freshIds.has(o.order_id) || (!o.started_at && o.approved_at && Date.now() - new Date(o.approved_at) < NEW_MS);
     const items = o.items || [];
     const n = items.filter(i => isTicked(o.order_id, i.product)).length;
     const all = allTicked(o);
@@ -221,7 +218,8 @@
       </li>`;
     }).join("");
     return `<article class="ticket t-prod${o.standing ? " is-standing" : ""}${all ? " all-ticked" : ""}${u ? " is-undo" : ""}" data-id="${o.order_id}">
-      ${header(o, `<span class="tick-count">${n}/${items.length} הוכנו</span><span class="muted">נקלטה ${esc(ago(o.started_at))}</span>`)}
+      ${header(o, `<span class="tick-count">${n}/${items.length} הוכנו</span>${o.started_at ? `<span class="muted">התחילו ${esc(ago(o.started_at))}</span>` : ""}`)}
+      ${isNew ? `<span class="new-flag">חדשה</span>` : ""}
       <ul class="items chks">${lis}</ul>
       ${o.notes ? `<p class="notes">${esc(o.notes)}</p>` : ""}
       <button type="button" class="btn btn-ok btn-xl" data-done="${o.order_id}" ${all ? "" : "disabled aria-disabled=\"true\""}>${all ? "OK · ההזמנה הוכנה ✓" : `סמנו את כל המוצרים (${n}/${items.length})`}</button>
@@ -329,7 +327,7 @@
   setView(["peel", "work", "done"].includes(state.view) ? state.view : "peel");
 
   /* ----- שלב 1 -> 2: "נקלטה" ----- */
-  $("#queueNew").addEventListener("click", async e => {
+  if ($("#queueNew")) $("#queueNew").addEventListener("click", async e => {
     const b = e.target.closest("[data-start]"); if (!b) return;
     unlockAudio();
     if (!navigator.onLine) { toast("אין חיבור לאינטרנט", true); return; }
