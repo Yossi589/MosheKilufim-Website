@@ -163,23 +163,22 @@ button { font: inherit; touch-action: manipulation; }
 .btn-start { background: var(--orange); border-color: var(--orange); color: #fff; width: 100%; }
 .btn-start:active { background: #8f4013; }
 
-/* שלב 2: הזמנה בתהליך - אפורה, מוצר שסומן מקבל צבע */
-.ticket.t-prod { background: #eef0f2; box-shadow: 0 0 0 2px #d3d8de; }
+/* שלב 2: הזמנה בתהליך - מה שעוד לא הוכן בצבע, מוצר שסומן בצ'קבוקס נהיה אפור */
+.ticket.t-prod { background: var(--white); box-shadow: 0 0 0 2px #d9c9ae; }
 .items.chks li { display: grid; grid-template-columns: 52px 56px 1fr auto; column-gap: 12px; align-items: center;
-  padding: 8px; border-radius: 12px; cursor: pointer; user-select: none; border-bottom: 1px solid #dde1e6; }
+  padding: 8px; border-radius: 12px; cursor: pointer; user-select: none; border-bottom: 1px solid var(--line); background: var(--white); transition: background .2s; }
 .items.chks li:last-child { border-bottom: none; }
-.items.chks .box { width: 44px; height: 44px; border-radius: 10px; border: 3px solid #9aa3ad; background: #fff;
+.items.chks .box { width: 44px; height: 44px; border-radius: 10px; border: 3px solid var(--brown); background: #fff;
   display: grid; place-items: center; font-size: 1.6rem; font-weight: 900; color: #fff; }
-.items.chks .ph { filter: grayscale(1); opacity: .45; transition: filter .2s, opacity .2s; }
-.items.chks .p { color: #8a929b; font-size: 1.2rem; font-weight: 700; }
-.items.chks .qty { font-family: var(--f-head); font-size: 1.5rem; font-weight: 800; color: #8a929b; text-align: end; }
-.items.chks .qty small { font-family: var(--f-body); font-size: .8rem; font-weight: 600; display: block; }
-.items.chks li.ticked { background: var(--white); }
-.items.chks li.ticked .box { background: var(--green); border-color: var(--green); }
-.items.chks li.ticked .ph { filter: none; opacity: 1; }
-.items.chks li.ticked .p { color: var(--ink); }
-.items.chks li.ticked .qty { color: var(--orange); }
-.items.chks li:active { background: #e3e7eb; }
+.items.chks .ph { transition: filter .2s, opacity .2s; }
+.items.chks .p { color: var(--ink); font-size: 1.2rem; font-weight: 700; }
+.items.chks .qty { font-family: var(--f-head); font-size: 1.5rem; font-weight: 800; color: var(--orange); text-align: end; }
+.items.chks .qty small { font-family: var(--f-body); font-size: .8rem; font-weight: 600; display: block; color: var(--muted); }
+.items.chks li.ticked { background: #eef0f2; }
+.items.chks li.ticked .box { background: #8a929b; border-color: #8a929b; }
+.items.chks li.ticked .ph { filter: grayscale(1); opacity: .45; }
+.items.chks li.ticked .p, .items.chks li.ticked .qty, .items.chks li.ticked .qty small { color: #8a929b; }
+.items.chks li:active { background: var(--sand); }
 
 /* כפתור OK: אפור עד שכל המוצרים מסומנים, ואז ירוק */
 .btn-ok { width: 100%; background: #c9ced4; border-color: #c9ced4; color: #5d656e; }
