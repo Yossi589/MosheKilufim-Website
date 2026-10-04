@@ -25,10 +25,11 @@
 
   /* מודולים: כל מודול והלשוניות שלו. מלאי ועובדים יתווספו בהמשך */
   const MODULES = {
-    orders:    { title: "ניהול הזמנות", sub: "מההזמנה ועד הייצור: מה מחכה לך, מה בפס, ומה יוצא לחשבשבת", tabs: ["pending", "production", "day", "hash", "stats"] },
-    customers: { title: "ניהול לקוחות", sub: "לקוחות חדשים לאישור, כרטיסי לקוח ומפתחות חשבשבת", tabs: ["requests", "customers"] }
+    orders:    { title: "ניהול הזמנות", sub: "1 מאשרים ושולחים לקילוף · 2 עוקבים אחרי הפס · 3 מעבירים לחשבשבת", tabs: ["pending", "production", "hash", "standing", "day"] },
+    customers: { title: "ניהול לקוחות", sub: "לקוחות חדשים לאישור, כרטיסי לקוח ומפתחות חשבשבת", tabs: ["requests", "customers"] },
+    reports:   { title: "דוחות וגרפים", sub: "הזמנות לפי יום, מוצרים מובילים ומקור ההזמנות", tabs: ["stats"] }
   };
-  const ALL_VIEWS = ["pending", "production", "requests", "day", "stats", "hash", "customers"];
+  const ALL_VIEWS = ["pending", "production", "requests", "day", "stats", "hash", "customers", "standing"];
 
   const state = {
     module: "home", tab: "pending", day: nextDeliveryDay(), dayMode: "delivery", customers: [], editing: null,
@@ -159,6 +160,7 @@
     if (state.tab === "hash") return loadHash();
     if (state.tab === "customers") return loadCustomers();
     if (state.tab === "production") return loadProduction();
+    if (state.tab === "standing") return loadStandingView();
     return loadDay();
   }
 
@@ -249,6 +251,7 @@
     $("#sumPrepared").textContent = prepared ?? "–";
     $("#sumRequests").textContent = requests ?? "–";
     setBadge("#badgePending", state.counts.pending);
+    setBadge("#badgeHash", exported || 0);
     setBadge("#badgeRequests", state.counts.requests);
     const total = state.counts.pending + state.counts.requests;
     document.title = total ? `(${total}) ${BASE_TITLE}` : BASE_TITLE;
@@ -275,22 +278,25 @@
     if (error) { toast("שגיאה בטעינה: " + error.message, true); return; }
     state.pending = data;
     $("#pendingEmpty").hidden = data.length > 0;
+    $("#pendingCount").textContent = data.length ? `(${data.length})` : "";
     $("#approveAll").hidden = data.length < 2;
     $("#approveAll").textContent = `אשר את כל ה-${data.length}`;
     // הכרטיסים ממוספרים לפי סדר הקבלה במערכת: 1 = ההזמנה הראשונה שהתקבלה
     $("#pendingList").innerHTML = data.map((o, i) => {
       const c = o.customers || {};
-      return `<article class="ocard" data-id="${o.order_id}">
-        <span class="oc-num" title="מספר ${i + 1} לפי סדר הקבלה">${i + 1}</span>
-        <header>
-          <div class="oc-who"><strong>${esc(c.name)}</strong><span class="muted">הזמנה ${o.order_id} · ${sourceTag(o.source)} · ${ago(o.order_date)}</span></div>
-          <div class="oc-due"><span class="muted">אספקה</span><strong>${o.delivery_date ? esc(fmtDate(o.delivery_date)) : "לא צוין"}</strong></div>
-        </header>
-        <ul class="oc-items">${(o.order_lines || []).map(l => `<li><b>${num(l.quantity)}</b><span>${esc(l.product?.name)}</span></li>`).join("")}</ul>
-        ${o.notes ? `<p class="oc-note">${esc(o.notes)}</p>` : ""}
-        <p class="oc-meta muted small"><bdi>${esc(c.phone_number || "")}</bdi> · ${esc(c.adress || "")}</p>
+      return `<article class="ticket-card" data-id="${o.order_id}">
+        <div class="perf" aria-hidden="true"></div>
+        <div class="tk-top">
+          <span class="tk-n" title="מספר ${i + 1} לפי סדר הקבלה">#${i + 1}</span>
+          <span class="tk-meta">הזמנה ${o.order_id} · ${esc(hm(o.order_date))}</span>
+        </div>
+        <h3 class="tk-who">${esc(c.name)}</h3>
+        <p class="tk-sub">${esc(c.adress || "")} · ${esc(o.source || "")} · <bdi>${esc(c.phone_number || "")}</bdi></p>
+        <p class="tk-due">אספקה: ${o.delivery_date ? esc(fmtDate(o.delivery_date)) : "לא צוין"}</p>
+        <ul class="tk-items">${(o.order_lines || []).map(l => `<li><b>${num(l.quantity)}×</b><span>${esc(l.product?.name)}</span></li>`).join("")}</ul>
+        ${o.notes ? `<p class="tk-note">${esc(o.notes)}</p>` : ""}
         <footer>
-          <button type="button" class="btn btn-primary" data-approve="${o.order_id}">אשר</button>
+          <button type="button" class="btn-stamp" data-approve="${o.order_id}">אשר</button>
           <button type="button" class="btn" data-edit-order="${o.order_id}">עריכה</button>
           <button type="button" class="btn btn-link-danger" data-cancel="${o.order_id}">ביטול</button>
         </footer>
@@ -326,13 +332,13 @@
     const row = (o, cls) => {
       const st = isStanding(o);
       const items = (o.order_lines || []).map(l => `${esc(l.product?.name)} <b>×${num(l.quantity)}</b>`).join(" · ");
-      return `<tr data-id="${o.order_id}" class="${cls}${st ? " is-standing" : ""}">
+      return `<tr data-id="${o.order_id}" class="${cls}${st ? " is-standing" : " is-regular"}">
         <td class="num">${o.order_id}</td>
         <td class="cust"><strong>${esc(o.customers?.name)}</strong>${st ? ` <span class="tag tag-standing">הזמנה קבועה</span>` : sourceTag(o.source)}${o.notes ? `<br><small class="muted">${esc(o.notes)}</small>` : ""}</td>
         <td>${o.delivery_date ? esc(fmtDate(o.delivery_date)) : "לא צוין"}</td>
         <td class="items-cell">${items}</td>
         <td class="num">${num(orderTotalPacks(o))}</td>
-        <td class="muted small">${o.approved_at ? esc(ago(o.approved_at)) : ""}</td>
+        <td>${st ? `<span class="muted small">אוטומטית</span>` : o.approved_at ? `<span class="stamp-mark">אושר ${esc(hm(o.approved_at))}</span>` : ""}</td>
         <td><div class="row-btns">
           <button type="button" class="btn btn-sm" data-edit-order="${o.order_id}">עריכה</button>
           ${st ? "" : `<button type="button" class="btn btn-sm" data-unapprove="${o.order_id}">החזר לאישור</button>`}
@@ -340,23 +346,24 @@
         </div></td>
       </tr>`;
     };
-    $("#approvedBody").innerHTML = nowSorted.length
-      ? `<tr class="group-row"><td colspan="7">לאספקה ב${esc(fmtDate(next))} · נשלחות לקילוף בלחיצה על "שלח לקילוף"</td></tr>` + nowSorted.map(o => row(o, "")).join("")
-      : "";
+    $("#approvedBody").innerHTML = nowSorted.map(o => row(o, "")).join("");
     $("#approvedEmpty").hidden = nowSorted.length > 0;
     // לימים הבאים: טבלה נפרדת, עמומה, מתחת לקו מפריד
     $("#laterBlock").hidden = !later.length;
     $("#laterCount").textContent = later.length ? `(${later.length})` : "";
     $("#laterBody").innerHTML = later.map(o => row(o, "later")).join("");
-    $("#approvedCount").textContent = `${now.length} לאספקה ב${fmtDate(next)}${later.length ? ` · ${later.length} לימים הבאים` : ""}`;
     const nStanding = now.filter(isStanding).length;
+    $("#approvedTotal").textContent = now.length ? `(${now.length})` : "";
+    $("#approvedCount").innerHTML = now.length
+      ? `<b>לאספקה ב${esc(fmtDate(next))}:</b> <span class="chip chip-orange">${now.length - nStanding} רגילות</span> <span class="chip chip-blue">${nStanding} קבועות</span>`
+      : `<b>לאספקה ב${esc(fmtDate(next))}:</b> עוד אין הזמנות מאושרות`;
     const rb = $("#releaseBtn");
     rb.disabled = !now.length;
     rb.textContent = now.length ? `שלח לקילוף (${now.length})` : "שלח לקילוף";
     const h = new Date().getHours();
     $("#approvedHint").textContent = (h < 12
       ? "הזמנות למחר מתקבלות עד 12:00. אחרי 12 לוחצים \"שלח לקילוף\" וכל הרשימה יורדת לטאבלט בבת אחת."
-      : "עברה השעה 12:00 — אפשר לשלוח לקילוף.") + (nStanding ? ` כולל ${nStanding} הזמנות קבועות.` : "");
+      : "עברה השעה 12:00 — אפשר לשלוח לקילוף.");
   }
 
   $("#releaseBtn").addEventListener("click", async () => {
@@ -367,6 +374,10 @@
     if (error) { toast("השליחה לקילוף נכשלה: " + error.message, true); await loadApproved(); return; }
     toast(`${data.released} הזמנות נשלחו לקילוף` + (data.standing ? ` (מתוכן ${data.standing} קבועות)` : ""));
     await Promise.all([loadCounts(), loadPending()]);
+    // הרשימה למחר סגורה: זה הזמן להפיק את ההזמנות לחשבשבת
+    if (data.released && confirm(`ההזמנות לאספקה ב${fmtDate(data.day)} נשלחו לקילוף.\nלעבור עכשיו להפקת הקובץ לחשבשבת?`)) {
+      state.hashDate = data.day; setTab("hash");
+    }
   });
 
   async function onApprovedClick(e) {
@@ -829,16 +840,19 @@
     if (!state.hashDate) state.hashDate = nextDeliveryDay();
     $("#hashDate").value = state.hashDate;
     loading(true);
-    let q = db.from("orders")
-      .select(`order_id, order_date, delivery_date, status, adress, notes, hash_exported_at,
+    const cols = edited => `order_id, order_date, delivery_date, status, adress, notes, hash_exported_at,${edited ? " edited_at," : ""}
                customers ( customer_id, name, phone_number, adress, hash_key ),
                drivers ( name ),
-               order_lines ( quantity, unit_price, product ( product_id, name, unit, hash_key ) )`)
+               order_lines ( quantity, unit_price, product ( product_id, name, unit, hash_key ) )`;
+    const run = edited => db.from("orders").select(cols(edited))
       .eq("delivery_date", state.hashDate).in("status", APPROVED).order("order_id");
-    if ($("#hashOnlyNew").checked) q = q.is("hash_exported_at", null);
-    const { data, error } = await q;
+    let { data, error } = await run(true);
+    if (error && /edited_at/.test(error.message)) ({ data, error } = await run(false)); // לפני מיגרציה 25
     loading(false);
     if (error) { toast("שגיאה בטעינה: " + error.message, true); return; }
+    // "שונתה אחרי הייצוא": נערכה אחרי שיוצאה. נחשבת כמו הזמנה שעוד לא יוצאה
+    const changed = o => o.hash_exported_at && o.edited_at && o.edited_at > o.hash_exported_at;
+    if ($("#hashOnlyNew").checked) data = data.filter(o => !o.hash_exported_at || changed(o));
     state.hashOrders = data;
     $("#hashEmpty").hidden = data.length > 0;
     $("#hashBody").innerHTML = data.map(o => {
@@ -850,7 +864,7 @@
         <td class="items">${itemsText(o.order_lines)}</td>
         <td class="num">${money(orderNet(o))}</td>
         <td>${esc(o.status)}</td>
-        <td>${o.hash_exported_at ? `<span class="exp-yes" title="${esc(fmtTime(o.hash_exported_at))}">✓ יוצא</span>` : `<span class="exp-no">עוד לא</span>`}</td>
+        <td>${changed(o) ? `<span class="exp-changed" title="יוצא ${esc(fmtTime(o.hash_exported_at))}, נערך ${esc(fmtTime(o.edited_at))}">שונתה אחרי הייצוא</span>` : o.hash_exported_at ? `<span class="exp-yes" title="${esc(fmtTime(o.hash_exported_at))}">✓ יוצא</span>` : `<span class="exp-no">עוד לא</span>`}</td>
         <td><div class="row-btns"><button type="button" class="btn btn-sm" data-hx="${o.order_id}">אקסל</button><button type="button" class="btn btn-sm" data-hd="${o.order_id}">קליטה</button></div></td>
       </tr>`;
     }).join("");
@@ -1090,7 +1104,7 @@
       id: o.order_id, status: o.status,
       lines: (o.order_lines || []).map(l => ({ pid: l.product_id, name: l.product?.name, unit: l.product?.unit, qty: Number(l.quantity), orig: Number(l.quantity), price: Number(l.unit_price), isNew: false }))
     };
-    $("#oNewBox").hidden = true; $("#oApproveWrap").hidden = true;
+    $("#oNewBox").hidden = true; $("#oApproveWrap").hidden = true; $("#oKindBox").hidden = true; $("#oNewCust").hidden = true;
     standingUI(false);
     $("#orderSave").textContent = "שמירת שינויים";
     $("#orderTitle").textContent = `עריכת הזמנה ${o.order_id}`;
@@ -1109,25 +1123,25 @@
 
   /* ----- הזמנה חדשה ללקוח קיים (טלפון / וואטסאפ) ----- */
   const custLabel = c => `${c.name} · ${c.phone_number || ""} (#${c.customer_id})`;
-  async function openNewOrder(customerId) {
+  async function openNewOrder(customerId, kind) {
     if (!state.customers.length) {
       loading(true);
       const { data } = await db.from("customers").select("customer_id, name, customer_category, adress, phone_number, hash_key, created_at").order("name");
       loading(false);
       state.customers = data || [];
     }
-    state.edit = { mode: "new", id: null, status: null, customerId: null, lines: [] };
-    $("#orderTitle").textContent = "הזמנה חדשה";
-    $("#orderSub").textContent = "ללקוח קיים, למשל הזמנה שהגיעה בטלפון או בוואטסאפ. המנהל פטור מחוק 12:00.";
+    state.edit = { mode: "new", fromNew: true, id: null, status: null, customerId: null, lines: [] };
     $("#orderWarn").hidden = true;
-    $("#oNewBox").hidden = false; $("#oApproveWrap").hidden = false; $("#oApprove").checked = true;
-    standingUI(false);
+    $("#oKindBox").hidden = false;
+    $$('#oKindBox input[name="oKind"]').forEach(r => { r.checked = r.value === (kind || "regular"); });
+    $("#oNewBox").hidden = false; $("#oApprove").checked = true;
+    showNewCust(false);
+    setKind(kind || "regular");
     $("#oCustList").innerHTML = state.customers.map(c => `<option value="${esc(custLabel(c))}"></option>`).join("");
     $("#oCust").value = ""; $("#oCustInfo").textContent = "";
     $("#oSource").value = "טלפון";
     $("#oDate").value = nextDeliveryDay();
     $("#oNotes").value = "";
-    $("#orderSave").textContent = "יצירת הזמנה";
     $("#orderError").textContent = "";
     if (customerId) {
       const c = state.customers.find(x => x.customer_id === Number(customerId));
@@ -1138,12 +1152,75 @@
     (customerId ? $("#oAddProduct") : $("#oCust")).focus();
   }
   function pickCustomer() {
-    const m = $("#oCust").value.match(/\(#(\d+)\)\s*$/);
+    const v = $("#oCust").value.trim();
+    const m = v.match(/\(#(\d+)\)\s*$/);
     const c = m && state.customers.find(x => x.customer_id === Number(m[1]));
     state.edit.customerId = c ? c.customer_id : null;
-    $("#oCustInfo").textContent = c ? `כתובת אספקה: ${c.adress || "—"} · ${c.customer_category || ""}` : ($("#oCust").value ? "בחרו לקוח מהרשימה" : "");
+    $("#oCustInfo").textContent = c ? `כתובת אספקה: ${c.adress || "—"} · ${c.customer_category || ""}` : (v && !$("#oNewCust").hidden ? "" : v ? "בחרו לקוח מהרשימה, או פתחו לקוח חדש" : "");
+    // אין התאמה ברשימה? מציעים לפתוח לקוח חדש בלי לצאת מהחלון
+    const q = v.toLowerCase();
+    const any = q && state.customers.some(x => custLabel(x).toLowerCase().includes(q));
+    const btn = $("#oNewCustBtn");
+    btn.hidden = !v || !!c || any || !$("#oNewCust").hidden;
+    btn.textContent = `+ לקוח חדש בשם "${v}"`;
   }
-  $("#oCust").addEventListener("input", () => { if (state.edit && state.edit.mode === "new") pickCustomer(); });
+  $("#oCust").addEventListener("input", () => { if (state.edit && state.edit.fromNew) pickCustomer(); });
+
+  /* סוג ההזמנה בחלון "הזמנה חדשה": רגילה (תאריך אחד) או קבועה (ימים בשבוע) */
+  function setKind(kind) {
+    const e = state.edit; if (!e || !e.fromNew) return;
+    const standing = kind === "standing";
+    e.mode = standing ? "standing" : "new"; e.id = null;
+    standingUI(standing);
+    $("#oStandPickWrap").hidden = true;
+    if (standing) { $$("#oWeekdays input").forEach(i => { i.checked = false; }); $("#oStandActive").checked = true; }
+    $("#oSourceWrap").hidden = standing; $("#oApproveWrap").hidden = standing;
+    $("#orderTitle").textContent = standing ? "הזמנה קבועה חדשה" : "הזמנה חדשה";
+    $("#orderSub").textContent = standing
+      ? "חוזרת בימים שנבחרים, נוצרת לבד בלי אישור ונשלחת לקילוף עם \"שלח לקילוף\". מופיעה בכחול."
+      : "הזמנה שהגיעה בטלפון או בוואטסאפ. המנהל פטור מחוק 12:00.";
+    updateSaveLabel();
+    renderEditor();
+  }
+  function updateSaveLabel() {
+    const e = state.edit; if (!e || !e.fromNew) return;
+    const nc = !$("#oNewCust").hidden;
+    $("#orderSave").textContent = e.mode === "standing"
+      ? (nc ? "יצירת לקוח והזמנה קבועה" : "יצירת הזמנה קבועה")
+      : (nc ? "יצירת לקוח והזמנה" : "יצירת הזמנה");
+  }
+  $$('#oKindBox input[name="oKind"]').forEach(r => r.addEventListener("change", () => { if (r.checked) setKind(r.value); }));
+  function showNewCust(on, name) {
+    $("#oNewCust").hidden = !on;
+    if (on) {
+      $("#ncName").value = name || ""; $("#ncPhone").value = ""; $("#ncAdress").value = ""; $("#ncCategory").value = "מוסדי";
+      $("#oNewCustBtn").hidden = true; $("#oCustInfo").textContent = "";
+      $("#ncPhone").focus();
+    }
+    updateSaveLabel();
+  }
+  $("#oNewCustBtn").addEventListener("click", () => showNewCust(true, $("#oCust").value.trim()));
+  $("#ncCancel").addEventListener("click", () => { showNewCust(false); pickCustomer(); $("#oCust").focus(); });
+  // יצירת הלקוח החדש (מנהל מורשה לכתוב ל-customers). מחזיר את מספר הלקוח או null
+  async function createInlineCustomer() {
+    const name = $("#ncName").value.trim(), adress = $("#ncAdress").value.trim();
+    let phone = $("#ncPhone").value.replace(/\D/g, "");
+    if (phone.startsWith("972")) phone = "0" + phone.slice(3);
+    if (!name) { $("#orderError").textContent = "חסר שם ללקוח החדש"; $("#ncName").focus(); return null; }
+    if (!/^0\d{8,9}$/.test(phone)) { $("#orderError").textContent = "טלפון לא תקין (למשל 0521234567)"; $("#ncPhone").focus(); return null; }
+    if (!adress) { $("#orderError").textContent = "חסרה כתובת אספקה"; $("#ncAdress").focus(); return null; }
+    const dup = state.customers.find(x => x.phone_number === phone);
+    if (dup) { $("#orderError").textContent = `הטלפון כבר שייך ללקוח "${dup.name}" (#${dup.customer_id}). בחרו אותו מהרשימה.`; return null; }
+    const { data, error } = await db.from("customers")
+      .insert({ name, phone_number: phone, adress, customer_category: $("#ncCategory").value })
+      .select("customer_id, name, customer_category, adress, phone_number, hash_key, created_at").single();
+    if (error) { $("#orderError").textContent = "הלקוח לא נוצר: " + error.message; return null; }
+    state.customers.push(data);
+    showNewCust(false);
+    $("#oCust").value = custLabel(data); pickCustomer();
+    toast(`נפתח לקוח חדש: ${data.name} (#${data.customer_id})`);
+    return data.customer_id;
+  }
 
   function renderEditor() {
     const e = state.edit; if (!e) return;
@@ -1154,10 +1231,8 @@
       <td class="num">${l.isNew ? "—" : money(l.price * l.qty)}</td>
       <td><button type="button" class="rm" data-rm="${i}" aria-label="הסרת ${esc(l.name)}">✕</button></td>
     </tr>`).join("") || `<tr><td colspan="5" class="muted">אין מוצרים. הוסיפו לפחות מוצר אחד.</td></tr>`;
-    const used = new Set(e.lines.map(l => l.pid));
-    $("#oAddProduct").innerHTML = `<option value="">בחירת מוצר להוספה…</option>` +
-      (state.productList || []).filter(p => p.is_active && !used.has(p.product_id))
-        .map(p => `<option value="${p.product_id}">${esc(p.name)}</option>`).join("");
+    $("#oProdList").innerHTML = (state.productList || []).filter(p => p.is_active)
+      .map(p => `<option value="${esc(p.name)}"></option>`).join("");
     const known = e.lines.filter(l => !l.isNew).reduce((s, l) => s + l.price * l.qty, 0);
     const hasNew = e.lines.some(l => l.isNew);
     $("#oTotal").textContent = e.mode === "standing"
@@ -1182,13 +1257,33 @@
     const b = ev.target.closest("[data-rm]"); if (!b) return;
     state.edit.lines.splice(Number(b.dataset.rm), 1); renderEditor();
   });
-  $("#oAddBtn").addEventListener("click", () => {
-    const pid = Number($("#oAddProduct").value); if (!pid) return;
-    const p = (state.productList || []).find(x => x.product_id === pid); if (!p) return;
-    state.edit.lines.push({ pid, name: p.name, unit: p.unit, qty: 1, orig: 0, price: Number(p.base_price) || 0, isNew: true });
+  /* הוספת מוצר: מקלידים שם (השלמה אוטומטית) וכמות, ו-Enter או "+ הוספה" */
+  function findProduct(text) {
+    const q = String(text || "").trim(); if (!q) return null;
+    const act = (state.productList || []).filter(p => p.is_active);
+    return act.find(p => p.name === q)
+      || (act.filter(p => p.name.includes(q)).length === 1 ? act.find(p => p.name.includes(q)) : null);
+  }
+  function addProductLine() {
+    const e = state.edit; if (!e) return;
+    const p = findProduct($("#oAddProduct").value);
+    if (!p) { $("#orderError").textContent = $("#oAddProduct").value.trim() ? "לא נמצא מוצר כזה. בחרו מהרשימה שנפתחת בהקלדה" : "הקלידו שם מוצר"; $("#oAddProduct").focus(); return; }
+    const qty = Math.round(Number($("#oAddQty").value));
+    if (!(qty >= 1 && qty <= 1000)) { $("#orderError").textContent = "כמות בין 1 ל-1000"; $("#oAddQty").focus(); return; }
+    const ex = e.lines.find(l => l.pid === p.product_id);
+    if (ex) ex.qty = Math.min(1000, ex.qty + qty);
+    else e.lines.push({ pid: p.product_id, name: p.name, unit: p.unit, qty, orig: 0, price: Number(p.base_price) || 0, isNew: true });
+    $("#oAddProduct").value = ""; $("#oAddQty").value = 1;
     renderEditor();
-    const inputs = $$("#oLines [data-qty]"); if (inputs.length) inputs[inputs.length - 1].focus();
-  });
+    $("#oAddProduct").focus();
+  }
+  $("#oAddBtn").addEventListener("click", addProductLine);
+  ["#oAddProduct", "#oAddQty"].forEach(sel => $(sel).addEventListener("keydown", ev => {
+    if (ev.key !== "Enter") return;
+    ev.preventDefault();
+    if (ev.target.id === "oAddProduct" && findProduct(ev.target.value)) { $("#oAddQty").select(); return; }
+    addProductLine();
+  }));
   function closeOrderEditor() { $("#orderModal").hidden = true; state.edit = null; }
   $("#orderModal").addEventListener("click", ev => { if (ev.target.id === "orderModal" || ev.target.closest("[data-close-order]")) closeOrderEditor(); });
 
@@ -1198,6 +1293,16 @@
     const items = e.lines.map(l => ({ pid: l.pid, qty: l.qty }));
     if (!items.length) { $("#orderError").textContent = "צריך לפחות מוצר אחד"; return; }
     if (items.some(i => !(i.qty >= 1 && i.qty <= 1000))) { $("#orderError").textContent = "כמות צריכה להיות בין 1 ל-1000"; return; }
+    if (e.mode === "standing" && !$$("#oWeekdays input:checked").length) { $("#orderError").textContent = "בחרו לפחות יום אספקה אחד"; return; }
+    if (e.mode === "new" && !$("#oDate").value) { $("#orderError").textContent = "בחרו תאריך אספקה"; return; }
+    if (e.fromNew && !e.customerId) {
+      if ($("#oNewCust").hidden) { $("#orderError").textContent = "בחרו לקוח מהרשימה, או פתחו לקוח חדש"; $("#oCust").focus(); return; }
+      $("#orderSave").disabled = true;
+      const id = await createInlineCustomer();
+      $("#orderSave").disabled = false;
+      if (!id) return;
+      e.customerId = id;
+    }
     if (e.mode === "standing") {
       const days = $$("#oWeekdays input:checked").map(i => Number(i.value));
       if (!days.length) { $("#orderError").textContent = "בחרו לפחות יום אספקה אחד"; return; }
@@ -1212,6 +1317,7 @@
       toast(e.id ? "ההזמנה הקבועה עודכנה" : "נוצרה הזמנה קבועה");
       lastPrepare = 0;
       await loadStanding(); renderCustomers(); loadCounts();
+      if (state.module === "orders") refreshTab();
       return;
     }
     if (e.mode === "new") {
@@ -1273,8 +1379,8 @@
       lines: s ? (s.items || []).map(i => { const p = prod(i.pid); return { pid: Number(i.pid), name: p ? p.name : `מוצר ${i.pid}`, unit: p?.unit, qty: Number(i.qty), orig: Number(i.qty), price: Number(p?.base_price) || 0, isNew: true }; }) : []
     };
     $("#orderTitle").textContent = `הזמנה קבועה · ${c.name}`;
-    $("#orderSub").textContent = "נוצרת לבד ליום האספקה, בלי אישור מנהל, ונשלחת לקילוף עם הכפתור \"שלח לקילוף\". מופיעה בכחול בסוף רשימת המאושרות ובטאבלט.";
-    $("#orderWarn").hidden = true; $("#oNewBox").hidden = true; $("#oApproveWrap").hidden = true;
+    $("#orderSub").textContent = "נוצרת לבד ליום האספקה, בלי אישור מנהל, ונשלחת לקילוף עם הכפתור \"שלח לקילוף\". מופיעה בכחול בסוף המאושרות ובטאבלט.";
+    $("#orderWarn").hidden = true; $("#oNewBox").hidden = true; $("#oApproveWrap").hidden = true; $("#oKindBox").hidden = true; $("#oNewCust").hidden = true;
     standingUI(true);
     $("#oStandPickWrap").hidden = !mine.length;
     $("#oStandPick").innerHTML = mine.map(x => `<option value="${x.standing_id}">${esc(x.weekdays.map(d => DAY_NAMES[d]).join(" "))}${x.is_active ? "" : " (מושהית)"}</option>`).join("") + `<option value="new">+ הזמנה קבועה נוספת</option>`;
@@ -1288,6 +1394,37 @@
     renderEditor();
     $("#orderModal").hidden = false;
   }
+  /* לשונית "הזמנות קבועות": כל ההזמנות הקבועות במקום אחד */
+  async function loadStandingView() {
+    loading(true);
+    const tasks = [loadStanding()];
+    if (!state.customers.length) tasks.push(db.from("customers").select("customer_id, name, customer_category, adress, phone_number, hash_key, created_at").order("name").then(({ data }) => { state.customers = data || []; }));
+    await Promise.all(tasks);
+    loading(false);
+    const cust = new Map(state.customers.map(c => [c.customer_id, c]));
+    const pname = pid => ((state.productList || []).find(p => p.product_id === Number(pid)) || {}).name || `מוצר ${pid}`;
+    const list = [...state.standing].sort((a, b) => (b.is_active - a.is_active) || String(cust.get(a.customer_id)?.name || "").localeCompare(String(cust.get(b.customer_id)?.name || ""), "he"));
+    $("#standingCount").textContent = list.length ? `(${list.filter(x => x.is_active).length} פעילות${list.some(x => !x.is_active) ? ` · ${list.filter(x => !x.is_active).length} מושהות` : ""})` : "";
+    $("#standingEmpty").hidden = list.length > 0;
+    $("#standingBody").innerHTML = list.map(x => {
+      const c = cust.get(x.customer_id) || {};
+      return `<tr class="${x.is_active ? "" : "paused"}">
+        <td class="cust"><strong>${esc(c.name || `לקוח ${x.customer_id}`)}</strong><small>${esc(c.adress || "")}</small></td>
+        <td><span class="days">${x.weekdays.map(d => `<b>${DAY_NAMES[d]}</b>`).join("")}</span></td>
+        <td class="items-cell">${(x.items || []).map(i => `${esc(pname(i.pid))} <b>×${num(i.qty)}</b>`).join(" · ")}</td>
+        <td class="muted small">${esc(x.notes || "")}</td>
+        <td>${x.is_active ? `<span class="chip chip-blue">פעילה</span>` : `<span class="chip">מושהית</span>`}</td>
+        <td><button type="button" class="btn btn-sm" data-standing-edit="${x.customer_id}:${x.standing_id}">עריכה</button></td>
+      </tr>`;
+    }).join("");
+  }
+  $("#standingBody").addEventListener("click", e => {
+    const b = e.target.closest("[data-standing-edit]"); if (!b) return;
+    const [cid, sid] = b.dataset.standingEdit.split(":").map(Number);
+    openStanding(cid, sid);
+  });
+  $("#newStandingBtn").addEventListener("click", () => openNewOrder(null, "standing"));
+
   $("#oStandPick").addEventListener("change", e => {
     if (!state.edit || state.edit.mode !== "standing") return;
     openStanding(state.edit.customerId, e.target.value === "new" ? "new" : Number(e.target.value));

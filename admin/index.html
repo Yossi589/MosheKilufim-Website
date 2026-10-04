@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="../img/favicon-64.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Rubik:wght@500;700;800&family=Playpen+Sans+Hebrew:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
@@ -49,6 +49,7 @@
       <a href="#" data-nav="home">מסך ראשי</a>
       <a href="#orders" data-nav="orders">הזמנות</a>
       <a href="#customers" data-nav="customers">לקוחות</a>
+      <a href="#reports" data-nav="reports">דוחות</a>
     </nav>
     <div class="user">
       <a href="#" class="btn btn-sm" id="homeBtn" hidden aria-hidden="true" tabindex="-1">מסך ראשי</a>
@@ -70,7 +71,7 @@
       <a class="tile" href="#orders">
         <span class="tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v16.5l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 0 1 1-1z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>
         <strong>ניהול הזמנות</strong>
-        <span class="tile-sub">אישור הזמנות, הזמנות לפי יום, גרפים וחשבשבת</span>
+        <span class="tile-sub">אישור, שליחה לקילוף, פס הייצור וחשבשבת</span>
         <span class="tile-stat" id="tileOrders"></span>
       </a>
       <a class="tile" href="#customers">
@@ -78,6 +79,11 @@
         <strong>ניהול לקוחות</strong>
         <span class="tile-sub">לקוחות חדשים לאישור, כרטיסי לקוח ומפתחות חשבשבת</span>
         <span class="tile-stat" id="tileCustomers"></span>
+      </a>
+      <a class="tile" href="#reports">
+        <span class="tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+        <strong>דוחות וגרפים</strong>
+        <span class="tile-sub">הזמנות לפי יום, מוצרים מובילים ומקור ההזמנות</span>
       </a>
       <div class="tile is-soon" aria-disabled="true">
         <span class="tile-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
@@ -107,18 +113,20 @@
 
   <!-- לשוניות -->
   <nav class="tabs" role="tablist" aria-label="תצוגות">
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="pending" id="tab-pending">לאישור <span class="badge" id="badgePending" hidden></span></button>
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="production" id="tab-production">בייצור עכשיו <span class="live-pill" id="prodLive"></span></button>
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="day" id="tab-day">כל ההזמנות</button>
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="hash" id="tab-hash">חשבשבת</button>
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="stats" id="tab-stats">גרפים</button>
+    <button type="button" class="tab tab-step" role="tab" data-mod="orders" data-tab="pending" id="tab-pending"><span class="step-n">1</span>לאישור וקילוף <span class="badge" id="badgePending" hidden></span></button>
+    <button type="button" class="tab tab-step" role="tab" data-mod="orders" data-tab="production" id="tab-production"><span class="step-n">2</span>בייצור עכשיו <span class="live-pill" id="prodLive"></span></button>
+    <button type="button" class="tab tab-step" role="tab" data-mod="orders" data-tab="hash" id="tab-hash"><span class="step-n">3</span>חשבשבת <span class="badge badge-soft" id="badgeHash" hidden></span></button>
+    <span class="tab-spacer" data-mod="orders" aria-hidden="true"></span>
+    <button type="button" class="tab tab-sec" role="tab" data-mod="orders" data-tab="standing" id="tab-standing">הזמנות קבועות</button>
+    <button type="button" class="tab tab-sec" role="tab" data-mod="orders" data-tab="day" id="tab-day">כל ההזמנות</button>
+    <button type="button" class="tab" role="tab" data-mod="reports" data-tab="stats" id="tab-stats">גרפים</button>
     <button type="button" class="tab" role="tab" data-mod="customers" data-tab="requests" id="tab-requests">לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
     <button type="button" class="tab" role="tab" data-mod="customers" data-tab="customers" id="tab-customers">כל הלקוחות</button>
   </nav>
 
   <main class="wrap">
     <!-- סיכום -->
-    <section class="flow cards" data-mod="orders" aria-label="מסלול ההזמנה">
+    <section class="flow cards" data-mod="none" aria-label="מסלול ההזמנה" hidden>
       <button type="button" class="flow-step" data-go="pending" id="flowPending">
         <span class="flow-k">1</span><strong id="sumPending">–</strong><span class="flow-l">מחכות לאישור</span><span class="flow-h" id="flowPendingHint">לבדוק ולאשר</span>
       </button>
@@ -143,49 +151,70 @@
     </section>
 
     <!-- ===== לשונית: ממתינות לאישור ===== -->
-    <section class="panel" id="view-pending" hidden>
-      <div class="panel-head">
-        <div>
-          <h2>מחכות לאישור</h2>
-          <p class="muted small">מהישנה לחדשה. "אשר" מעביר את ההזמנה לרשימת המאושרות שלמטה. משם היא יורדת לטאבלט בלחיצה על "שלח לקילוף".</p>
+    <section id="view-pending" hidden>
+      <!-- מחכות לאישור: מסגרת אדמדמה, פתקי עבודה -->
+      <div class="zone zone-pending">
+        <div class="zone-head">
+          <div>
+            <h2>מחכות לאישור <span class="zone-count" id="pendingCount"></span></h2>
+            <p class="muted small">לפי סדר הקבלה. "אשר" מעביר את ההזמנה למסגרת הירוקה שלמטה.</p>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-red" id="approveAll" hidden>אשר את כולן</button>
         </div>
-        <button type="button" class="btn btn-sm" id="approveAll" hidden>אשר את כולן</button>
+        <div id="pendingList" class="cardlist tickets"></div>
+        <div class="empty" id="pendingEmpty" hidden><p>אין הזמנות שממתינות לאישור.</p></div>
       </div>
-      <div id="pendingList" class="cardlist"></div>
-      <div class="empty" id="pendingEmpty" hidden><p>אין הזמנות שממתינות לאישור.</p></div>
 
-      <!-- מאושרות: מחכות לכפתור "שלח לקילוף" -->
-      <div class="approved-block">
-        <div class="approved-divider" role="separator">
-          <h2>מאושרות · ממתינות לקילוף</h2>
-          <span id="approvedCount"></span>
-        </div>
-        <div class="panel-head approved-head">
-          <p class="muted small" id="approvedHint"></p>
-          <button type="button" class="btn btn-go btn-lg" id="releaseBtn" disabled>שלח לקילוף</button>
+      <!-- מאושרות: מסגרת ירוקה, "שלח לקילוף" -->
+      <div class="zone zone-approved">
+        <div class="zone-head">
+          <div>
+            <h2>מאושרות · ממתינות לקילוף <span class="zone-count" id="approvedTotal"></span></h2>
+            <p class="zone-chips" id="approvedCount"></p>
+            <p class="muted small" id="approvedHint"></p>
+          </div>
+          <button type="button" class="btn-stamp-go" id="releaseBtn" disabled>שלח לקילוף</button>
         </div>
         <div class="table-wrap">
           <table class="orders approved-table">
-            <thead><tr><th>#</th><th>לקוח</th><th>אספקה</th><th>מוצרים</th><th>מארזים</th><th>אושרה</th><th></th></tr></thead>
+            <thead><tr><th>#</th><th>לקוח</th><th>אספקה</th><th>מוצרים</th><th>מארזים</th><th>אישור</th><th></th></tr></thead>
             <tbody id="approvedBody"></tbody>
           </table>
         </div>
         <div class="empty" id="approvedEmpty" hidden><p>אין הזמנות מאושרות ליום האספקה הקרוב.</p></div>
       </div>
 
-      <!-- לימים הבאים: מופרד ועמום. לא יורדות לייצור עכשיו -->
+      <!-- לימים הבאים: עמום, מחוץ למסגרת -->
       <div class="later-block" id="laterBlock" hidden>
         <div class="later-head">
           <h3>לימים הבאים <span class="muted small" id="laterCount"></span></h3>
-          <p class="muted small">מאושרות, אבל לא נשלחות לקילוף בלחיצה היום. כל אחת תעלה לרשימה העליונה ביום שלפני האספקה שלה.</p>
+          <p class="muted small">מאושרות, אבל לא נשלחות לקילוף היום. כל אחת עולה למסגרת הירוקה ביום שלפני האספקה שלה.</p>
         </div>
         <div class="table-wrap">
           <table class="orders approved-table later-table">
-            <thead><tr><th>#</th><th>לקוח</th><th>אספקה</th><th>מוצרים</th><th>מארזים</th><th>אושרה</th><th></th></tr></thead>
+            <thead><tr><th>#</th><th>לקוח</th><th>אספקה</th><th>מוצרים</th><th>מארזים</th><th>אישור</th><th></th></tr></thead>
             <tbody id="laterBody"></tbody>
           </table>
         </div>
       </div>
+    </section>
+
+    <!-- ===== לשונית: הזמנות קבועות ===== -->
+    <section class="panel" id="view-standing" hidden>
+      <div class="panel-head">
+        <div>
+          <h2>הזמנות קבועות <span class="muted small" id="standingCount"></span></h2>
+          <p class="muted small">נוצרות לבד ליום האספקה, בלי אישור, ונשלחות לקילוף עם שאר ההזמנות. לחיצה על שורה פותחת עריכה.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="newStandingBtn">+ הזמנה קבועה</button>
+      </div>
+      <div class="table-wrap">
+        <table class="orders standing-table">
+          <thead><tr><th>לקוח</th><th>ימי אספקה</th><th>מוצרים</th><th>הערה</th><th>מצב</th><th></th></tr></thead>
+          <tbody id="standingBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="standingEmpty" hidden><p>אין עדיין הזמנות קבועות. "+ הזמנה קבועה" כדי להוסיף.</p></div>
     </section>
 
     <!-- ===== לשונית: לקוחות חדשים ===== -->
@@ -393,6 +422,11 @@
     <h2 id="orderTitle">עריכת הזמנה</h2>
     <p class="muted small" id="orderSub"></p>
     <p class="order-warn" id="orderWarn" hidden></p>
+    <fieldset class="order-kind" id="oKindBox" hidden>
+      <legend>איזו הזמנה?</legend>
+      <label class="kind-card"><input type="radio" name="oKind" value="regular" checked><span><b>הזמנה רגילה</b><small>ליום אספקה אחד: טלפון, וואטסאפ או ידני</small></span></label>
+      <label class="kind-card kind-standing"><input type="radio" name="oKind" value="standing"><span><b>הזמנה קבועה</b><small>חוזרת בימים קבועים, נוצרת לבד ונשלחת לקילוף</small></span></label>
+    </fieldset>
     <div class="order-new" id="oNewBox" hidden>
       <div class="order-grid">
         <div>
@@ -400,8 +434,9 @@
           <input id="oCust" list="oCustList" placeholder="הקלידו שם או טלפון" autocomplete="off">
           <datalist id="oCustList"></datalist>
           <small class="muted" id="oCustInfo"></small>
+          <button type="button" class="newcust-btn" id="oNewCustBtn" hidden></button>
         </div>
-        <div>
+        <div id="oSourceWrap">
           <label for="oSource">איך ההזמנה הגיעה</label>
           <select id="oSource">
             <option value="טלפון">טלפון</option>
@@ -411,6 +446,15 @@
         </div>
       </div>
     </div>
+    <fieldset class="newcust" id="oNewCust" hidden>
+      <legend>לקוח חדש <small class="muted">(נפתח יחד עם ההזמנה)</small></legend>
+      <label>שם *<input id="ncName" autocomplete="off"></label>
+      <label>טלפון *<input id="ncPhone" inputmode="tel" dir="ltr" autocomplete="off"></label>
+      <label>כתובת אספקה *<input id="ncAdress" autocomplete="off"></label>
+      <label>סוג<select id="ncCategory"><option>מוסדי</option><option>פרטי</option></select></label>
+      <p class="muted small">מפתח חשבשבת אפשר להשלים אחר כך בניהול לקוחות.</p>
+      <button type="button" class="btn btn-sm" id="ncCancel">ביטול לקוח חדש</button>
+    </fieldset>
     <div class="order-stand" id="oStandBox" hidden>
       <div class="stand-pick" id="oStandPickWrap" hidden>
         <label for="oStandPick">איזו הזמנה קבועה</label>
@@ -436,11 +480,14 @@
       <tbody id="oLines"></tbody>
     </table>
     <div class="order-add">
-      <select id="oAddProduct" aria-label="הוספת מוצר"></select>
-      <button type="button" class="btn btn-sm" id="oAddBtn">+ הוספת מוצר</button>
+      <label class="oa-prod">מוצר<input id="oAddProduct" list="oProdList" placeholder="הקלידו שם מוצר…" autocomplete="off"></label>
+      <datalist id="oProdList"></datalist>
+      <label class="oa-qty">כמות<input id="oAddQty" type="number" min="1" max="1000" step="1" value="1" inputmode="numeric"></label>
+      <button type="button" class="btn btn-primary btn-sm" id="oAddBtn">+ הוספה</button>
     </div>
+    <p class="muted small oa-hint">מקלידים מוצר, כמות ו-Enter. אפשר להוסיף מוצר שכבר ברשימה, והכמות תתווסף.</p>
     <p class="order-total" id="oTotal"></p>
-    <label class="check order-approve" id="oApproveWrap" hidden><input type="checkbox" id="oApprove" checked> לאשר מיד (ההזמנה תיכנס למאושרות ותישלח לקילוף עם הכפתור "שלח לקילוף")</label>
+    <label class="check order-approve" id="oApproveWrap" hidden><input type="checkbox" id="oApprove" checked> לאשר מיד (ההזמנה נכנסת למסגרת הירוקה ונשלחת לקילוף עם "שלח לקילוף")</label>
     <p class="form-error" id="orderError" role="alert"></p>
     <div class="modal-actions">
       <button type="submit" class="btn btn-primary" id="orderSave">שמירת שינויים</button>
