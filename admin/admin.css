@@ -617,3 +617,11 @@ a.btn { text-decoration: none; display: inline-block; }
 .zone-issue .hash-table tbody tr td:first-child { box-shadow: inset -4px 0 0 #b5541a; }
 .hash-acts { white-space: nowrap; }
 .t-orange { color: #b5541a; }
+
+/* חשבשבת: התראה על הזמנות מימים קודמים שלא יצאו */
+.hash-overdue { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; background: #d62828; color: #fff; border-radius: 10px; padding: 8px 12px; font-size: .95rem; box-shadow: 0 0 0 3px #f6c9c9; animation: overduePulse 1.6s ease-in-out infinite; }
+.hash-overdue b { font-weight: 800; }
+.hash-overdue .overdue-day { font: inherit; font-weight: 800; color: #d62828; background: #fff; border: 0; border-radius: 999px; padding: 2px 10px; cursor: pointer; }
+.hash-overdue .overdue-day:hover { background: #ffe5e5; }
+@keyframes overduePulse { 50% { box-shadow: 0 0 0 6px #f6c9c9; } }
+@media (prefers-reduced-motion: reduce) { .hash-overdue { animation: none; } }

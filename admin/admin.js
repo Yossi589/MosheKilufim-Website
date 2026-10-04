@@ -936,11 +936,34 @@
     $("#hashDoneSum").textContent = done.length ? `לפני מע״מ ${money(sum(done))}` : "";
     $("#hashDoc").textContent = ready.length ? `ייצא לקליטה (${ready.length})` : "ייצא לקליטה";
     $("#hashDoc").disabled = !ready.length;
+    loadHashOverdue();
     const net = sum(data);
     $("#hashTotals").textContent = data.length
       ? `כל היום: ${data.length} הזמנות · לפני מע״מ ${money(net)} · מע״מ ${VAT}% ${money(net * VAT / 100)} · כולל מע״מ ${money(net * (1 + VAT / 100))}`
       : "";
   }
+  // התראה באדום בוהק: הזמנות מימי אספקה שכבר עברו (לפני יום האספקה הבא) שעוד לא נכנסו לחשבשבת.
+  // לחיצה על תאריך עוברת אליו. התאריך שמוצג עכשיו לא נספר (ההזמנות שלו כבר על המסך).
+  async function loadHashOverdue() {
+    const box = $("#hashOverdue");
+    const withEdited = state.hashCols.includes("edited_at");
+    let q = db.from("orders").select("order_id, delivery_date, hash_exported_at" + (withEdited ? ", edited_at" : ""))
+      .lt("delivery_date", nextDeliveryDay()).neq("delivery_date", state.hashDate).in("status", APPROVED);
+    q = withEdited ? q.or("hash_exported_at.is.null,edited_at.not.is.null") : q.is("hash_exported_at", null);
+    const { data, error } = await q.order("delivery_date").limit(1000);
+    if (error) { box.hidden = true; return; }
+    const late = (data || []).filter(o => !o.hash_exported_at || (o.edited_at && o.edited_at > o.hash_exported_at));
+    if (!late.length) { box.hidden = true; box.innerHTML = ""; return; }
+    const byDay = late.reduce((m, o) => m.set(o.delivery_date, (m.get(o.delivery_date) || 0) + 1), new Map());
+    box.innerHTML = `<b>⚠ ${late.length === 1 ? "הזמנה אחת" : late.length + " הזמנות"} מימים קודמים עוד לא בחשבשבת:</b> `
+      + [...byDay].map(([d, n]) => `<button type="button" class="overdue-day" data-hday="${esc(d)}">${esc(fmtDate(d))} (${n})</button>`).join(" ");
+    box.hidden = false;
+  }
+  $("#hashOverdue").addEventListener("click", e => {
+    const b = e.target.closest("[data-hday]"); if (!b) return;
+    state.hashDate = b.dataset.hday; loadHash();
+  });
+
   /* ---------- אקסל (SheetJS נטען רק כשצריך) ---------- */
   let xlsxReady;
   function loadXlsx() {
