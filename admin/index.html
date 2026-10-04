@@ -44,8 +44,14 @@
       <a href="#" class="brand-home" title="למסך הראשי"><img src="../img/logo-160.webp" width="40" height="40" alt=""><strong id="moduleTitle">משה קילופים · ניהול</strong></a>
       <span class="live" id="liveDot" title="חיבור להתראות בזמן אמת">מנותק</span>
     </div>
+    <nav class="mainnav" aria-label="ניווט במערכת">
+      <button type="button" class="nav-back" id="navBack" title="חזרה למסך הקודם" aria-label="חזרה">→ חזרה</button>
+      <a href="#" data-nav="home">מסך ראשי</a>
+      <a href="#orders" data-nav="orders">הזמנות</a>
+      <a href="#customers" data-nav="customers">לקוחות</a>
+    </nav>
     <div class="user">
-      <a href="#" class="btn btn-sm" id="homeBtn" hidden>מסך ראשי</a>
+      <a href="#" class="btn btn-sm" id="homeBtn" hidden aria-hidden="true" tabindex="-1">מסך ראשי</a>
       <button type="button" class="btn btn-sm" id="notifyBtn" hidden>הפעלת התראות</button>
       <bdi id="userEmail"></bdi>
       <button type="button" class="btn btn-sm" data-logout>התנתקות</button>

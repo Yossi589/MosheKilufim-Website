@@ -109,7 +109,8 @@
     const mod = location.hash.replace("#", "");
     if (!MODULES[mod]) { showHome(); return; }
     state.module = mod;
-    $("#homeView").hidden = true; $("#moduleView").hidden = false; $("#homeBtn").hidden = false;
+    $("#homeView").hidden = true; $("#moduleView").hidden = false;
+    markNav(mod);
     $("#moduleTitle").textContent = MODULES[mod].title;
     $("#modTitle").textContent = MODULES[mod].title;
     $("#modSub").textContent = MODULES[mod].sub;
@@ -123,7 +124,8 @@
   }
   function showHome() {
     state.module = "home";
-    $("#homeView").hidden = false; $("#moduleView").hidden = true; $("#homeBtn").hidden = true;
+    $("#homeView").hidden = false; $("#moduleView").hidden = true;
+    markNav("home");
     $("#moduleTitle").textContent = "משה קילופים · ניהול";
     const h = new Date().getHours();
     $("#homeGreeting").textContent = h >= 5 && h < 12 ? "בוקר טוב" : h < 17 && h >= 12 ? "צהריים טובים" : h >= 17 && h < 21 ? "ערב טוב" : "שלום";
@@ -131,6 +133,21 @@
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", () => { if (!$("#appView").hidden) route(); });
+  /* ניווט קבוע בכותרת: מסך ראשי / הזמנות / לקוחות + חזרה */
+  function markNav(cur) {
+    $$("[data-nav]").forEach(a => {
+      const on = a.dataset.nav === cur;
+      a.classList.toggle("is-current", on);
+      if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    $("#navBack").hidden = cur === "home";
+  }
+  // "חזרה": למסך הקודם בתוך המערכת; אם אין כזה - למסך הראשי
+  let navSteps = 0;
+  window.addEventListener("hashchange", () => { navSteps++; });
+  $("#navBack").addEventListener("click", () => {
+    if (navSteps > 0) { navSteps -= 2; history.back(); } else location.hash = "";
+  });
   function displayName(user) {
     const m = user.user_metadata || {};
     return m.display_name || m.full_name || m.name || (user.email || "").split("@")[0];

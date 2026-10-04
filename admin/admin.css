@@ -406,3 +406,15 @@ a.btn { text-decoration: none; display: inline-block; }
 .ocard { position: relative; }
 .oc-num { position: absolute; top: -10px; inset-inline-start: -10px; z-index: 1; min-width: 30px; height: 30px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; background: var(--brown); color: #fff; font-weight: 800; font-size: .95rem; box-shadow: 0 2px 6px rgba(59,35,20,.25); }
 .cardlist { padding-top: 10px; padding-inline-start: 10px; }
+
+/* ===== ניווט קבוע בכותרת ===== */
+.mainnav { display: flex; align-items: center; gap: 4px; margin-inline: 12px auto; overflow-x: auto; scrollbar-width: none; }
+.mainnav::-webkit-scrollbar { display: none; }
+.mainnav a, .mainnav .nav-back { font: inherit; font-weight: 600; color: var(--muted); text-decoration: none; padding: 7px 14px; border-radius: 8px; border: 0; background: none; cursor: pointer; white-space: nowrap; }
+.mainnav a:hover, .mainnav .nav-back:hover { background: var(--sand); color: var(--brown); }
+.mainnav a.is-current { background: var(--brown); color: #fff; }
+.mainnav .nav-back { border: 1.5px solid var(--line); margin-inline-end: 6px; }
+@media (max-width: 760px) {
+  .topbar { flex-wrap: wrap; row-gap: 6px; }
+  .mainnav { order: 3; width: 100%; margin: 0; }
+}
