@@ -141,21 +141,22 @@
       <div class="panel-head">
         <div>
           <h2>מחכות לאישור</h2>
-          <p class="muted small">מהישנה לחדשה. "אשר" מעביר את ההזמנה לרשימת המאושרות שלמטה. משם היא יורדת לטאבלט בלחיצה על "העבר לייצור".</p>
+          <p class="muted small">מהישנה לחדשה. "אשר" מעביר את ההזמנה לרשימת המאושרות שלמטה. משם היא יורדת לטאבלט בלחיצה על "שלח לקילוף".</p>
         </div>
         <button type="button" class="btn btn-sm" id="approveAll" hidden>אשר את כולן</button>
       </div>
       <div id="pendingList" class="cardlist"></div>
       <div class="empty" id="pendingEmpty" hidden><p>אין הזמנות שממתינות לאישור.</p></div>
 
-      <!-- מאושרות: מחכות לכפתור "העבר לייצור" -->
+      <!-- מאושרות: מחכות לכפתור "שלח לקילוף" -->
       <div class="approved-block">
+        <div class="approved-divider" role="separator">
+          <h2>מאושרות · ממתינות לקילוף</h2>
+          <span id="approvedCount"></span>
+        </div>
         <div class="panel-head approved-head">
-          <div>
-            <h2>מאושרות · ממתינות לייצור <span class="muted small" id="approvedCount"></span></h2>
-            <p class="muted small" id="approvedHint"></p>
-          </div>
-          <button type="button" class="btn btn-primary btn-lg" id="releaseBtn" disabled>העבר לייצור</button>
+          <p class="muted small" id="approvedHint"></p>
+          <button type="button" class="btn btn-go btn-lg" id="releaseBtn" disabled>שלח לקילוף</button>
         </div>
         <div class="table-wrap">
           <table class="orders approved-table">
@@ -170,7 +171,7 @@
       <div class="later-block" id="laterBlock" hidden>
         <div class="later-head">
           <h3>לימים הבאים <span class="muted small" id="laterCount"></span></h3>
-          <p class="muted small">מאושרות, אבל לא יורדות לייצור בלחיצה היום. כל אחת תעלה לרשימה העליונה ביום שלפני האספקה שלה.</p>
+          <p class="muted small">מאושרות, אבל לא נשלחות לקילוף בלחיצה היום. כל אחת תעלה לרשימה העליונה ביום שלפני האספקה שלה.</p>
         </div>
         <div class="table-wrap">
           <table class="orders approved-table later-table">
@@ -433,7 +434,7 @@
       <button type="button" class="btn btn-sm" id="oAddBtn">+ הוספת מוצר</button>
     </div>
     <p class="order-total" id="oTotal"></p>
-    <label class="check order-approve" id="oApproveWrap" hidden><input type="checkbox" id="oApprove" checked> לאשר מיד (ההזמנה תיכנס למאושרות ותרד לייצור עם הכפתור "העבר לייצור")</label>
+    <label class="check order-approve" id="oApproveWrap" hidden><input type="checkbox" id="oApprove" checked> לאשר מיד (ההזמנה תיכנס למאושרות ותישלח לקילוף עם הכפתור "שלח לקילוף")</label>
     <p class="form-error" id="orderError" role="alert"></p>
     <div class="modal-actions">
       <button type="submit" class="btn btn-primary" id="orderSave">שמירת שינויים</button>

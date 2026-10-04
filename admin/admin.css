@@ -387,3 +387,22 @@ a.btn { text-decoration: none; display: inline-block; }
 .later-head p { margin: 2px 0 10px; }
 .later-table { background: transparent; }
 .later-table tr.later td { opacity: 1; }
+
+/* ===== כפתור "שלח לקילוף" ירוק ===== */
+.btn-go { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+.btn-go:hover:not(:disabled) { background: #1f5f23; border-color: #1f5f23; }
+.btn-go:disabled { background: #9bbf9d; border-color: #9bbf9d; color: #fff; }
+
+/* ===== מחיצה גדולה בין הכרטיסים לבין המאושרות, כותרת באמצע ===== */
+.approved-block { border-top: 0; margin-top: 34px; padding-top: 0; }
+.approved-divider { position: relative; text-align: center; margin: 0 0 16px; padding: 18px 16px 16px; background: var(--sand); border-radius: 14px; border-top: 4px solid var(--brown); }
+.approved-divider h2 { font-size: 1.45rem; margin: 0; }
+.approved-divider #approvedCount { display: block; margin-top: 4px; color: var(--muted); font-weight: 600; }
+.approved-head { align-items: center; }
+.approved-head p { flex-basis: auto !important; flex: 1; margin: 0 !important; }
+.approved-table tr.group-row td { text-align: center; }
+
+/* ===== מספר הכרטיס לפי סדר הקבלה ===== */
+.ocard { position: relative; }
+.oc-num { position: absolute; top: -10px; inset-inline-start: -10px; z-index: 1; min-width: 30px; height: 30px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; background: var(--brown); color: #fff; font-weight: 800; font-size: .95rem; box-shadow: 0 2px 6px rgba(59,35,20,.25); }
+.cardlist { padding-top: 10px; padding-inline-start: 10px; }

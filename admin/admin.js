@@ -216,7 +216,7 @@
       count("customers", q => q.is("hash_key", null)),
       count("orders", q => q.eq("status", APPROVED_ST))
     ]);
-    $("#flowPendingHint").textContent = approved ? `${approved} מאושרות ממתינות לייצור` : "לבדוק ולאשר";
+    $("#flowPendingHint").textContent = approved ? `${approved} מאושרות ממתינות לקילוף` : "לבדוק ולאשר";
     $("#sumToExport").textContent = exported ?? "–";
     $("#sumToExportHint").textContent = `לאספקה ב${fmtDate(nextDeliveryDay())}`;
     $("#flowPending").classList.toggle("hot", !!pending);
@@ -260,9 +260,11 @@
     $("#pendingEmpty").hidden = data.length > 0;
     $("#approveAll").hidden = data.length < 2;
     $("#approveAll").textContent = `אשר את כל ה-${data.length}`;
-    $("#pendingList").innerHTML = data.map(o => {
+    // הכרטיסים ממוספרים לפי סדר הקבלה במערכת: 1 = ההזמנה הראשונה שהתקבלה
+    $("#pendingList").innerHTML = data.map((o, i) => {
       const c = o.customers || {};
       return `<article class="ocard" data-id="${o.order_id}">
+        <span class="oc-num" title="מספר ${i + 1} לפי סדר הקבלה">${i + 1}</span>
         <header>
           <div class="oc-who"><strong>${esc(c.name)}</strong><span class="muted">הזמנה ${o.order_id} · ${sourceTag(o.source)} · ${ago(o.order_date)}</span></div>
           <div class="oc-due"><span class="muted">אספקה</span><strong>${o.delivery_date ? esc(fmtDate(o.delivery_date)) : "לא צוין"}</strong></div>
@@ -280,7 +282,7 @@
     await loadApproved();
   }
 
-  /* ----- מאושרות: שורות מתחת לכרטיסים. קבועות (כחול) בסוף. כפתור אחד מוריד הכול לייצור ----- */
+  /* ----- מאושרות: שורות מתחת לכרטיסים. קבועות (כחול) בסוף. כפתור אחד ("שלח לקילוף") מוריד הכול לטאבלט ----- */
   let lastPrepare = 0;
   async function loadApproved() {
     // יצירת ההזמנות הקבועות ליום האספקה הקרוב (פעם בדקה לכל היותר; אם כבר נוצרו - לא נוצר כלום)
@@ -322,31 +324,31 @@
       </tr>`;
     };
     $("#approvedBody").innerHTML = nowSorted.length
-      ? `<tr class="group-row"><td colspan="7">לאספקה ב${esc(fmtDate(next))} · יורדות לייצור בלחיצה על "העבר לייצור"</td></tr>` + nowSorted.map(o => row(o, "")).join("")
+      ? `<tr class="group-row"><td colspan="7">לאספקה ב${esc(fmtDate(next))} · נשלחות לקילוף בלחיצה על "שלח לקילוף"</td></tr>` + nowSorted.map(o => row(o, "")).join("")
       : "";
     $("#approvedEmpty").hidden = nowSorted.length > 0;
     // לימים הבאים: טבלה נפרדת, עמומה, מתחת לקו מפריד
     $("#laterBlock").hidden = !later.length;
     $("#laterCount").textContent = later.length ? `(${later.length})` : "";
     $("#laterBody").innerHTML = later.map(o => row(o, "later")).join("");
-    $("#approvedCount").textContent = data.length ? `(${now.length} ל${fmtDate(next)}${later.length ? ` · ${later.length} לימים הבאים` : ""})` : "";
+    $("#approvedCount").textContent = `${now.length} לאספקה ב${fmtDate(next)}${later.length ? ` · ${later.length} לימים הבאים` : ""}`;
     const nStanding = now.filter(isStanding).length;
     const rb = $("#releaseBtn");
     rb.disabled = !now.length;
-    rb.textContent = now.length ? `העבר לייצור (${now.length})` : "העבר לייצור";
+    rb.textContent = now.length ? `שלח לקילוף (${now.length})` : "שלח לקילוף";
     const h = new Date().getHours();
     $("#approvedHint").textContent = (h < 12
-      ? "הזמנות למחר מתקבלות עד 12:00. אחרי 12 לוחצים \"העבר לייצור\" וכל הרשימה יורדת לטאבלט בבת אחת."
-      : "עברה השעה 12:00 — אפשר להעביר לייצור.") + (nStanding ? ` כולל ${nStanding} הזמנות קבועות.` : "");
+      ? "הזמנות למחר מתקבלות עד 12:00. אחרי 12 לוחצים \"שלח לקילוף\" וכל הרשימה יורדת לטאבלט בבת אחת."
+      : "עברה השעה 12:00 — אפשר לשלוח לקילוף.") + (nStanding ? ` כולל ${nStanding} הזמנות קבועות.` : "");
   }
 
   $("#releaseBtn").addEventListener("click", async () => {
     const n = (state.approved || []).filter(o => !o.delivery_date || o.delivery_date <= nextDeliveryDay()).length;
-    if (!n || !confirm(`להעביר לייצור ${n} הזמנות לאספקה ב${fmtDate(nextDeliveryDay())}?\nהן יופיעו בטאבלט מיד.`)) return;
+    if (!n || !confirm(`לשלוח לקילוף ${n} הזמנות לאספקה ב${fmtDate(nextDeliveryDay())}?\nהן יופיעו בטאבלט מיד.`)) return;
     const rb = $("#releaseBtn"); rb.disabled = true; rb.textContent = "מעביר…";
     const { data, error } = await db.rpc("release_to_production");
-    if (error) { toast("ההעברה לייצור נכשלה: " + error.message, true); await loadApproved(); return; }
-    toast(`${data.released} הזמנות ירדו לייצור` + (data.standing ? ` (מתוכן ${data.standing} קבועות)` : ""));
+    if (error) { toast("השליחה לקילוף נכשלה: " + error.message, true); await loadApproved(); return; }
+    toast(`${data.released} הזמנות נשלחו לקילוף` + (data.standing ? ` (מתוכן ${data.standing} קבועות)` : ""));
     await Promise.all([loadCounts(), loadPending()]);
   });
 
@@ -389,7 +391,7 @@
     if (c && !confirm(`לבטל את הזמנה ${id}?`)) return;
     (a || c).disabled = true;
     const ok = await setStatus(id, a ? APPROVED_ST : "בוטלה");
-    if (ok) toast(a ? `הזמנה ${id} אושרה · ממתינה לייצור` : `הזמנה ${id} בוטלה`);
+    if (ok) toast(a ? `הזמנה ${id} אושרה · ממתינה לקילוף` : `הזמנה ${id} בוטלה`);
     await Promise.all([loadCounts(), loadPending()]);
   });
 
@@ -647,7 +649,7 @@
       const driverOpts = `<option value="">—</option>` + state.drivers.map(d =>
         `<option value="${d.driver_id}" ${d.driver_id === o.driver_id ? "selected" : ""}>${esc(d.name)}</option>`).join("");
       const statusOpts = STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("");
-      const stage = o.status === "בייצור" ? `<small class="st-sub">${o.started_at ? "בקילוף" : "ממתינה בטאבלט"}</small>` : o.status === APPROVED_ST ? `<small class="st-sub">ממתינה ל"העבר לייצור"</small>` : "";
+      const stage = o.status === "בייצור" ? `<small class="st-sub">${o.started_at ? "בקילוף" : "ממתינה בטאבלט"}</small>` : o.status === APPROVED_ST ? `<small class="st-sub">ממתינה ל"שלח לקילוף"</small>` : "";
       const editable = EDITABLE.includes(o.status);
       return `<tr data-id="${o.order_id}" class="${o.status === "בוטלה" ? "cancelled" : ""}">
         <td class="num muted">${o.order_id}</td>
@@ -1207,7 +1209,7 @@
       $("#orderSave").disabled = false;
       if (err) { $("#orderError").textContent = "ההזמנה לא נוצרה: " + err.message; return; }
       closeOrderEditor();
-      toast(`נוצרה הזמנה ${res.order_id}` + (approve ? " · מאושרת, ממתינה לייצור" : " · ממתינה לאישור"));
+      toast(`נוצרה הזמנה ${res.order_id}` + (approve ? " · מאושרת, ממתינה לקילוף" : " · ממתינה לאישור"));
       loadCounts(); refreshTab();
       return;
     }
@@ -1224,7 +1226,7 @@
 
   /* ==========================================================
      הזמנות קבועות: לקוח + ימי אספקה + מוצרים. נוצרות לבד ליום האספקה הקרוב
-     (במצב "מאושרת") ויורדות לייצור עם "העבר לייצור". עריכה מניהול לקוחות.
+     (במצב "מאושרת") ונשלחות לקילוף עם "שלח לקילוף". עריכה מניהול לקוחות.
      ========================================================== */
   const DAY_NAMES = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳"];
   state.standing = [];
@@ -1254,7 +1256,7 @@
       lines: s ? (s.items || []).map(i => { const p = prod(i.pid); return { pid: Number(i.pid), name: p ? p.name : `מוצר ${i.pid}`, unit: p?.unit, qty: Number(i.qty), orig: Number(i.qty), price: Number(p?.base_price) || 0, isNew: true }; }) : []
     };
     $("#orderTitle").textContent = `הזמנה קבועה · ${c.name}`;
-    $("#orderSub").textContent = "נוצרת לבד ליום האספקה, בלי אישור מנהל, ויורדת לייצור עם הכפתור \"העבר לייצור\". מופיעה בכחול בסוף רשימת המאושרות ובטאבלט.";
+    $("#orderSub").textContent = "נוצרת לבד ליום האספקה, בלי אישור מנהל, ונשלחת לקילוף עם הכפתור \"שלח לקילוף\". מופיעה בכחול בסוף רשימת המאושרות ובטאבלט.";
     $("#orderWarn").hidden = true; $("#oNewBox").hidden = true; $("#oApproveWrap").hidden = true;
     standingUI(true);
     $("#oStandPickWrap").hidden = !mine.length;
