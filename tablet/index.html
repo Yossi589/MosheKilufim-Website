@@ -62,18 +62,42 @@
   <div class="offline" id="offline" hidden>אין חיבור לאינטרנט. ההזמנות לא מתעדכנות, ואי אפשר לסמן "הוכן" עד שהחיבור יחזור.</div>
   <div class="alert" id="alert" hidden></div>
 
-  <main class="layout">
-    <section class="queue" id="queue" aria-live="polite"></section>
-    <div class="empty" id="empty" hidden>
-      <div class="empty-ic">✓</div>
-      <h2>אין הזמנות להכנה</h2>
-      <p>הזמנה חדשה תופיע כאן ברגע שהמנהל יאשר אותה.</p>
+  <!-- לשוניות: עבודה / הוכנו -->
+  <nav class="vtabs" role="tablist">
+    <button type="button" class="vtab is-active" role="tab" data-view="work">להכנה <span class="vcount" id="cntWork">0</span></button>
+    <button type="button" class="vtab" role="tab" data-view="done">הוכנו <span class="vcount" id="cntDone">0</span></button>
+  </nav>
+
+  <main class="layout" id="workView">
+    <div class="work">
+      <section class="stage" id="stageNew">
+        <h2 class="stage-title">הזמנות חדשות <span id="cntNew">0</span></h2>
+        <p class="stage-sub">אושרו על ידי המנהל. לחצו "נקלטה" כשמתחילים לעבוד על ההזמנה.</p>
+        <div class="queue" id="queueNew" aria-live="polite"></div>
+        <p class="stage-empty" id="emptyNew" hidden>אין הזמנות חדשות</p>
+      </section>
+      <section class="stage stage-prod" id="stageProd">
+        <h2 class="stage-title">בתהליך ייצור <span id="cntProd">0</span></h2>
+        <p class="stage-sub">סמנו כל מוצר שהוכן. כשהכול מסומן, כפתור האישור נצבע בירוק.</p>
+        <div class="queue" id="queueProd"></div>
+        <p class="stage-empty" id="emptyProd" hidden>אין הזמנות בתהליך ייצור</p>
+      </section>
     </div>
 
     <aside class="pick">
       <h2>סה״כ להכנה</h2>
+      <p class="muted pick-sub">מה שנשאר, בלי מוצרים שכבר סומנו</p>
       <table><tbody id="pickBody"></tbody></table>
     </aside>
+  </main>
+
+  <main class="done-view" id="doneView" hidden>
+    <div class="done-head">
+      <h2>הזמנות שהוכנו</h2>
+      <p class="muted">היום ואתמול, מהחדשה לישנה</p>
+    </div>
+    <div class="done-list" id="doneList"></div>
+    <p class="stage-empty" id="emptyDone" hidden>עוד לא הוכנו הזמנות</p>
   </main>
 
   <footer class="foot">

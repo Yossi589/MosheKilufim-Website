@@ -474,7 +474,7 @@
     loading(true);
     const [from, to] = dayRange(state.day);
     const { data, error } = await db.from("orders")
-      .select(`order_id, order_date, delivery_date, status, source, adress, driver_id, notes,
+      .select(`order_id, order_date, delivery_date, status, source, adress, driver_id, notes, started_at,
                customers ( name, phone_number ),
                drivers ( name ),
                order_lines ( quantity, product ( name ) )`)
@@ -528,7 +528,7 @@
         <td class="items">${itemsText(o.order_lines)}</td>
         <td class="num">${o.delivery_date ? esc(fmtDate(o.delivery_date)) : ""}</td>
         <td><select data-field="driver_id" aria-label="נהג להזמנה ${o.order_id}">${driverOpts}</select></td>
-        <td><select data-field="status" class="st" data-st="${esc(o.status)}" aria-label="סטטוס להזמנה ${o.order_id}">${statusOpts}</select></td>
+        <td><select data-field="status" class="st" data-st="${esc(o.status)}" aria-label="סטטוס להזמנה ${o.order_id}">${statusOpts}</select>${o.status === "בייצור" ? (o.started_at ? `<span class="tag tag-hot">בקילוף</span>` : `<span class="tag">ממתינה בטאבלט</span>`) : ""}</td>
       </tr>`;
     }).join("");
   }

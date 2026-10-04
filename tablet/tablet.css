@@ -140,3 +140,67 @@ button { font: inherit; touch-action: manipulation; }
 
 @media (max-width: 900px) { .prog { min-width: 140px; } .status { display: none; } }
 @media (prefers-reduced-motion: reduce) { .ticket.all-ticked .btn-done { animation: none; } }
+
+/* ===== גרסה 3: חדשות / בתהליך ייצור / הוכנו ===== */
+.vtabs { display: flex; gap: 8px; padding: 12px 20px 0; }
+.vtab { font: inherit; font-weight: 800; font-size: 1.15rem; border: 2px solid var(--line); background: var(--white); color: var(--muted);
+  border-radius: 999px; padding: 10px 22px; cursor: pointer; }
+.vtab.is-active { background: var(--brown); border-color: var(--brown); color: var(--cream); }
+.vcount { display: inline-block; min-width: 28px; margin-inline-start: 6px; padding: 0 8px; border-radius: 999px; background: var(--sand); color: var(--brown); font-size: .95rem; }
+.vtab.is-active .vcount { background: var(--orange); color: #fff; }
+
+.work { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+.stage-title { font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+.stage-title span { font-size: 1rem; background: var(--sand); border-radius: 999px; padding: 1px 12px; }
+.stage-prod .stage-title span { background: #dfe3e8; }
+.stage-sub { margin: 4px 0 12px; color: var(--muted); }
+.stage-empty { color: var(--muted); padding: 18px; border: 2px dashed var(--line); border-radius: 16px; text-align: center; margin: 0; }
+.stage-prod { padding-top: 22px; border-top: 3px solid var(--line); }
+
+.due.urgent { background: var(--danger); color: #fff; }
+
+/* שלב 1: כפתור "נקלטה" */
+.btn-start { background: var(--orange); border-color: var(--orange); color: #fff; width: 100%; }
+.btn-start:active { background: #8f4013; }
+
+/* שלב 2: הזמנה בתהליך - אפורה, מוצר שסומן מקבל צבע */
+.ticket.t-prod { background: #eef0f2; box-shadow: 0 0 0 2px #d3d8de; }
+.items.chks li { display: grid; grid-template-columns: 52px 56px 1fr auto; column-gap: 12px; align-items: center;
+  padding: 8px; border-radius: 12px; cursor: pointer; user-select: none; border-bottom: 1px solid #dde1e6; }
+.items.chks li:last-child { border-bottom: none; }
+.items.chks .box { width: 44px; height: 44px; border-radius: 10px; border: 3px solid #9aa3ad; background: #fff;
+  display: grid; place-items: center; font-size: 1.6rem; font-weight: 900; color: #fff; }
+.items.chks .ph { filter: grayscale(1); opacity: .45; transition: filter .2s, opacity .2s; }
+.items.chks .p { color: #8a929b; font-size: 1.2rem; font-weight: 700; }
+.items.chks .qty { font-family: var(--f-head); font-size: 1.5rem; font-weight: 800; color: #8a929b; text-align: end; }
+.items.chks .qty small { font-family: var(--f-body); font-size: .8rem; font-weight: 600; display: block; }
+.items.chks li.ticked { background: var(--white); }
+.items.chks li.ticked .box { background: var(--green); border-color: var(--green); }
+.items.chks li.ticked .ph { filter: none; opacity: 1; }
+.items.chks li.ticked .p { color: var(--ink); }
+.items.chks li.ticked .qty { color: var(--orange); }
+.items.chks li:active { background: #e3e7eb; }
+
+/* כפתור OK: אפור עד שכל המוצרים מסומנים, ואז ירוק */
+.btn-ok { width: 100%; background: #c9ced4; border-color: #c9ced4; color: #5d656e; }
+.btn-ok:disabled { opacity: 1; cursor: not-allowed; }
+.ticket.all-ticked { box-shadow: 0 0 0 3px var(--green); }
+.ticket.all-ticked .btn-ok { background: var(--green); border-color: var(--green); color: #fff; animation: ready 1.4s ease-in-out infinite; }
+.ticket.all-ticked .btn-ok:active { background: var(--green-d); }
+
+/* לשונית הוכנו */
+.done-view { padding: 18px 20px 90px; }
+.done-head h2 { font-size: 1.6rem; }
+.done-head p { margin: 4px 0 14px; }
+.done-list { display: flex; flex-direction: column; gap: 10px; }
+.done-row { display: grid; grid-template-columns: 170px 1fr auto; gap: 16px; align-items: center; background: var(--white);
+  border-radius: 16px; padding: 14px 18px; box-shadow: 0 0 0 2px var(--line); }
+.done-time strong { display: block; font-family: var(--f-head); font-size: 1.25rem; color: var(--green-d); }
+.done-time span { font-size: .9rem; color: var(--muted); }
+.done-main strong { font-family: var(--f-head); font-size: 1.2rem; color: var(--brown); margin-inline-end: 10px; }
+.done-main p { margin: 4px 0 0; color: var(--ink); }
+.done-st { font-weight: 800; background: #e3f1e3; color: var(--green-d); border-radius: 999px; padding: 4px 14px; }
+.pick-sub { margin: -4px 0 8px; font-size: .9rem; }
+
+@media (max-width: 900px) { .done-row { grid-template-columns: 1fr; gap: 6px; } }
+.items.chks li.ticked .p { text-decoration: none; }

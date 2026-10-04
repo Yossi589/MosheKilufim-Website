@@ -1,9 +1,12 @@
 /* ==========================================================
    עמדת ייצור (טאבלט בפס) · משה קילופים
-   - כניסה עם משתמש העמדה (production_staff) או מנהל
-   - תור ההזמנות: production_queue()  (בלי מחירים, בלי טלפונים)
-   - "הוכן": mark_prepared(order_id)  (רק בייצור ← הוכנה), עם כמה שניות לביטול
-   - נגיעה בשורת מוצר מסמנת שהוא נארז (נשמר רק בטאבלט)
+   שלושה שלבים:
+   1. הזמנות חדשות   - אושרו ע"י המנהל. "נקלטה" -> start_production(order_id)
+   2. בתהליך ייצור   - מסמנים כל מוצר שהוכן (צ'קבוקס). כשהכול מסומן, OK נצבע בירוק
+                        -> mark_prepared(order_id), עם כמה שניות לביטול
+   3. הוכנו          - לשונית נפרדת: production_done() עם תאריך ושעת ההכנה
+   - כניסה עם משתמש מנהל הייצור (production_staff) או מנהל
+   - בלי מחירים ובלי טלפונים
    - עדכון בזמן אמת: ערוץ production, ורענון גיבוי כל 30 שניות
    ========================================================== */
 (function () {
@@ -13,36 +16,38 @@
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const num = n => new Intl.NumberFormat("he-IL", { maximumFractionDigits: 1 }).format(n || 0);
-  const NEW_MS = 10 * 60 * 1000;
+  const NEW_MS = 10 * 60 * 1000;   // הזמנה "חדשה" = אושרה ב-10 הדקות האחרונות
+  const UNDO_SEC = 6;
+
   // תמונות המוצרים: אותו קטלוג של האתר (js/products.js), לפי שם המוצר
   const IMG = new Map((window.MK_PRODUCTS || []).map(p => [p.name, p.image]));
   const thumb = name => IMG.has(name)
     ? `<img class="ph" src="../img/thumbs/${esc(IMG.get(name))}" alt="" width="56" height="56" loading="lazy">`
-    : `<span class="ph"></span>`;           // הזמנה "חדשה" = אושרה ב-10 הדקות האחרונות
+    : `<span class="ph"></span>`;
 
-  const state = { orders: [], seen: new Set(), first: true, channel: null, busy: false, wake: null,
-                  undo: new Map() };   // order_id -> {timer, left}
-  const UNDO_SEC = 6;
+  const state = { orders: [], done: [], first: true, channel: null, busy: false, wake: null,
+                  view: "work", undo: new Map(), starting: new Set() };
 
-  /* זיכרון מקומי של הטאבלט: אילו פריטים סומנו, וכמה הזמנות הוכנו היום */
+  /* ---------- זיכרון מקומי: אילו מוצרים סומנו כמוכנים בכל הזמנה ---------- */
   const store = {
     get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (_) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
   };
-  const todayKey = () => "mkDone-" + new Date().toLocaleDateString("en-CA");
-  let ticks = store.get("mkTicks", {});         // { "19905": [0, 2] }
-  const isTicked = (id, i) => (ticks[id] || []).includes(i);
-  function toggleTick(id, i) {
-    const arr = new Set(ticks[id] || []); arr.has(i) ? arr.delete(i) : arr.add(i);
-    ticks[id] = [...arr]; store.set("mkTicks", ticks);
+  let ticks = store.get("mkTicks2", {});        // { "19905": ["בצל מקולף", "גזר מקולף"] }
+  const isTicked = (id, name) => (ticks[id] || []).includes(name);
+  function toggleTick(id, name) {
+    const s = new Set(ticks[id] || []); s.has(name) ? s.delete(name) : s.add(name);
+    ticks[id] = [...s]; store.set("mkTicks2", ticks);
   }
   function pruneTicks() {
     const live = new Set(state.orders.map(o => String(o.order_id)));
     Object.keys(ticks).forEach(k => { if (!live.has(k)) delete ticks[k]; });
-    store.set("mkTicks", ticks);
+    store.set("mkTicks2", ticks);
   }
+  const allTicked = o => (o.items || []).length > 0 && (o.items || []).every(i => isTicked(o.order_id, i.product));
 
   /* ---------- עזר ---------- */
   let toastTimer;
@@ -61,24 +66,23 @@
     if (m < 1) return "עכשיו"; if (m < 60) return `לפני ${m} דק׳`;
     const h = Math.floor(m / 60); return h < 24 ? `לפני ${h} שע׳` : `לפני ${Math.floor(h / 24)} ימים`;
   }
-  function dayLabel(iso) {
-    if (!iso) return "";
+  function due(iso) {
+    if (!iso) return { text: "", urgent: false };
     const d = new Date(iso + "T12:00:00"), t = new Date(); t.setHours(12, 0, 0, 0);
     const diff = Math.round((d - t) / 86400000);
-    if (diff === 0) return "היום"; if (diff === 1) return "מחר"; if (diff < 0) return "באיחור";
-    return d.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" });
+    if (diff < 0) return { text: "באיחור", urgent: true };
+    if (diff === 0) return { text: "אספקה היום", urgent: true };
+    if (diff === 1) return { text: "אספקה מחר", urgent: false };
+    return { text: "אספקה " + d.toLocaleDateString("he-IL", { weekday: "short", day: "numeric", month: "numeric" }), urgent: false };
   }
-
-  /* קבוצות בתור: באיחור / היום / מחר / יום אחר */
-  function bucket(o) {
-    if (!o.delivery_date) return { key: "0", title: "בלי תאריך אספקה", urgent: false };
-    const d = new Date(o.delivery_date + "T12:00:00"), t = new Date(); t.setHours(12, 0, 0, 0);
-    const diff = Math.round((d - t) / 86400000);
-    const dm = d.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" });
-    if (diff < 0) return { key: "1", title: "באיחור", urgent: true };
-    if (diff === 0) return { key: "2", title: `לאספקה היום · ${dm}`, urgent: true };
-    if (diff === 1) return { key: "3", title: `לאספקה מחר · ${dm}`, urgent: false };
-    return { key: "4" + o.delivery_date, title: `לאספקה ${dm}`, urgent: false };
+  const isToday = ts => new Date(ts).toDateString() === new Date().toDateString();
+  function when(ts) {
+    const d = new Date(ts);
+    const time = d.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+    if (isToday(ts)) return `היום · ${time}`;
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    if (d.toDateString() === y.toDateString()) return `אתמול · ${time}`;
+    return `${d.toLocaleDateString("he-IL", { day: "numeric", month: "numeric" })} · ${time}`;
   }
 
   /* צליל (Web Audio, בלי קובץ) */
@@ -131,14 +135,15 @@
   $("#soundBtn").addEventListener("click", () => { unlockAudio(); $("#soundGate").hidden = true; keepAwake(); });
 
   /* ==========================================================
-     תור ההזמנות
+     טעינה: תור הייצור + ההזמנות שהוכנו
      ========================================================== */
   async function load() {
     if ($("#appView").hidden || state.busy) return;
-    const { data, error } = await db.rpc("production_queue");
-    if (error) { setStatus(false, "שגיאה בטעינה"); return; }
+    const [q, d] = await Promise.all([db.rpc("production_queue"), db.rpc("production_done", { p_days: 2 })]);
+    if (q.error) { setStatus(false, "שגיאה בטעינה"); return; }
     const before = new Set(state.orders.map(o => o.order_id));
-    state.orders = data || [];
+    state.orders = q.data || [];
+    if (!d.error) state.done = d.data || [];
     const fresh = state.orders.filter(o => !before.has(o.order_id));
     const freshIds = state.first ? new Set() : new Set(fresh.map(o => o.order_id));
     if (!state.first && fresh.length) { chime(); toast(fresh.length === 1 ? `הזמנה חדשה: ${fresh[0].customer_name}` : `${fresh.length} הזמנות חדשות`); }
@@ -147,78 +152,143 @@
     $("#updated").textContent = "עודכן " + new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
   }
 
-  function render(freshIds) {
-    const list = state.orders;
+  function render(freshIds = new Set()) {
     pruneTicks();
-    const done = store.get(todayKey(), 0);
-    const left = list.filter(o => !state.undo.has(o.order_id)).length;
-    $("#count").textContent = list.length ? `${left} להכנה` : "אין הזמנות";
-    const total = left + done;
-    $("#progText").textContent = `הוכנו היום ${done} · נשארו ${left}`;
-    $("#progFill").style.width = total ? `${Math.round(100 * done / total)}%` : "0%";
-    $("#empty").hidden = list.length > 0;
+    const active = state.orders.filter(o => !state.undo.has(o.order_id));
+    const fresh = state.orders.filter(o => !o.started_at);
+    const prod = state.orders.filter(o => o.started_at);
+    const doneToday = state.done.filter(o => isToday(o.prepared_at)).length;
+    const left = active.length;
+
+    $("#count").textContent = left ? `${left} להכנה` : "אין הזמנות";
+    $("#progText").textContent = `הוכנו היום ${doneToday} · נשארו ${left}`;
+    $("#progFill").style.width = (left + doneToday) ? `${Math.round(100 * doneToday / (left + doneToday))}%` : "0%";
     document.title = left ? `(${left}) עמדת ייצור` : "עמדת ייצור · משה קילופים";
 
-    // קיבוץ לפי יום אספקה, בסדר: באיחור, היום, מחר, אחר כך
-    const groups = new Map();
-    list.forEach(o => { const b = bucket(o); if (!groups.has(b.key)) groups.set(b.key, { ...b, orders: [] }); groups.get(b.key).orders.push(o); });
-    const keys = [...groups.keys()].sort();
-    $("#queue").innerHTML = keys.map(k => {
-      const g = groups.get(k);
-      return `<h2 class="group${g.urgent ? " urgent" : ""}">${esc(g.title)} <span>${g.orders.length}</span></h2>` + g.orders.map(o => ticket(o, freshIds, g.urgent)).join("");
-    }).join("");
+    $("#cntWork").textContent = left;
+    $("#cntDone").textContent = state.done.length;
+    $("#cntNew").textContent = fresh.length;
+    $("#cntProd").textContent = prod.length;
+    $("#emptyNew").hidden = fresh.length > 0;
+    $("#emptyProd").hidden = prod.length > 0;
 
-    const pick = new Map();
-    list.filter(o => !state.undo.has(o.order_id)).forEach(o => (o.items || []).forEach(i => {
-      const k = i.product; const cur = pick.get(k) || { q: 0, u: i.unit };
-      cur.q += Number(i.quantity); pick.set(k, cur);
-    }));
-    $("#pickBody").innerHTML = [...pick.entries()].sort((a, b) => b[1].q - a[1].q)
-      .map(([p, v]) => `<tr><td><span class="pk">${thumb(p)}${esc(p)}</span></td><td class="q">${num(v.q)}</td></tr>`).join("") || `<tr><td class="muted">אין</td></tr>`;
+    $("#queueNew").innerHTML = fresh.map(o => newTicket(o, freshIds)).join("");
+    $("#queueProd").innerHTML = prod.map(prodTicket).join("");
+    renderPick();
+    renderDone();
   }
 
-  function ticket(o, freshIds, urgent) {
-    const isNew = freshIds.has(o.order_id) || (o.approved_at && Date.now() - new Date(o.approved_at) < NEW_MS);
-    const items = o.items || [];
-    const nTicked = items.filter((_, i) => isTicked(o.order_id, i)).length;
-    const all = items.length > 0 && nTicked === items.length;
-    const u = state.undo.get(o.order_id);
-    const lis = items.map((it, i) => {
-      const t = isTicked(o.order_id, i);
-      return `<li class="${t ? "ticked" : ""}" data-tick="${o.order_id}:${i}" role="checkbox" aria-checked="${t}" tabindex="0">
-        <span class="q">${t ? "✓" : num(it.quantity)}</span>${thumb(it.product)}<span class="p">${esc(it.product)}</span>
-        <span class="u">${t ? `${num(it.quantity)} · נארז` : esc(it.unit || "")}</span></li>`;
-    }).join("");
-    return `<article class="ticket${isNew ? " is-new" : ""}${urgent ? " is-urgent" : ""}${all ? " all-ticked" : ""}${u ? " is-undo" : ""}" data-id="${o.order_id}">
-      <header>
+  function header(o, extra = "") {
+    const d = due(o.delivery_date);
+    return `<header>
         <div class="who"><strong>${esc(o.customer_name)}</strong><span>הזמנה ${o.order_id}</span></div>
-        <div class="when"><span class="tick-count">${nTicked}/${items.length} פריטים</span><span class="muted">אושרה ${esc(ago(o.approved_at))}</span></div>
-      </header>
+        <div class="when">${d.text ? `<span class="due${d.urgent ? " urgent" : ""}">${esc(d.text)}</span>` : ""}${extra}</div>
+      </header>`;
+  }
+
+  /* שלב 1: הזמנה חדשה */
+  function newTicket(o, freshIds) {
+    const isNew = freshIds.has(o.order_id) || (o.approved_at && Date.now() - new Date(o.approved_at) < NEW_MS);
+    const items = (o.items || []).map(i => `<li><span class="q">${num(i.quantity)}</span>${thumb(i.product)}<span class="p">${esc(i.product)}</span><span class="u">${esc(i.unit || "")}</span></li>`).join("");
+    const busy = state.starting.has(o.order_id);
+    return `<article class="ticket t-new${isNew ? " is-new" : ""}${due(o.delivery_date).urgent ? " is-urgent" : ""}" data-id="${o.order_id}">
+      ${header(o, `<span class="muted">אושרה ${esc(ago(o.approved_at))}</span>`)}
       ${isNew ? `<span class="new-flag">חדשה</span>` : ""}
-      <ul class="items">${lis}</ul>
+      <ul class="items">${items}</ul>
       ${o.notes ? `<p class="notes">${esc(o.notes)}</p>` : ""}
-      <button type="button" class="btn btn-done btn-xl" data-done="${o.order_id}">${all ? "הכול נארז · הוכן ✓" : "הוכן ✓"}</button>
-      ${u ? `<div class="undo-layer"><strong>סומנה כמוכנה</strong><button type="button" class="btn btn-xl btn-undo" data-undo="${o.order_id}">ביטול (<span class="undo-sec">${u.left}</span>)</button></div>` : ""}
+      <button type="button" class="btn btn-start btn-xl" data-start="${o.order_id}" ${busy ? "disabled" : ""}>${busy ? "מעביר…" : "נקלטה · העבר לקילוף ←"}</button>
     </article>`;
   }
 
-  /* ----- סימון פריט שנארז (נגיעה בשורה) ----- */
-  $("#queue").addEventListener("click", e => {
-    const li = e.target.closest("[data-tick]"); if (!li || li.closest(".is-undo")) return;
-    const [id, i] = li.dataset.tick.split(":").map(Number);
-    toggleTick(id, i); render(new Set());
+  /* שלב 2: בתהליך ייצור - אפור, צ'קבוקס לכל מוצר */
+  function prodTicket(o) {
+    const items = o.items || [];
+    const n = items.filter(i => isTicked(o.order_id, i.product)).length;
+    const all = allTicked(o);
+    const u = state.undo.get(o.order_id);
+    const lis = items.map(i => {
+      const t = isTicked(o.order_id, i.product);
+      return `<li class="chk${t ? " ticked" : ""}" data-tick="${o.order_id}" data-name="${esc(i.product)}" role="checkbox" aria-checked="${t}" tabindex="0">
+        <span class="box" aria-hidden="true">${t ? "✓" : ""}</span>
+        ${thumb(i.product)}
+        <span class="p">${esc(i.product)}</span>
+        <span class="qty">${num(i.quantity)} <small>${esc(i.unit || "")}</small></span>
+      </li>`;
+    }).join("");
+    return `<article class="ticket t-prod${all ? " all-ticked" : ""}${u ? " is-undo" : ""}" data-id="${o.order_id}">
+      ${header(o, `<span class="tick-count">${n}/${items.length} הוכנו</span><span class="muted">נקלטה ${esc(ago(o.started_at))}</span>`)}
+      <ul class="items chks">${lis}</ul>
+      ${o.notes ? `<p class="notes">${esc(o.notes)}</p>` : ""}
+      <button type="button" class="btn btn-ok btn-xl" data-done="${o.order_id}" ${all ? "" : "disabled aria-disabled=\"true\""}>${all ? "OK · ההזמנה הוכנה ✓" : `סמנו את כל המוצרים (${n}/${items.length})`}</button>
+      ${u ? `<div class="undo-layer"><strong>ההזמנה הוכנה</strong><button type="button" class="btn btn-xl btn-undo" data-undo="${o.order_id}">ביטול (<span class="undo-sec">${u.left}</span>)</button></div>` : ""}
+    </article>`;
+  }
+
+  /* סה"כ להכנה: כל מה שעוד לא סומן */
+  function renderPick() {
+    const pick = new Map();
+    state.orders.filter(o => !state.undo.has(o.order_id)).forEach(o => (o.items || []).forEach(i => {
+      if (o.started_at && isTicked(o.order_id, i.product)) return;
+      const cur = pick.get(i.product) || 0; pick.set(i.product, cur + Number(i.quantity));
+    }));
+    $("#pickBody").innerHTML = [...pick.entries()].sort((a, b) => b[1] - a[1])
+      .map(([p, q]) => `<tr><td><span class="pk">${thumb(p)}${esc(p)}</span></td><td class="q">${num(q)}</td></tr>`).join("") || `<tr><td class="muted">הכול מוכן</td></tr>`;
+  }
+
+  /* שלב 3: הוכנו */
+  function renderDone() {
+    $("#emptyDone").hidden = state.done.length > 0;
+    $("#doneList").innerHTML = state.done.map(o => {
+      const items = (o.items || []).map(i => `${esc(i.product)} × ${num(i.quantity)}`).join(" · ");
+      return `<article class="done-row">
+        <div class="done-time"><strong>${esc(when(o.prepared_at))}</strong>${o.started_at ? `<span>נקלטה ${esc(new Date(o.started_at).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</span>` : ""}</div>
+        <div class="done-main"><strong>${esc(o.customer_name)}</strong><span class="muted">הזמנה ${o.order_id}${o.delivery_date ? ` · ${esc(due(o.delivery_date).text)}` : ""}</span><p>${items}</p></div>
+        <span class="done-st">${esc(o.status)}</span>
+      </article>`;
+    }).join("");
+  }
+
+  /* ----- לשוניות ----- */
+  $$(".vtab").forEach(b => b.addEventListener("click", () => {
+    state.view = b.dataset.view;
+    $$(".vtab").forEach(x => x.classList.toggle("is-active", x === b));
+    $("#workView").hidden = state.view !== "work";
+    $("#doneView").hidden = state.view !== "done";
+    window.scrollTo(0, 0);
+  }));
+
+  /* ----- שלב 1 -> 2: "נקלטה" ----- */
+  $("#queueNew").addEventListener("click", async e => {
+    const b = e.target.closest("[data-start]"); if (!b) return;
+    unlockAudio();
+    if (!navigator.onLine) { toast("אין חיבור לאינטרנט", true); return; }
+    const id = Number(b.dataset.start);
+    state.starting.add(id); render();
+    const { data: ok, error } = await db.rpc("start_production", { p_order_id: id });
+    state.starting.delete(id);
+    if (error) { toast("הפעולה נכשלה: " + error.message, true); render(); return; }
+    toast(ok ? `הזמנה ${id} הועברה לקילוף` : `הזמנה ${id} כבר לא חדשה (אולי בוטלה)`, !ok);
+    await load();
   });
-  $("#queue").addEventListener("keydown", e => {
+
+  /* ----- שלב 2: סימון מוצר שהוכן ----- */
+  $("#queueProd").addEventListener("click", e => {
+    const li = e.target.closest("[data-tick]"); if (!li || li.closest(".is-undo")) return;
+    toggleTick(Number(li.dataset.tick), li.dataset.name);
+    render();
+  });
+  $("#queueProd").addEventListener("keydown", e => {
     if ((e.key === " " || e.key === "Enter") && e.target.matches("[data-tick]")) { e.preventDefault(); e.target.click(); }
   });
 
-  /* ----- "הוכן": בלי חלון אישור. יש כמה שניות לבטל, ורק אז נשלח לשרת ----- */
-  $("#queue").addEventListener("click", e => {
-    const b = e.target.closest("[data-done]"); if (!b) return;
+  /* ----- שלב 2 -> 3: OK (רק כשהכול מסומן), עם כמה שניות לביטול ----- */
+  $("#queueProd").addEventListener("click", e => {
+    const b = e.target.closest("[data-done]"); if (!b || b.disabled) return;
     unlockAudio();
     if (!navigator.onLine) { toast("אין חיבור לאינטרנט", true); return; }
     const id = Number(b.dataset.done);
-    if (state.undo.has(id)) return;
+    const o = state.orders.find(x => x.order_id === id);
+    if (!o || !allTicked(o) || state.undo.has(id)) return;
     const u = { left: UNDO_SEC, timer: null };
     u.timer = setInterval(() => {
       u.left -= 1;
@@ -226,12 +296,12 @@
       if (u.left <= 0) { clearInterval(u.timer); commitDone(id); }
     }, 1000);
     state.undo.set(id, u);
-    render(new Set());
+    render();
   });
-  $("#queue").addEventListener("click", e => {
+  $("#queueProd").addEventListener("click", e => {
     const b = e.target.closest("[data-undo]"); if (!b) return;
     const id = Number(b.dataset.undo), u = state.undo.get(id);
-    if (u) { clearInterval(u.timer); state.undo.delete(id); toast(`הזמנה ${id} חזרה לרשימה`); render(new Set()); }
+    if (u) { clearInterval(u.timer); state.undo.delete(id); toast(`הזמנה ${id} חזרה לרשימה`); render(); }
   });
 
   async function commitDone(id) {
@@ -239,13 +309,12 @@
     const { data: ok, error } = await db.rpc("mark_prepared", { p_order_id: id });
     state.busy = false;
     state.undo.delete(id);
-    if (error) { toast("הסימון נכשל: " + error.message, true); render(new Set()); return; }
+    if (error) { toast("הסימון נכשל: " + error.message, true); render(); return; }
     if (ok) {
-      store.set(todayKey(), store.get(todayKey(), 0) + 1);
-      delete ticks[id]; store.set("mkTicks", ticks);
+      delete ticks[id]; store.set("mkTicks2", ticks);
       const card = document.querySelector(`.ticket[data-id="${id}"]`);
       if (card) card.classList.add("leaving");
-      toast(`הזמנה ${id} הוכנה ✓`);
+      toast(`הזמנה ${id} הוכנה ✓ ועברה ל"הוכנו"`);
       setTimeout(load, 450);
     } else {
       toast(`הזמנה ${id} כבר לא בייצור (אולי בוטלה)`, true);
@@ -280,7 +349,7 @@
   /* שעון, מסך מלא, יציאה */
   function tick() { $("#clock").textContent = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }); }
   tick(); setInterval(tick, 15000);
-  setInterval(() => { if (state.orders.length) render(new Set()); }, 60000); // רענון "לפני X דק׳"
+  setInterval(() => { if (state.orders.length && !state.undo.size) render(); }, 60000); // רענון "לפני X דק׳"
   $("#fullBtn").addEventListener("click", () => {
     const el = document.documentElement;
     if (!document.fullscreenElement) (el.requestFullscreen || el.webkitRequestFullscreen || (() => {})).call(el);
