@@ -66,7 +66,8 @@
   <nav class="vtabs" role="tablist">
     <button type="button" class="vtab" role="tab" data-view="peel">סה״כ לקילוף <span class="vcount" id="cntPeel">0</span></button>
     <button type="button" class="vtab is-active" role="tab" data-view="work">הזמנות להכנה <span class="vcount" id="cntWork">0</span></button>
-    <button type="button" class="vtab" role="tab" data-view="done">הוכנו <span class="vcount" id="cntDone">0</span></button>
+    <!-- הוכנו: לא לשונית גדולה, כפתור קטן בצד -->
+    <button type="button" class="done-link" data-view="done" title="הזמנות שכבר הוכנו">✓ הוכנו <span id="cntDone">0</span></button>
   </nav>
 
   <main class="layout" id="workView">
@@ -93,11 +94,17 @@
     </div>
     <p class="peel-cutoff" id="peelCutoff"></p>
     <div class="peel-grid" id="peelGrid"></div>
+    <section class="stock-box" id="stockBox" hidden>
+      <h3>מהמלאי · לא צריך לקלף</h3>
+      <p class="muted">לוקחים מהמלאי ואורזים ישר להזמנות.</p>
+      <ul class="stock-list" id="stockList"></ul>
+    </section>
     <p class="stage-empty" id="emptyPeel" hidden>אין כרגע מה לקלף</p>
   </main>
 
   <main class="done-view" id="doneView" hidden>
     <div class="done-head">
+      <button type="button" class="btn btn-sm done-back" data-view="work">→ חזרה להזמנות להכנה</button>
       <h2>הזמנות שהוכנו</h2>
       <p class="muted">היום ואתמול, מהחדשה לישנה</p>
     </div>

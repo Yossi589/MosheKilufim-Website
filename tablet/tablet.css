@@ -264,3 +264,17 @@ button { font: inherit; touch-action: manipulation; }
 .items.chks li.unpeeled .box { border-color: #c4685a; }
 .items.chks li.unpeeled .ph { filter: saturate(.6); }
 .wait-tag { display: block; width: fit-content; white-space: nowrap; margin-top: 2px; font-size: .78rem; font-weight: 800; color: #fff; background: #b3473a; border-radius: 999px; padding: 1px 9px; }
+
+/* "הוכנו": כפתור קטן בצד במקום לשונית */
+.done-link { margin-inline-start: auto; align-self: center; font: inherit; font-weight: 700; font-size: .95rem; color: var(--muted); background: transparent; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.done-link span { font-weight: 800; color: var(--brown); }
+.done-link.is-active { background: var(--sand); color: var(--brown); }
+.done-back { margin-bottom: 10px; }
+/* מוצרים מהמלאי (לא בקילוף) */
+.stock-box { margin-top: 22px; background: var(--white); border: 2px dashed #d9c9ae; border-radius: 16px; padding: 14px 18px; }
+.stock-box h3 { margin: 0; font-family: var(--f-head); color: var(--brown); font-size: 1.25rem; }
+.stock-box p { margin: 2px 0 10px; }
+.stock-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.stock-list li { display: flex; align-items: center; gap: 10px; background: var(--cream); border-radius: 12px; padding: 8px 10px; }
+.stock-list li span { flex: 1; font-weight: 700; }
+.stock-list li b { font-family: var(--f-head); color: var(--brown); }

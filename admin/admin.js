@@ -229,7 +229,7 @@
       count("orders", q => q.eq("status", "בייצור")),
       count("orders", q => q.gte("prepared_at", from)),
       count("customer_requests", q => q.eq("status", "חדשה")),
-      count("orders", q => q.eq("delivery_date", nextDeliveryDay()).in("status", [APPROVED_ST, "בייצור", "הוכנה", "בדרך", "נמסרה"]).is("hash_exported_at", null)),
+      count("orders", q => q.eq("delivery_date", nextDeliveryDay()).in("status", ["בייצור", "הוכנה", "בדרך", "נמסרה"]).is("hash_exported_at", null)),
       count("customers", q => q),
       count("customers", q => q.gte("created_at", monthStart.toISOString())),
       count("customers", q => q.is("hash_key", null)),
@@ -436,26 +436,22 @@
     if (error) { toast("שגיאה בטעינת פניות: " + error.message, true); return; }
     state.requests = data;
     $("#requestsEmpty").hidden = data.length > 0;
-    $("#requestsList").innerHTML = data.map(r => `
-      <article class="ocard" data-id="${r.request_id}">
-        <header>
-          <strong>${esc(r.business || r.name)}</strong>
-          <span class="tag ${r.kind === "הזמנה" ? "tag-hot" : ""}">${esc(r.kind || "הזמנה")}</span>
-          <span class="muted small">${ago(r.created_at)}</span>
-        </header>
-        <div class="ocard-body">
-          <div class="meta">
-            <div><span class="muted">איש קשר:</span> ${esc(r.name)}</div>
-            <div><span class="muted">טלפון:</span> <a href="tel:${esc(r.phone)}"><bdi>${esc(r.phone)}</bdi></a></div>
-            ${r.city ? `<div><span class="muted">עיר:</span> ${esc(r.city)}</div>` : ""}
-            ${r.notes ? `<div class="note"><span class="muted">הערות:</span> ${esc(r.notes)}</div>` : ""}
-          </div>
-          ${Array.isArray(r.items) && r.items.length ? `<div class="items"><span class="muted">ביקש להזמין:</span><br>${requestItems(r.items)}</div>` : ""}
+    $("#requestsCount").textContent = data.length ? `(${data.length})` : "";
+    $("#requestsList").innerHTML = data.map((r, i) => `
+      <article class="ticket-card" data-id="${r.request_id}">
+        <div class="perf" aria-hidden="true"></div>
+        <div class="tk-top">
+          <span class="tk-n">#${i + 1}</span>
+          <span class="tk-meta">${esc(r.kind || "הזמנה")} · ${ago(r.created_at)}</span>
         </div>
+        <h3 class="tk-who">${esc(r.business || r.name)}</h3>
+        <p class="tk-sub">${esc(r.name)} · <a href="tel:${esc(r.phone)}"><bdi>${esc(r.phone)}</bdi></a>${r.city ? ` · ${esc(r.city)}` : ""}</p>
+        ${Array.isArray(r.items) && r.items.length ? `<ul class="tk-items">${r.items.map(it => `<li><b>${num(it.qty)}×</b><span>${esc(state.products.get(Number(it.pid)) || "מוצר " + it.pid)}</span></li>`).join("")}</ul>` : `<p class="tk-sub" style="margin-top:10px">רישום בלבד, בלי הזמנה</p>`}
+        ${r.notes ? `<p class="tk-note">${esc(r.notes)}</p>` : ""}
         <footer>
-          <button type="button" class="btn btn-primary" data-open="${r.request_id}">אישור ופתיחת לקוח</button>
-          <a class="btn" href="tel:${esc(r.phone)}">התקשרות</a>
-          <button type="button" class="btn btn-ghost" data-dismiss="${r.request_id}">לא רלוונטי</button>
+          <button type="button" class="btn-stamp" data-open="${r.request_id}">אשר ופתח לקוח</button>
+          <a class="btn btn-sm" href="tel:${esc(r.phone)}">התקשרות</a>
+          <button type="button" class="btn btn-link-danger" data-dismiss="${r.request_id}">לא רלוונטי</button>
         </footer>
       </article>`).join("");
   }
@@ -528,6 +524,7 @@
     const list = state.customers.filter(c => hit(c) && (!f || (f === "nokey" ? !c.hash_key : c.customer_category === f)));
     if (isNum) list.sort((a, b) => (String(b.customer_id) === q) - (String(a.customer_id) === q));
     $("#custCount").textContent = `(${list.length} מתוך ${state.customers.length})`;
+    setBadge("#badgeCustomers", state.customers.length);
     $("#custEmpty").hidden = list.length > 0;
     $("#custBody").innerHTML = list.map(c => `<tr data-id="${c.customer_id}">
       <td class="num">${c.customer_id}</td>
@@ -825,7 +822,8 @@
      ========================================================== */
   const VAT = 18;                 // % מע"מ
   const HASH_DOC_TYPE = 30;       // הזמנה מלקוח
-  const APPROVED = [APPROVED_ST, "בייצור", "הוכנה", "בדרך", "נמסרה"];
+  // לחשבשבת מגיעות רק הזמנות שאושרו ונשלחו לקילוף
+  const APPROVED = ["בייצור", "הוכנה", "בדרך", "נמסרה"];
   state.hashDate = "";
   state.hashOrders = [];
 
@@ -850,12 +848,12 @@
     if (error && /edited_at/.test(error.message)) ({ data, error } = await run(false)); // לפני מיגרציה 25
     loading(false);
     if (error) { toast("שגיאה בטעינה: " + error.message, true); return; }
-    // "שונתה אחרי הייצוא": נערכה אחרי שיוצאה. נחשבת כמו הזמנה שעוד לא יוצאה
+    // אדום = עוד לא בחשבשבת (כולל "שונתה אחרי הייצוא"); ירוק = כבר בחשבשבת
     const changed = o => o.hash_exported_at && o.edited_at && o.edited_at > o.hash_exported_at;
-    if ($("#hashOnlyNew").checked) data = data.filter(o => !o.hash_exported_at || changed(o));
-    state.hashOrders = data;
-    $("#hashEmpty").hidden = data.length > 0;
-    $("#hashBody").innerHTML = data.map(o => {
+    const todo = data.filter(o => !o.hash_exported_at || changed(o));
+    const done = data.filter(o => o.hash_exported_at && !changed(o));
+    state.hashOrders = todo; state.hashDone = done;
+    const row = (o, isDone) => {
       const c = o.customers || {};
       return `<tr data-id="${o.order_id}">
         <td class="num">${o.order_id}</td>
@@ -863,14 +861,27 @@
         <td class="hash-key${c.hash_key ? "" : " fallback"}" title="${c.hash_key ? "" : "אין מפתח חשבשבת ללקוח, משתמשים במספר הלקוח שלנו"}">${esc(custKey(c))}</td>
         <td class="items">${itemsText(o.order_lines)}</td>
         <td class="num">${money(orderNet(o))}</td>
-        <td>${esc(o.status)}</td>
-        <td>${changed(o) ? `<span class="exp-changed" title="יוצא ${esc(fmtTime(o.hash_exported_at))}, נערך ${esc(fmtTime(o.edited_at))}">שונתה אחרי הייצוא</span>` : o.hash_exported_at ? `<span class="exp-yes" title="${esc(fmtTime(o.hash_exported_at))}">✓ יוצא</span>` : `<span class="exp-no">עוד לא</span>`}</td>
-        <td><div class="row-btns"><button type="button" class="btn btn-sm" data-hx="${o.order_id}">אקסל</button><button type="button" class="btn btn-sm" data-hd="${o.order_id}">קליטה</button></div></td>
+        ${isDone
+          ? `<td><span class="exp-yes">✓ ${esc(fmtTime(o.hash_exported_at))}</span></td>
+             <td><button type="button" class="link-btn" data-hundo="${o.order_id}" title="החזרה לאדום, למשל אם הקליטה בחשבשבת נכשלה">החזר לאדום</button></td>`
+          : `<td>${changed(o) ? `<span class="exp-changed" title="יוצא ${esc(fmtTime(o.hash_exported_at))}, נערך ${esc(fmtTime(o.edited_at))}">שונתה אחרי הייצוא</span>` : esc(o.status)}</td>
+             <td><button type="button" class="btn btn-sm" data-hmanual="${o.order_id}" title="הקלדתם את ההזמנה בחשבשבת בעצמכם? מסמנים והיא עוברת לירוק">✓ הקלדה ידנית</button></td>`}
       </tr>`;
-    }).join("");
-    const net = data.reduce((s, o) => s + orderNet(o), 0);
+    };
+    $("#hashBody").innerHTML = todo.map(o => row(o, false)).join("");
+    $("#hashDoneBody").innerHTML = done.map(o => row(o, true)).join("");
+    $("#hashEmpty").hidden = todo.length > 0;
+    $("#hashDoneEmpty").hidden = done.length > 0;
+    $("#hashTodoCount").textContent = `(${todo.length})`;
+    $("#hashDoneCount").textContent = `(${done.length})`;
+    const sum = list => list.reduce((s, o) => s + orderNet(o), 0);
+    $("#hashTodoSum").textContent = todo.length ? `לפני מע״מ ${money(sum(todo))}` : "";
+    $("#hashDoneSum").textContent = done.length ? `לפני מע״מ ${money(sum(done))}` : "";
+    $("#hashDoc").textContent = todo.length ? `ייצא לקליטה (${todo.length})` : "ייצא לקליטה";
+    $("#hashDoc").disabled = !todo.length;
+    const net = sum(data);
     $("#hashTotals").textContent = data.length
-      ? `${data.length} הזמנות · לפני מע״מ ${money(net)} · מע״מ ${VAT}% ${money(net * VAT / 100)} · כולל מע״מ ${money(net * (1 + VAT / 100))}`
+      ? `כל היום: ${data.length} הזמנות · לפני מע״מ ${money(net)} · מע״מ ${VAT}% ${money(net * VAT / 100)} · כולל מע״מ ${money(net * (1 + VAT / 100))}`
       : "";
   }
 
@@ -988,35 +999,54 @@
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
 
+  // מסמנים "נכנס לחשבשבת" (ירוק). גם הזמנה ש"שונתה אחרי הייצוא" מקבלת מועד חדש
   async function markExported(orders) {
-    const ids = orders.filter(o => !o.hash_exported_at).map(o => o.order_id);
-    if (!ids.length) return;
+    const ids = orders.map(o => o.order_id);
+    if (!ids.length) return true;
     const { error } = await db.from("orders").update({ hash_exported_at: new Date().toISOString() }).in("order_id", ids);
-    if (error) toast("הקובץ ירד, אבל הסימון 'יוצא' נכשל: " + error.message, true);
+    if (error) { toast("הסימון נכשל: " + error.message, true); return false; }
+    return true;
   }
 
-  async function runExport(kind, orders) {
-    if (!orders.length) { toast("אין הזמנות לייצוא", true); return; }
-    const tag = orders.length === 1 ? `הזמנה_${orders[0].order_id}` : `אספקה_${state.hashDate}`;
-    try {
-      if (kind === "xlsx") await exportXlsx(orders, `חשבשבת_${tag}.xlsx`);
-      else download(cp1255(docText(orders)), "IMOVEIN.DOC");
-    } catch (err) { toast(err.message || "הייצוא נכשל", true); return; }
-    await markExported(orders);
-    toast(kind === "xlsx" ? `האקסל ירד (${orders.length} הזמנות)` : `קובץ הקליטה ירד (${orders.length} הזמנות)`);
-    loadHash();
+  // "ייצא לקליטה": קובץ IMOVEIN רק להזמנות האדומות, והן עוברות לירוק.
+  // "אקסל": לקריאה ולהקלדה; לא מסמן (מסמנים כל הזמנה ב"הקלדה ידנית" אחרי שהוקלדה)
+  async function runExport(kind) {
+    const todo = state.hashOrders || [];
+    if (kind === "xlsx") {
+      const list = todo.length ? todo : (state.hashDone || []);
+      if (!list.length) { toast("אין הזמנות לתאריך הזה", true); return; }
+      try { await exportXlsx(list, `חשבשבת_אספקה_${state.hashDate}.xlsx`); }
+      catch (err) { toast(err.message || "הייצוא נכשל", true); return; }
+      toast(`האקסל ירד (${list.length} הזמנות${todo.length ? ", האדומות" : ""})`);
+      return;
+    }
+    if (!todo.length) { toast("אין הזמנות אדומות לייצוא", true); return; }
+    try { download(cp1255(docText(todo)), "IMOVEIN.DOC"); }
+    catch (err) { toast(err.message || "הייצוא נכשל", true); return; }
+    if (await markExported(todo)) toast(`קובץ הקליטה ירד: ${todo.length} הזמנות עברו לירוק`);
+    loadHash(); loadCounts();
   }
 
   $("#hashDate").addEventListener("change", e => { if (e.target.value) { state.hashDate = e.target.value; loadHash(); } });
-  $("#hashOnlyNew").addEventListener("change", loadHash);
-  $("#hashXlsx").addEventListener("click", () => runExport("xlsx", state.hashOrders));
-  $("#hashDoc").addEventListener("click", () => runExport("doc", state.hashOrders));
+  $("#hashXlsx").addEventListener("click", () => runExport("xlsx"));
+  $("#hashDoc").addEventListener("click", () => runExport("doc"));
   $("#hashPrm").addEventListener("click", () => download(cp1255(prmText()), "IMOVEIN.PRM"));
-  $("#hashBody").addEventListener("click", e => {
-    const b = e.target.closest("[data-hx],[data-hd]"); if (!b) return;
-    const id = Number(b.dataset.hx || b.dataset.hd);
-    const o = state.hashOrders.find(x => x.order_id === id);
-    if (o) runExport(b.dataset.hx ? "xlsx" : "doc", [o]);
+  // הקלדה ידנית: ההזמנה הוקלדה בחשבשבת ביד → ירוק
+  $("#hashBody").addEventListener("click", async e => {
+    const b = e.target.closest("[data-hmanual]"); if (!b) return;
+    const o = (state.hashOrders || []).find(x => x.order_id === Number(b.dataset.hmanual)); if (!o) return;
+    b.disabled = true;
+    if (await markExported([o])) toast(`הזמנה ${o.order_id} סומנה כנכנסה לחשבשבת`);
+    loadHash(); loadCounts();
+  });
+  // החזרה לאדום (למשל אם הקליטה בחשבשבת נכשלה)
+  $("#hashDoneBody").addEventListener("click", async e => {
+    const b = e.target.closest("[data-hundo]"); if (!b) return;
+    const id = Number(b.dataset.hundo);
+    if (!confirm(`להחזיר את הזמנה ${id} לאדום (עוד לא בחשבשבת)?`)) return;
+    const { error } = await db.from("orders").update({ hash_exported_at: null }).eq("order_id", id);
+    if (error) { toast("ההחזרה נכשלה: " + error.message, true); return; }
+    toast(`הזמנה ${id} חזרה לאדום`); loadHash(); loadCounts();
   });
 
   /* ==========================================================
@@ -1039,6 +1069,7 @@
     // סה"כ לקילוף
     const map = new Map();
     orders.forEach(o => (o.items || []).forEach(i => {
+      if (i.peel === false) return;   // מהמלאי (שום, סלק בוואקום): לא בקילוף
       const r = map.get(i.product) || { name: i.product, pid: i.product_id, unit: i.unit, packs: 0, kg: 0, split: 0 };
       const kg = Number(i.quantity) * kgPer(i.product, i.unit);
       r.packs += Number(i.quantity); r.kg += kg; if (o.started_at && i.prepared) r.split += kg;

@@ -637,5 +637,5 @@ html.a11y-still *, html.a11y-still *::before, html.a11y-still *::after { animati
 .send-hint { margin: -2px 0 0; font-size: .85rem; color: var(--muted); text-align: center; }
 
 /* כניסת עובדים (מודול הניהול) — קישור צנוע בתחתית */
-.staff-link { display: inline-block; margin-inline-start: 14px; color: #b9a98f; font-size: .85rem; text-decoration: none; border: 1px solid rgba(226, 214, 194, .3); border-radius: 8px; padding: 4px 12px; }
+.staff-link { display: inline-block; margin-inline-start: 14px; color: #f8f4ea; font-size: .9rem; font-weight: 700; text-decoration: none; border: 1.5px solid rgba(226, 214, 194, .6); border-radius: 999px; padding: 6px 16px; }
 .staff-link:hover, .staff-link:focus-visible { color: #fff; border-color: rgba(226, 214, 194, .7); }

@@ -121,9 +121,9 @@
     <span class="tab-spacer" data-mod="orders" aria-hidden="true"></span>
     <button type="button" class="tab tab-sec" role="tab" data-mod="orders" data-tab="standing" id="tab-standing">הזמנות קבועות</button>
     <button type="button" class="tab tab-sec" role="tab" data-mod="orders" data-tab="day" id="tab-day">כל ההזמנות</button>
-    <button type="button" class="tab" role="tab" data-mod="reports" data-tab="stats" id="tab-stats">גרפים</button>
-    <button type="button" class="tab" role="tab" data-mod="customers" data-tab="requests" id="tab-requests">לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
-    <button type="button" class="tab" role="tab" data-mod="customers" data-tab="customers" id="tab-customers">כל הלקוחות</button>
+    <button type="button" class="tab tab-step" role="tab" data-mod="reports" data-tab="stats" id="tab-stats"><span class="step-n">1</span>גרפים</button>
+    <button type="button" class="tab tab-step" role="tab" data-mod="customers" data-tab="requests" id="tab-requests"><span class="step-n">1</span>לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
+    <button type="button" class="tab tab-step" role="tab" data-mod="customers" data-tab="customers" id="tab-customers"><span class="step-n">2</span>כל הלקוחות <span class="badge badge-soft" id="badgeCustomers" hidden></span></button>
   </nav>
 
   <main class="wrap">
@@ -145,7 +145,7 @@
         <span class="flow-k">4</span><strong id="sumToExport">–</strong><span class="flow-l">לחשבשבת</span><span class="flow-h" id="sumToExportHint">לאספקה הקרובה</span>
       </button>
     </section>
-    <section class="cards" data-mod="customers" aria-label="סיכום לקוחות">
+    <section class="cards" data-mod="none" aria-label="סיכום לקוחות" hidden>
       <div class="card hot"><span>לקוחות חדשים לאישור</span><strong id="sumRequests">–</strong></div>
       <div class="card"><span>לקוחות במערכת</span><strong id="sumCustomers">–</strong></div>
       <div class="card"><span>נפתחו החודש</span><strong id="sumCustMonth">–</strong></div>
@@ -220,13 +220,17 @@
     </section>
 
     <!-- ===== לשונית: לקוחות חדשים ===== -->
-    <section class="panel" id="view-requests" hidden>
-      <div class="panel-head">
-        <h2>לקוחות חדשים</h2>
-        <p class="muted small">אנשים שנרשמו או ניסו להזמין מהאתר עם טלפון שלא קיים במערכת. צרו קשר, ואשרו: נפתח כרטיס לקוח, ואם הם ביקשו מוצרים, ההזמנה עוברת לניהול הזמנות.</p>
+    <section id="view-requests" hidden>
+      <div class="zone zone-pending">
+        <div class="zone-head">
+          <div>
+            <h2>לקוחות חדשים לאישור <span class="zone-count" id="requestsCount"></span></h2>
+            <p class="muted small">נרשמו או ניסו להזמין מהאתר עם טלפון שלא קיים במערכת. מתקשרים, ומאשרים: נפתח כרטיס לקוח, ואם ביקשו מוצרים, ההזמנה עוברת לניהול הזמנות.</p>
+          </div>
+        </div>
+        <div id="requestsList" class="cardlist tickets"></div>
+        <div class="empty" id="requestsEmpty" hidden><p>אין לקוחות חדשים שמחכים ✓</p></div>
       </div>
-      <div id="requestsList" class="cardlist"></div>
-      <div class="empty" id="requestsEmpty" hidden><p>אין לקוחות חדשים שמחכים.</p></div>
     </section>
 
     <!-- ===== לשונית: הזמנות לפי יום ===== -->
@@ -367,29 +371,44 @@
 
     <!-- ===== לשונית: חשבשבת ===== -->
     <section id="view-hash" hidden>
-      <section class="panel">
-        <div class="panel-head">
-          <h2>הזמנות לקוח לחשבשבת</h2>
-          <p class="muted small">כל ההזמנות שאושרו (בייצור / הוכנה / בדרך / נמסרה) לתאריך האספקה שנבחר. אקסל: לקריאה ולהקלדה. קובץ קליטה (IMOVEIN): לקליטה אוטומטית בחשבשבת, מסמך מסוג 30 "הזמנה מלקוח".</p>
-        </div>
-        <div class="hashbar">
-          <label for="hashDate">תאריך אספקה</label>
-          <input type="date" id="hashDate">
-          <label class="check"><input type="checkbox" id="hashOnlyNew" checked> רק הזמנות שעוד לא יוצאו</label>
-          <span class="spacer"></span>
-          <button type="button" class="btn btn-primary" id="hashXlsx">אקסל לכל היום</button>
-          <button type="button" class="btn" id="hashDoc">קובץ קליטה לכל היום</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="hashPrm" title="קובץ ההגדרות של הקליטה. מורידים פעם אחת ושומרים באותה תיקייה">קובץ הגדרות (IMOVEIN.PRM)</button>
+      <div class="hash-top">
+        <label for="hashDate">תאריך אספקה</label>
+        <input type="date" id="hashDate">
+        <span class="spacer"></span>
+        <button type="button" class="btn-stamp-go btn-stamp-sm" id="hashDoc">ייצא לקליטה</button>
+        <button type="button" class="btn" id="hashXlsx">אקסל</button>
+      </div>
+      <p class="muted small hash-hint">כאן מופיעות רק הזמנות שהמנהל אישר ושנשלחו לקילוף. <b class="t-red">באדום</b>: עוד לא נכנסו לחשבשבת. <b class="t-green">בירוק</b>: כבר נכנסו. "ייצא לקליטה" מוציא לקובץ רק את האדומות ומעביר אותן לירוק; "הקלדה ידנית" מעביר הזמנה אחת לירוק אחרי שהקלדתם אותה בעצמכם.</p>
+
+      <div class="zone zone-pending">
+        <div class="zone-head">
+          <h2>עוד לא בחשבשבת <span class="zone-count" id="hashTodoCount"></span></h2>
+          <span class="muted small" id="hashTodoSum"></span>
         </div>
         <div class="table-wrap">
-          <table class="orders">
-            <thead><tr><th>#</th><th>לקוח</th><th>מפתח בחשבשבת</th><th>פריטים</th><th>סה״כ לפני מע״מ</th><th>סטטוס</th><th>יוצא</th><th></th></tr></thead>
+          <table class="orders hash-table">
+            <thead><tr><th>#</th><th>לקוח</th><th>מפתח בחשבשבת</th><th>פריטים</th><th>סה״כ לפני מע״מ</th><th>סטטוס</th><th></th></tr></thead>
             <tbody id="hashBody"></tbody>
           </table>
         </div>
-        <div class="empty" id="hashEmpty" hidden><p>אין הזמנות מאושרות לתאריך הזה.</p></div>
-        <p class="muted small" id="hashTotals"></p>
-      </section>
+        <div class="empty" id="hashEmpty" hidden><p>הכול כבר בחשבשבת ✓</p></div>
+      </div>
+
+      <div class="zone zone-approved">
+        <div class="zone-head">
+          <h2>כבר בחשבשבת <span class="zone-count" id="hashDoneCount"></span></h2>
+          <span class="muted small" id="hashDoneSum"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="orders hash-table">
+            <thead><tr><th>#</th><th>לקוח</th><th>מפתח בחשבשבת</th><th>פריטים</th><th>סה״כ לפני מע״מ</th><th>נכנסה</th><th></th></tr></thead>
+            <tbody id="hashDoneBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="hashDoneEmpty" hidden><p>עוד לא נכנסו הזמנות לחשבשבת לתאריך הזה.</p></div>
+      </div>
+      <p class="muted small" id="hashTotals"></p>
+      <p class="muted small">פעם ראשונה בקליטה? צריך גם את קובץ ההגדרות: <button type="button" class="link-btn" id="hashPrm">הורדת IMOVEIN.PRM</button> (שומרים באותה תיקייה של הקובץ).</p>
     </section>
   </main>
   </div>

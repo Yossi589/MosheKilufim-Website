@@ -551,3 +551,52 @@ a.btn { text-decoration: none; display: inline-block; }
   .mainnav .nav-back span { display: none; }
   .mainnav .nav-back { padding: 0 10px; }
 }
+
+/* =====================================================================
+   שאר המודולים באותה שפה: מסגרות, טבלאות, כפתורים
+   ===================================================================== */
+.panel { border-radius: 12px; padding: 18px 20px; box-shadow: none; border: 2px solid #e2d6c2; }
+.panel-head h2, .zone-head h2 { font-size: 1.35rem; }
+.orders th { background: var(--sand); color: var(--brown); font-weight: 800; font-size: .82rem; padding: 9px 8px; border-bottom: 2px solid #d9c9ae; }
+.orders thead tr th:first-child { border-start-start-radius: 8px; }
+.orders thead tr th:last-child { border-start-end-radius: 8px; }
+.orders td { padding: 10px 8px; }
+.orders tbody tr:hover td { background: #fcfaf5; }
+.approved-table tbody tr:hover td { background: inherit; }
+.filters input, .filters select, td select, .daybar input { border-radius: 10px; padding: 8px 12px; border-width: 1.5px; }
+.filters input:focus, .filters select:focus, td select:focus { border-color: var(--orange); outline: none; box-shadow: 0 0 0 3px rgba(181,84,26,.15); }
+.empty { border: 1.5px dashed #d9c9ae; border-radius: 10px; background: #fcfaf5; }
+.zone .empty { background: rgba(255,255,255,.6); }
+
+/* ניהול לקוחות: פניות כפתקים במסגרת אדמדמה */
+#view-requests .ticket-card .tk-sub a { color: var(--orange); font-weight: 700; }
+#view-requests .ticket-card .perf { background-image: radial-gradient(circle at 8px 0, var(--wait-bg) 5px, transparent 5.5px); }
+#view-customers .panel-head h2 { display: flex; align-items: baseline; gap: 8px; }
+
+/* פס ייצור */
+#view-production .panel { padding: 16px 18px; }
+.prod-card { border: 2px solid #e2d6c2; background: var(--white); }
+
+/* דוחות */
+.statbar { background: var(--white); border: 2px solid #e2d6c2; border-radius: 12px; padding: 10px 14px; }
+.chart-panel { border: 2px solid #e2d6c2; }
+
+/* חשבשבת: אדום = עוד לא נכנסו, ירוק = כבר נכנסו */
+.hash-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: var(--white); border: 2px solid #e2d6c2; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; }
+.hash-top label { font-weight: 700; color: var(--brown); }
+.hash-top input[type=date] { font: inherit; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 10px; }
+.hash-top .spacer { flex: 1; }
+.btn-stamp-sm { font-size: 1.1rem; padding: 8px 22px; margin: 4px 6px; }
+.hash-hint { margin: 0 4px 14px !important; }
+.t-red { color: var(--wait); }
+.t-green { color: #14592f; }
+.hash-table tbody tr td { background: var(--white); }
+.zone-pending .hash-table tbody tr td:first-child { box-shadow: inset -4px 0 0 #c4685a; }
+.zone-approved .hash-table tbody tr td:first-child { box-shadow: inset -4px 0 0 var(--ok); }
+.zone-pending .table-wrap, .zone-approved .table-wrap { background: var(--white); border-radius: 8px; }
+.link-btn { font: inherit; font-weight: 700; color: var(--orange); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+.exp-yes { color: #14592f; font-weight: 700; white-space: nowrap; }
+
+/* מסך הבית: אריחים באותה שפה */
+.tile { border: 2px solid #e2d6c2; box-shadow: none; transition: border-color .15s, transform .15s; }
+.tile:not(.is-soon):hover { border-color: var(--orange); transform: translateY(-2px); }

@@ -243,6 +243,8 @@
     }));
     const peeled = peeledMap(), done = {};
     Object.keys(need).forEach(pid => { done[pid] = peeled[pid] != null && need[pid] <= peeled[pid] + 0.001; });
+    // מוצר מהמלאי (שום, סלק בוואקום…) לא צריך קילוף: תמיד מוכן לאריזה
+    state.orders.forEach(o => (o.items || []).forEach(i => { if (i.peel === false) done[i.product_id] = true; }));
     return done;
   }
   async function setPeeled(pid, kg) {
@@ -258,9 +260,13 @@
   /* סה"כ לקילוף: כל הכמות מכל מוצר בכל ההזמנות שבטאבלט (חדשות + בתהליך).
      עד 12:00 מתחילים לקלף את הכמות כולה, ואחר כך מחלקים להזמנות. */
   function renderPeel() {
-    const map = new Map();
+    const map = new Map(), stock = new Map();
     state.orders.forEach(o => (o.items || []).forEach(i => {
       const k = i.product;
+      if (i.peel === false) {   // מהמלאי: לא נכנס לסה"כ לקילוף
+        const r = stock.get(k) || { name: k, unit: i.unit, packs: 0 };
+        r.packs += Number(i.quantity); stock.set(k, r); return;
+      }
       const r = map.get(k) || { name: k, pid: i.product_id, unit: i.unit, packs: 0, kg: 0, splitKg: 0, orders: [] };
       const q = Number(i.quantity), kg = q * kgPerPack(k, i.unit);
       const split = isTicked(o.order_id, k);
@@ -274,6 +280,9 @@
     const rows = [...map.values()].sort((a, b) => (isPeeled(a) - isPeeled(b)) || (b.kg - a.kg));
     const totKg = rows.reduce((s, r) => s + r.kg, 0), totPacks = rows.reduce((s, r) => s + r.packs, 0);
     $("#cntPeel").textContent = rows.length;
+    const st = [...stock.values()].sort((a, b) => b.packs - a.packs);
+    $("#stockBox").hidden = !st.length;
+    $("#stockList").innerHTML = st.map(r => `<li>${thumb(r.name)}<span>${esc(r.name)}</span><b>${num(r.packs)} מארזים</b></li>`).join("");
     $("#emptyPeel").hidden = rows.length > 0;
     $("#peelSub").textContent = `${state.orders.length} הזמנות · ${rows.length} מוצרים · ממוין מהכמות הגדולה לקטנה`;
     $("#peelTotal").innerHTML = rows.length ? `<strong>${kgFmt(totKg)}</strong><span>ק״ג בסך הכול · ${num(totPacks)} מארזים</span>` : "";
@@ -310,7 +319,7 @@
     $("#doneList").innerHTML = state.done.map(o => {
       const items = (o.items || []).map(i => `${esc(i.product)} × ${num(i.quantity)}`).join(" · ");
       return `<article class="done-row">
-        <div class="done-time"><strong>${esc(when(o.prepared_at))}</strong>${o.started_at ? `<span>נקלטה ${esc(new Date(o.started_at).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</span>` : ""}</div>
+        <div class="done-time"><strong>${esc(when(o.prepared_at))}</strong>${o.started_at ? `<span>התחילו ${esc(new Date(o.started_at).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</span>` : ""}</div>
         <div class="done-main"><strong>${esc(o.customer_name)}</strong><span class="muted">הזמנה ${o.order_id}${o.delivery_date ? ` · ${esc(due(o.delivery_date).text)}` : ""}</span><p>${items}</p></div>
         <span class="done-st">${esc(o.status)}</span>
       </article>`;
@@ -329,13 +338,13 @@
   function setView(v) {
     state.view = v;
     try { localStorage.setItem("mkTabletView", v); } catch (_) {}
-    $$(".vtab").forEach(x => x.classList.toggle("is-active", x.dataset.view === v));
+    $$(".vtab, .done-link").forEach(x => x.classList.toggle("is-active", x.dataset.view === v));
     $("#peelView").hidden = v !== "peel";
     $("#workView").hidden = v !== "work";
     $("#doneView").hidden = v !== "done";
     window.scrollTo(0, 0);
   }
-  $$(".vtab").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+  $$(".vtab, .done-link, .done-back").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
   setView(["peel", "work", "done"].includes(state.view) ? state.view : "peel");
 
   /* ----- שלב 1 -> 2: "נקלטה" ----- */
