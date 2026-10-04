@@ -239,3 +239,45 @@ a.btn { text-decoration: none; display: inline-block; }
 @media (prefers-reduced-motion: reduce) { .hero-logo, .hero-title, .hero-sub, .tile { animation: none; } }
 
 @media (max-width: 560px) { #userEmail { display: none; } .topbar { padding: 8px 12px; } .brand-home strong { font-size: 1rem; } }
+
+/* ===== גרסה 5: פס ייצור + עריכת הזמנה ===== */
+.live-pill:empty { display: none; }
+.live-pill { display: inline-block; min-width: 20px; padding: 0 6px; margin-inline-start: 4px; border-radius: 999px; background: #2f6b2f; color: #fff; font-size: .78rem; line-height: 20px; text-align: center; }
+.prod-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 6px; }
+.prod-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 10px 0 16px; align-items: start; }
+.prod-cols h2 { margin-bottom: 10px; display: flex; flex-direction: column; }
+.prod-list { display: flex; flex-direction: column; gap: 10px; }
+.prod-card { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: .9rem; }
+.prod-card header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.prod-card header strong { font-family: var(--f-head); color: var(--brown); }
+.prod-card .meta { color: var(--muted); font-size: .82rem; margin: 2px 0 6px; }
+.prod-card ul { list-style: none; margin: 0; padding: 0; }
+.prod-card li { display: flex; justify-content: space-between; padding: 2px 0; }
+.prod-card li.ok { color: #2f6b2f; }
+.prod-card li.ok::before { content: "✓ "; }
+.prod-card li:not(.ok) { color: var(--muted); }
+.prod-bar { height: 6px; background: var(--sand); border-radius: 999px; overflow: hidden; margin: 6px 0; }
+.prod-bar span { display: block; height: 100%; background: #2f8a3a; }
+.prod-card .acts { display: flex; gap: 6px; margin-top: 8px; }
+.prod-empty { color: var(--muted); text-align: center; padding: 14px; border: 1.5px dashed var(--line); border-radius: 12px; }
+.peel-table td.ok { color: #2f6b2f; font-weight: 700; }
+.peel-table tr.done td { color: var(--muted); }
+
+.modal-wide { width: min(760px, 100%); }
+.order-warn { background: #fff7d6; color: #6b4a00; border-radius: 10px; padding: 8px 12px; font-weight: 600; margin: 4px 0; }
+.order-grid { display: grid; grid-template-columns: 180px 1fr; gap: 12px; }
+.order-grid > div { display: flex; flex-direction: column; }
+.order-lines { margin-top: 12px; }
+.order-lines th { font-size: .8rem; color: var(--muted); text-align: start; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.order-lines td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.order-lines input { width: 90px; font: inherit; padding: 6px 8px; border: 1.5px solid var(--line); border-radius: 8px; }
+.order-lines .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.order-lines tr.is-new td:first-child::after { content: " חדש"; font-size: .72rem; font-weight: 700; color: var(--orange); }
+.order-lines .rm { border: none; background: none; color: var(--danger); font-size: 1.2rem; cursor: pointer; padding: 4px 8px; }
+.order-add { display: flex; gap: 8px; margin-top: 10px; }
+.order-add select { flex: 1; font: inherit; padding: 7px 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); }
+.order-total { text-align: end; font-weight: 700; margin: 10px 0 0; }
+.btn-edit { margin-inline-start: auto; }
+
+@media (max-width: 1000px) { .prod-cols { grid-template-columns: 1fr; } .prod-kpis { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .order-grid { grid-template-columns: 1fr; } }

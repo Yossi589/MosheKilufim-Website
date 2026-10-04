@@ -23,10 +23,10 @@
 
   /* מודולים: כל מודול והלשוניות שלו. מלאי ועובדים יתווספו בהמשך */
   const MODULES = {
-    orders:    { title: "ניהול הזמנות", tabs: ["pending", "day", "stats", "hash"] },
+    orders:    { title: "ניהול הזמנות", tabs: ["pending", "production", "day", "stats", "hash"] },
     customers: { title: "ניהול לקוחות", tabs: ["requests", "customers"] }
   };
-  const ALL_VIEWS = ["pending", "requests", "day", "stats", "hash", "customers"];
+  const ALL_VIEWS = ["pending", "production", "requests", "day", "stats", "hash", "customers"];
 
   const state = {
     module: "home", tab: "pending", day: todayISO(), customers: [], editing: null,
@@ -98,6 +98,8 @@
     state.tab = tab;
     $$(".tab").forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle("is-active", on); b.setAttribute("aria-selected", on); });
     ALL_VIEWS.forEach(t => { $("#view-" + t).hidden = t !== tab; });
+    // בלשונית "פס ייצור" יש כרטיסי סיכום משלה
+    if (state.module === "orders") $(".cards[data-mod=\"orders\"]").hidden = tab === "production";
     refreshTab();
   }
 
@@ -135,6 +137,7 @@
     if (state.tab === "stats") return loadStats();
     if (state.tab === "hash") return loadHash();
     if (state.tab === "customers") return loadCustomers();
+    if (state.tab === "production") return loadProduction();
     return loadDay();
   }
 
@@ -185,7 +188,8 @@
       data.map(d => `<option value="${d.driver_id}">${esc(d.name)}</option>`).join("");
   }
   async function loadProducts() {
-    const { data } = await db.from("product").select("product_id, name");
+    const { data } = await db.from("product").select("product_id, name, unit, base_price, is_active").order("name");
+    state.productList = data || [];
     state.products = new Map((data || []).map(p => [p.product_id, p.name]));
   }
 
@@ -267,6 +271,7 @@
         <footer>
           <button type="button" class="btn btn-primary" data-approve="${o.order_id}">אשר ושלח לייצור</button>
           <button type="button" class="btn btn-danger" data-cancel="${o.order_id}">ביטול הזמנה</button>
+          <button type="button" class="btn btn-ghost btn-edit" data-edit-order="${o.order_id}">עריכה</button>
         </footer>
       </article>`).join("");
   }
@@ -360,6 +365,7 @@
     if (e.key !== "Escape") return;
     if (!$("#custModal").hidden) closeModal();
     if (!$("#editModal").hidden) closeEdit();
+    if (!$("#orderModal").hidden) closeOrderEditor();
     if (!$("#movedModal").hidden) $("#movedModal").hidden = true;
   });
   $("#movedModal").addEventListener("click", e => {
@@ -522,7 +528,7 @@
         `<option value="${d.driver_id}" ${d.driver_id === o.driver_id ? "selected" : ""}>${esc(d.name)}</option>`).join("");
       const statusOpts = STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("");
       return `<tr data-id="${o.order_id}" class="${o.status === "בוטלה" ? "cancelled" : ""}">
-        <td class="num">${o.order_id}</td>
+        <td class="num">${o.order_id}${["ממתינה לאישור", "בייצור"].includes(o.status) ? `<br><button type="button" class="btn btn-sm btn-ghost" data-edit-order="${o.order_id}">עריכה</button>` : ""}</td>
         <td class="num">${time}</td>
         <td class="cust"><strong>${esc(o.customers?.name)}</strong>${sourceTag(o.source)}<small>${esc(o.adress || "")}</small>${o.notes ? `<small class="note">${esc(o.notes)}</small>` : ""}</td>
         <td class="items">${itemsText(o.order_lines)}</td>
@@ -561,8 +567,22 @@
       .on("broadcast", { event: "order_changed" }, ({ payload }) => onOrderEvent(payload || {}))
       .on("broadcast", { event: "request_new" }, () => onRequestEvent())
       .subscribe(status => setLive(status === "SUBSCRIBED"));
+    // ערוץ הייצור: כל סימון בטאבלט מרענן את לשונית "פס ייצור"
+    const onProd = () => {
+      if (state.tab !== "production" || state.module !== "orders") return;
+      clearTimeout(state.prodTimer); state.prodTimer = setTimeout(loadProduction, 400);
+    };
+    state.prodChannel = db.channel("production", { config: { private: true } })
+      .on("broadcast", { event: "order_changed" }, onProd)
+      .on("broadcast", { event: "detail_changed" }, onProd)
+      .on("broadcast", { event: "order_edited" }, onProd)
+      .subscribe();
   }
-  function stopRealtime() { if (state.channel) { db.removeChannel(state.channel); state.channel = null; } setLive(false); }
+  function stopRealtime() {
+    if (state.channel) { db.removeChannel(state.channel); state.channel = null; }
+    if (state.prodChannel) { db.removeChannel(state.prodChannel); state.prodChannel = null; }
+    setLive(false);
+  }
 
   let refreshTimer;
   function scheduleRefresh() { clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { loadCounts(); if (state.module !== "home") refreshTab(); }, 400); }
@@ -842,6 +862,172 @@
     const o = state.hashOrders.find(x => x.order_id === id);
     if (o) runExport(b.dataset.hx ? "xlsx" : "doc", [o]);
   });
+
+  /* ==========================================================
+     לשונית: פס ייצור - מה שקורה בטאבלט, בזמן אמת
+     (אותן פונקציות שהטאבלט משתמש בהן; למנהל יש הרשאה אליהן)
+     ========================================================== */
+  const KG = new Map((window.MK_PRODUCTS || []).map(p => [p.name, Number(p.kg) || 0]));
+  const kgPer = (name, unit) => KG.get(name) || Number((String(unit || "").match(/(\d+(?:\.\d+)?)\s*ק/) || [])[1]) || 0;
+  const hm = ts => new Date(ts).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+  const isTodayTs = ts => ts && new Date(ts).toDateString() === new Date().toDateString();
+
+  async function loadProduction() {
+    const [q, d, pl] = await Promise.all([db.rpc("production_queue"), db.rpc("production_done", { p_days: 1 }), db.rpc("peel_status")]);
+    if (q.error) { toast("שגיאה בטעינת פס הייצור: " + q.error.message, true); return; }
+    const orders = q.data || [], done = (d.data || []).filter(o => isTodayTs(o.prepared_at)), peel = pl.data || [];
+    const fresh = orders.filter(o => !o.started_at), prod = orders.filter(o => o.started_at);
+
+    // סה"כ לקילוף
+    const map = new Map();
+    orders.forEach(o => (o.items || []).forEach(i => {
+      const r = map.get(i.product) || { name: i.product, pid: i.product_id, unit: i.unit, packs: 0, kg: 0, split: 0 };
+      const kg = Number(i.quantity) * kgPer(i.product, i.unit);
+      r.packs += Number(i.quantity); r.kg += kg; if (o.started_at && i.prepared) r.split += kg;
+      map.set(i.product, r);
+    }));
+    const peeled = new Map(peel.map(p => [Number(p.product_id), p]));
+    const rows = [...map.values()].sort((a, b) => b.kg - a.kg);
+    const totKg = rows.reduce((s, r) => s + r.kg, 0);
+    const peeledKg = rows.reduce((s, r) => { const p = peeled.get(Number(r.pid)); return s + (p && r.kg <= Number(p.kg) + 0.001 ? r.kg : 0); }, 0);
+
+    $("#pkNew").textContent = fresh.length;
+    $("#pkProd").textContent = prod.length;
+    $("#pkDone").textContent = done.length;
+    $("#pkKg").textContent = `${num(totKg)} · ${num(peeledKg)}`;
+    $("#prodLive").textContent = prod.length || "";
+    $("#prodUpdated").textContent = "עודכן " + hm(Date.now()) + " · מתעדכן לבד כשמשהו משתנה בטאבלט";
+
+    const editBtn = id => `<button type="button" class="btn btn-sm" data-edit-order="${id}">עריכה</button>`;
+    const due = o => o.delivery_date ? `אספקה ${esc(fmtDate(o.delivery_date))}` : "";
+    $("#prodNew").innerHTML = fresh.map(o => `<article class="prod-card">
+        <header><strong>${esc(o.customer_name)}</strong><span class="muted">#${o.order_id}</span></header>
+        <div class="meta">אושרה ${esc(ago(o.approved_at))} · ${due(o)}</div>
+        <ul>${(o.items || []).map(i => `<li><span>${esc(i.product)}</span><b>${num(i.quantity)}</b></li>`).join("")}</ul>
+        <div class="acts">${editBtn(o.order_id)}</div>
+      </article>`).join("") || `<p class="prod-empty">אין</p>`;
+    $("#prodProd").innerHTML = prod.map(o => {
+      const items = o.items || [], n = items.filter(i => i.prepared).length;
+      return `<article class="prod-card">
+        <header><strong>${esc(o.customer_name)}</strong><span class="muted">#${o.order_id}</span></header>
+        <div class="meta">נקלטה ב-${esc(hm(o.started_at))} · ${due(o)} · ${n}/${items.length} מוצרים מוכנים</div>
+        <div class="prod-bar"><span style="width:${items.length ? Math.round(100 * n / items.length) : 0}%"></span></div>
+        <ul>${items.map(i => `<li class="${i.prepared ? "ok" : ""}"><span>${esc(i.product)}</span><b>${num(i.quantity)}</b></li>`).join("")}</ul>
+        <div class="acts">${editBtn(o.order_id)}</div>
+      </article>`;
+    }).join("") || `<p class="prod-empty">אין</p>`;
+    $("#prodDone").innerHTML = done.map(o => `<article class="prod-card">
+        <header><strong>${esc(o.customer_name)}</strong><span class="muted">#${o.order_id}</span></header>
+        <div class="meta">הוכנה ב-<b>${esc(hm(o.prepared_at))}</b>${o.started_at ? ` · נקלטה ${esc(hm(o.started_at))}` : ""} · ${esc(o.status)}</div>
+      </article>`).join("") || `<p class="prod-empty">עוד לא הוכנו הזמנות היום</p>`;
+    $("#prodPeel").innerHTML = rows.map(r => {
+      const p = peeled.get(Number(r.pid)), ok = p && r.kg <= Number(p.kg) + 0.001;
+      const added = p && !ok ? ` <span class="tag tag-hot">נוספו ${num(r.kg - Number(p.kg))} ק״ג</span>` : "";
+      return `<tr class="${ok ? "done" : ""}"><td><strong>${esc(r.name)}</strong></td><td class="num">${num(r.packs)}</td><td class="num"><b>${num(r.kg)}</b></td>
+        <td class="num">${r.kg ? Math.round(100 * r.split / r.kg) : 0}%</td>
+        <td class="${ok ? "ok" : ""}">${ok ? `✓ ${esc(hm(p.done_at))}` : "—"}${added}</td></tr>`;
+    }).join("") || `<tr><td colspan="5" class="muted">אין כרגע מה לקלף</td></tr>`;
+  }
+
+  /* ==========================================================
+     עריכת הזמנה (update_order): כמויות, מוצרים, תאריך, הערות
+     ========================================================== */
+  const EDITABLE = ["ממתינה לאישור", "בייצור"];
+  state.edit = null;
+
+  async function openOrderEditor(id) {
+    loading(true);
+    const { data: o, error } = await db.from("orders")
+      .select(`order_id, status, delivery_date, notes, started_at, customer_id,
+               customers ( name ),
+               order_lines ( product_id, quantity, unit_price, prepared_at, product ( name, unit ) )`)
+      .eq("order_id", id).single();
+    loading(false);
+    if (error || !o) { toast("לא הצלחתי לטעון את ההזמנה", true); return; }
+    if (!EDITABLE.includes(o.status)) { toast(`אי אפשר לערוך הזמנה בסטטוס "${o.status}"`, true); return; }
+    state.edit = {
+      id: o.order_id, status: o.status,
+      lines: (o.order_lines || []).map(l => ({ pid: l.product_id, name: l.product?.name, unit: l.product?.unit, qty: Number(l.quantity), orig: Number(l.quantity), price: Number(l.unit_price), isNew: false }))
+    };
+    $("#orderTitle").textContent = `עריכת הזמנה ${o.order_id}`;
+    $("#orderSub").textContent = `${o.customers?.name || ""} · ${o.status}`;
+    const warn = $("#orderWarn");
+    warn.hidden = o.status !== "בייצור";
+    warn.textContent = o.started_at
+      ? "ההזמנה כבר בקילוף בפס הייצור. הטאבלט יקבל התראה, ומוצר שהכמות שלו משתנה יסומן מחדש כ'לא הוכן'."
+      : "ההזמנה כבר בטאבלט (עוד לא נקלטה). השינוי יופיע שם מיד.";
+    $("#oDate").value = o.delivery_date || "";
+    $("#oNotes").value = o.notes || "";
+    $("#orderError").textContent = "";
+    renderEditor();
+    $("#orderModal").hidden = false;
+  }
+
+  function renderEditor() {
+    const e = state.edit; if (!e) return;
+    $("#oLines").innerHTML = e.lines.map((l, i) => `<tr class="${l.isNew ? "is-new" : ""}" data-i="${i}">
+      <td><strong>${esc(l.name)}</strong><br><small class="muted">${esc(l.unit || "")}</small></td>
+      <td><input type="number" min="1" max="1000" step="1" value="${l.qty}" data-qty="${i}" aria-label="כמות ${esc(l.name)}"></td>
+      <td class="num">${l.isNew ? "יחושב בשמירה" : money(l.price)}</td>
+      <td class="num">${l.isNew ? "—" : money(l.price * l.qty)}</td>
+      <td><button type="button" class="rm" data-rm="${i}" aria-label="הסרת ${esc(l.name)}">✕</button></td>
+    </tr>`).join("") || `<tr><td colspan="5" class="muted">אין מוצרים. הוסיפו לפחות מוצר אחד.</td></tr>`;
+    const used = new Set(e.lines.map(l => l.pid));
+    $("#oAddProduct").innerHTML = `<option value="">בחירת מוצר להוספה…</option>` +
+      (state.productList || []).filter(p => p.is_active && !used.has(p.product_id))
+        .map(p => `<option value="${p.product_id}">${esc(p.name)}</option>`).join("");
+    const known = e.lines.filter(l => !l.isNew).reduce((s, l) => s + l.price * l.qty, 0);
+    const hasNew = e.lines.some(l => l.isNew);
+    $("#oTotal").textContent = `סה״כ לפני מע״מ: ${money(known)}${hasNew ? " + מוצרים חדשים (המחיר נקבע לפי המחירון של הלקוח)" : ""}`;
+  }
+
+  $("#oLines").addEventListener("input", ev => {
+    const inp = ev.target.closest("[data-qty]"); if (!inp) return;
+    const l = state.edit.lines[Number(inp.dataset.qty)];
+    l.qty = Math.max(0, Number(inp.value) || 0);
+    const tr = inp.closest("tr");
+    if (!l.isNew) tr.cells[3].textContent = money(l.price * l.qty);
+    const known = state.edit.lines.filter(x => !x.isNew).reduce((s, x) => s + x.price * x.qty, 0);
+    $("#oTotal").textContent = $("#oTotal").textContent.replace(/^סה״כ לפני מע״מ: [^+]*/, `סה״כ לפני מע״מ: ${money(known)}`);
+  });
+  $("#oLines").addEventListener("click", ev => {
+    const b = ev.target.closest("[data-rm]"); if (!b) return;
+    state.edit.lines.splice(Number(b.dataset.rm), 1); renderEditor();
+  });
+  $("#oAddBtn").addEventListener("click", () => {
+    const pid = Number($("#oAddProduct").value); if (!pid) return;
+    const p = (state.productList || []).find(x => x.product_id === pid); if (!p) return;
+    state.edit.lines.push({ pid, name: p.name, unit: p.unit, qty: 1, orig: 0, price: Number(p.base_price) || 0, isNew: true });
+    renderEditor();
+    const inputs = $$("#oLines [data-qty]"); if (inputs.length) inputs[inputs.length - 1].focus();
+  });
+  function closeOrderEditor() { $("#orderModal").hidden = true; state.edit = null; }
+  $("#orderModal").addEventListener("click", ev => { if (ev.target.id === "orderModal" || ev.target.closest("[data-close-order]")) closeOrderEditor(); });
+
+  $("#orderForm").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const e = state.edit; if (!e) return;
+    const items = e.lines.map(l => ({ pid: l.pid, qty: l.qty }));
+    if (!items.length) { $("#orderError").textContent = "צריך לפחות מוצר אחד"; return; }
+    if (items.some(i => !(i.qty >= 1 && i.qty <= 1000))) { $("#orderError").textContent = "כמות צריכה להיות בין 1 ל-1000"; return; }
+    $("#orderSave").disabled = true; $("#orderError").textContent = "";
+    const { error } = await db.rpc("update_order", {
+      p_order_id: e.id, p_delivery_date: $("#oDate").value || null, p_notes: $("#oNotes").value, p_items: items
+    });
+    $("#orderSave").disabled = false;
+    if (error) { $("#orderError").textContent = "השמירה נכשלה: " + error.message; return; }
+    const id = e.id; closeOrderEditor();
+    toast(`הזמנה ${id} עודכנה` + (e.status === "בייצור" ? " · הטאבלט קיבל התראה" : ""));
+    loadCounts(); refreshTab();
+  });
+
+  document.addEventListener("click", ev => {
+    const b = ev.target.closest("[data-edit-order]"); if (!b) return;
+    openOrderEditor(Number(b.dataset.editOrder));
+  });
+
+  // גיבוי ללשונית פס ייצור: רענון כל 30 שניות כשהיא פתוחה
+  setInterval(() => { if (!$("#appView").hidden && state.module === "orders" && state.tab === "production" && !document.hidden) loadProduction(); }, 30000);
 
   /* ---------- אירועים ---------- */
   document.addEventListener("click", async e => {

@@ -93,6 +93,7 @@
   <!-- לשוניות -->
   <nav class="tabs" role="tablist" aria-label="תצוגות">
     <button type="button" class="tab" role="tab" data-mod="orders" data-tab="pending" id="tab-pending">ממתינות לאישור <span class="badge" id="badgePending" hidden></span></button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="production" id="tab-production">פס ייצור <span class="live-pill" id="prodLive"></span></button>
     <button type="button" class="tab" role="tab" data-mod="orders" data-tab="day" id="tab-day">הזמנות לפי יום</button>
     <button type="button" class="tab" role="tab" data-mod="orders" data-tab="stats" id="tab-stats">גרפים</button>
     <button type="button" class="tab" role="tab" data-mod="orders" data-tab="hash" id="tab-hash">חשבשבת</button>
@@ -210,6 +211,40 @@
       <div class="empty" id="custEmpty" hidden><p>לא נמצאו לקוחות.</p></div>
     </section>
 
+    <!-- ===== לשונית: פס ייצור (מה שקורה עכשיו בטאבלט) ===== -->
+    <section id="view-production" hidden>
+      <div class="prod-kpis">
+        <div class="card"><span>ממתינות בטאבלט</span><strong id="pkNew">–</strong></div>
+        <div class="card"><span>בקילוף עכשיו</span><strong id="pkProd">–</strong></div>
+        <div class="card"><span>הוכנו היום</span><strong id="pkDone">–</strong></div>
+        <div class="card hot"><span>ק״ג לקילוף · קולפו</span><strong id="pkKg">–</strong></div>
+      </div>
+      <p class="muted small" id="prodUpdated"></p>
+      <div class="prod-cols">
+        <section class="panel">
+          <h2>ממתינות בטאבלט <span class="muted small">אושרו, עוד לא נקלטו</span></h2>
+          <div id="prodNew" class="prod-list"></div>
+        </section>
+        <section class="panel">
+          <h2>בתהליך ייצור <span class="muted small">נקלטו בפס</span></h2>
+          <div id="prodProd" class="prod-list"></div>
+        </section>
+        <section class="panel">
+          <h2>הוכנו היום</h2>
+          <div id="prodDone" class="prod-list"></div>
+        </section>
+      </div>
+      <section class="panel">
+        <h2>סה״כ לקילוף <span class="muted small">כמו שמנהל הייצור רואה בטאבלט</span></h2>
+        <div class="table-wrap">
+          <table class="orders peel-table">
+            <thead><tr><th>מוצר</th><th>מארזים</th><th>ק״ג</th><th>חולק להזמנות</th><th>קולף</th></tr></thead>
+            <tbody id="prodPeel"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
     <!-- ===== לשונית: גרפים ===== -->
     <section id="view-stats" hidden>
       <div class="statbar">
@@ -292,6 +327,33 @@
   </form>
 </div>
 
+<!-- ============ חלון: עריכת הזמנה ============ -->
+<div class="modal-wrap" id="orderModal" hidden>
+  <form class="modal modal-wide" id="orderForm" role="dialog" aria-modal="true" aria-labelledby="orderTitle" novalidate>
+    <h2 id="orderTitle">עריכת הזמנה</h2>
+    <p class="muted small" id="orderSub"></p>
+    <p class="order-warn" id="orderWarn" hidden></p>
+    <div class="order-grid">
+      <div><label for="oDate">תאריך אספקה</label><input type="date" id="oDate"></div>
+      <div><label for="oNotes">הערות</label><input id="oNotes" placeholder="הערות להזמנה"></div>
+    </div>
+    <table class="order-lines">
+      <thead><tr><th>מוצר</th><th>כמות (מארזים)</th><th>מחיר ליחידה</th><th>סה״כ</th><th></th></tr></thead>
+      <tbody id="oLines"></tbody>
+    </table>
+    <div class="order-add">
+      <select id="oAddProduct" aria-label="הוספת מוצר"></select>
+      <button type="button" class="btn btn-sm" id="oAddBtn">+ הוספת מוצר</button>
+    </div>
+    <p class="order-total" id="oTotal"></p>
+    <p class="form-error" id="orderError" role="alert"></p>
+    <div class="modal-actions">
+      <button type="submit" class="btn btn-primary" id="orderSave">שמירת שינויים</button>
+      <button type="button" class="btn" data-close-order>ביטול</button>
+    </div>
+  </form>
+</div>
+
 <!-- ============ חלון: ההזמנה הועברה ============ -->
 <div class="modal-wrap" id="movedModal" hidden>
   <div class="modal moved" role="dialog" aria-modal="true" aria-labelledby="movedTitle">
@@ -343,6 +405,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="config.js"></script>
+<script src="../js/products.js"></script>
 <script src="admin.js"></script>
 </body>
 </html>

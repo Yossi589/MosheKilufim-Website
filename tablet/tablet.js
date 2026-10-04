@@ -2,7 +2,7 @@
    עמדת ייצור (טאבלט בפס) · משה קילופים
    שלושה שלבים:
    1. הזמנות חדשות   - אושרו ע"י המנהל. "נקלטה" -> start_production(order_id)
-   2. בתהליך ייצור   - מסמנים כל מוצר שהוכן (צ'קבוקס). כשהכול מסומן, OK נצבע בירוק
+   2. בתהליך ייצור   - מסמנים כל מוצר שהוכן (צ'קבוקס, נשמר בשרת: set_line_prepared). כשהכול מסומן, OK נצבע בירוק
                         -> mark_prepared(order_id), עם כמה שניות לביטול
    3. הוכנו          - לשונית נפרדת: production_done() עם תאריך ושעת ההכנה
    + סה"כ לקילוף     - לשונית: כמה מארזים וכמה ק"ג מכל מוצר בכל ההזמנות, ולמי זה מתחלק
@@ -42,17 +42,9 @@
     get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (_) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
   };
-  let ticks = store.get("mkTicks2", {});        // { "19905": ["בצל מקולף", "גזר מקולף"] }
-  const isTicked = (id, name) => (ticks[id] || []).includes(name);
-  function toggleTick(id, name) {
-    const s = new Set(ticks[id] || []); s.has(name) ? s.delete(name) : s.add(name);
-    ticks[id] = [...s]; store.set("mkTicks2", ticks);
-  }
-  function pruneTicks() {
-    const live = new Set(state.orders.map(o => String(o.order_id)));
-    Object.keys(ticks).forEach(k => { if (!live.has(k)) delete ticks[k]; });
-    store.set("mkTicks2", ticks);
-  }
+  /* סימון "המוצר הוכן" נשמר בשרת (order_lines.prepared_at), כדי שהמנהל יראה וכל המכשירים יסונכרנו */
+  const findItem = (id, name) => ((state.orders.find(o => o.order_id === id) || {}).items || []).find(i => i.product === name);
+  const isTicked = (id, name) => !!(findItem(id, name) || {}).prepared;
   const allTicked = o => (o.items || []).length > 0 && (o.items || []).every(i => isTicked(o.order_id, i.product));
 
   /* ---------- עזר ---------- */
@@ -145,11 +137,13 @@
      ========================================================== */
   async function load() {
     if ($("#appView").hidden || state.busy) return;
-    const [q, d] = await Promise.all([db.rpc("production_queue"), db.rpc("production_done", { p_days: 2 })]);
+    if (state.pending) return;   // לא לדרוס סימון שעוד בדרך לשרת
+    const [q, d, pl] = await Promise.all([db.rpc("production_queue"), db.rpc("production_done", { p_days: 2 }), db.rpc("peel_status")]);
     if (q.error) { setStatus(false, "שגיאה בטעינה"); return; }
     const before = new Set(state.orders.map(o => o.order_id));
     state.orders = q.data || [];
     if (!d.error) state.done = d.data || [];
+    if (!pl.error) state.peel = pl.data || [];
     const fresh = state.orders.filter(o => !before.has(o.order_id));
     const freshIds = state.first ? new Set() : new Set(fresh.map(o => o.order_id));
     if (!state.first && fresh.length) { chime(); toast(fresh.length === 1 ? `הזמנה חדשה: ${fresh[0].customer_name}` : `${fresh.length} הזמנות חדשות`); }
@@ -159,7 +153,6 @@
   }
 
   function render(freshIds = new Set()) {
-    pruneTicks();
     const active = state.orders.filter(o => !state.undo.has(o.order_id));
     const fresh = state.orders.filter(o => !o.started_at);
     const prod = state.orders.filter(o => o.started_at);
@@ -230,18 +223,20 @@
     </article>`;
   }
 
-  /* מוצרים שסומנו "בוצע" בלשונית הקילוף: { "2026-10-04": { "צ׳יפס": 60 } } (כמה ק"ג היו כשסימנו) */
-  const peelKey = () => new Date().toLocaleDateString("en-CA");
+  /* מוצרים שסומנו "קולף" היום: נשמר בשרת (peel_log). { product_id: kg שהיו כשסימנו } */
   function peeledMap() {
-    const all = store.get("mkPeeled", {}), today = peelKey();
-    Object.keys(all).forEach(k => { if (k !== today) delete all[k]; });   // רק היום
-    return all[today] || {};
+    const m = {};
+    (state.peel || []).forEach(r => { m[r.product_id] = Number(r.kg); });
+    return m;
   }
-  function setPeeled(name, kg) {
-    const all = store.get("mkPeeled", {}), today = peelKey();
-    const m = all[today] || {};
-    if (kg == null) delete m[name]; else m[name] = kg;
-    store.set("mkPeeled", { [today]: m });
+  async function setPeeled(pid, kg) {
+    if (!navigator.onLine) { toast("אין חיבור לאינטרנט", true); return; }
+    const before = state.peel;
+    state.peel = (state.peel || []).filter(r => r.product_id !== pid);
+    if (kg != null) state.peel.push({ product_id: pid, kg, done_at: new Date().toISOString() });
+    renderPeel();
+    const { error } = await db.rpc("set_peeled", { p_product_id: pid, p_kg: kg });
+    if (error) { state.peel = before; renderPeel(); toast("הסימון לא נשמר: " + error.message, true); }
   }
 
   /* סה"כ לקילוף: כל הכמות מכל מוצר בכל ההזמנות שבטאבלט (חדשות + בתהליך).
@@ -250,7 +245,7 @@
     const map = new Map();
     state.orders.forEach(o => (o.items || []).forEach(i => {
       const k = i.product;
-      const r = map.get(k) || { name: k, unit: i.unit, packs: 0, kg: 0, splitKg: 0, orders: [] };
+      const r = map.get(k) || { name: k, pid: i.product_id, unit: i.unit, packs: 0, kg: 0, splitKg: 0, orders: [] };
       const q = Number(i.quantity), kg = q * kgPerPack(k, i.unit);
       const split = !!o.started_at && isTicked(o.order_id, k);
       r.packs += q; r.kg += kg; if (split) r.splitKg += kg;
@@ -259,7 +254,7 @@
     }));
     const peeled = peeledMap();
     // "בוצע" חל רק אם לא נוספה כמות מאז הסימון; כרטיסים שבוצעו יורדים לסוף
-    const isPeeled = r => peeled[r.name] != null && r.kg <= peeled[r.name] + 0.001;
+    const isPeeled = r => peeled[r.pid] != null && r.kg <= peeled[r.pid] + 0.001;
     const rows = [...map.values()].sort((a, b) => (isPeeled(a) - isPeeled(b)) || (b.kg - a.kg));
     const totKg = rows.reduce((s, r) => s + r.kg, 0), totPacks = rows.reduce((s, r) => s + r.packs, 0);
     $("#cntPeel").textContent = rows.length;
@@ -275,8 +270,8 @@
       const per = kgPerPack(r.name, r.unit);
       const pct = r.kg ? Math.round(100 * r.splitKg / r.kg) : 0;
       const done = isPeeled(r);
-      const added = !done && peeled[r.name] != null ? r.kg - peeled[r.name] : 0;
-      return `<article class="peel-card${done ? " is-peeled" : pct === 100 ? " is-done" : ""}" data-name="${esc(r.name)}" data-kg="${r.kg}">
+      const added = !done && peeled[r.pid] != null ? r.kg - peeled[r.pid] : 0;
+      return `<article class="peel-card${done ? " is-peeled" : pct === 100 ? " is-done" : ""}" data-name="${esc(r.name)}" data-pid="${r.pid}" data-kg="${r.kg}">
         <div class="peel-top">
           ${thumb(r.name).replace('width="56" height="56"', 'width="84" height="84"')}
           <div class="peel-name"><strong>${esc(r.name)}</strong><span>${num(r.packs)} מארזים${per ? ` × ${kgFmt(per)} ק״ג` : ""}</span></div>
@@ -310,8 +305,9 @@
   /* OK בכרטיס קילוף, והחזרה (כפתור קטן ולא בולט) */
   $("#peelGrid").addEventListener("click", e => {
     const card = e.target.closest(".peel-card"); if (!card) return;
-    if (e.target.closest("[data-peel]")) { setPeeled(card.dataset.name, Number(card.dataset.kg)); toast(`${card.dataset.name}: סומן כבוצע`); renderPeel(); }
-    else if (e.target.closest("[data-unpeel]")) { setPeeled(card.dataset.name, null); renderPeel(); }
+    const pid = Number(card.dataset.pid);
+    if (e.target.closest("[data-peel]")) { setPeeled(pid, Number(card.dataset.kg)); toast(`${card.dataset.name}: סומן כבוצע`); }
+    else if (e.target.closest("[data-unpeel]")) setPeeled(pid, null);
   });
 
   function setView(v) {
@@ -343,8 +339,16 @@
   /* ----- שלב 2: סימון מוצר שהוכן ----- */
   $("#queueProd").addEventListener("click", e => {
     const li = e.target.closest("[data-tick]"); if (!li || li.closest(".is-undo")) return;
-    toggleTick(Number(li.dataset.tick), li.dataset.name);
-    render();
+    const id = Number(li.dataset.tick), it = findItem(id, li.dataset.name);
+    if (!it) return;
+    if (!navigator.onLine) { toast("אין חיבור לאינטרנט", true); return; }
+    const want = !it.prepared;
+    it.prepared = want; render();                       // מיד על המסך
+    state.pending = (state.pending || 0) + 1;
+    db.rpc("set_line_prepared", { p_line_id: it.line_id, p_done: want }).then(({ data, error }) => {
+      state.pending--;
+      if (error || !data) { it.prepared = !want; render(); toast("הסימון לא נשמר" + (error ? ": " + error.message : ""), true); }
+    });
   });
   $("#queueProd").addEventListener("keydown", e => {
     if ((e.key === " " || e.key === "Enter") && e.target.matches("[data-tick]")) { e.preventDefault(); e.target.click(); }
@@ -380,7 +384,6 @@
     state.undo.delete(id);
     if (error) { toast("הסימון נכשל: " + error.message, true); render(); return; }
     if (ok) {
-      delete ticks[id]; store.set("mkTicks2", ticks);
       const card = document.querySelector(`.ticket[data-id="${id}"]`);
       if (card) card.classList.add("leaving");
       toast(`הזמנה ${id} הוכנה ✓ ועברה ל"הוכנו"`);
@@ -400,6 +403,11 @@
     stopRealtime();
     try { await db.realtime.setAuth(session.access_token); } catch (_) {}
     state.channel = db.channel("production", { config: { private: true } })
+      .on("broadcast", { event: "detail_changed" }, () => { clearTimeout(startRealtime.t); startRealtime.t = setTimeout(load, 400); })
+      .on("broadcast", { event: "order_edited" }, ({ payload }) => {
+        chime(); showAlert(`המנהל עדכן את הזמנה ${(payload || {}).order_id}. בדקו את הכמויות מחדש.`);
+        clearTimeout(startRealtime.t); startRealtime.t = setTimeout(load, 300);
+      })
       .on("broadcast", { event: "order_changed" }, ({ payload }) => {
         const p = payload || {};
         if (p.old_status === "בייצור" && p.status === "בוטלה") { chime(); showAlert(`הזמנה ${p.order_id} בוטלה. אל תכינו אותה.`); }
