@@ -208,12 +208,14 @@
     const n = items.filter(i => isTicked(o.order_id, i.product)).length;
     const all = allTicked(o);
     const u = state.undo.get(o.order_id);
+    const peelDone = peelDoneMap();
     const lis = items.map(i => {
       const t = isTicked(o.order_id, i.product);
-      return `<li class="chk${t ? " ticked" : ""}" data-tick="${o.order_id}" data-name="${esc(i.product)}" role="checkbox" aria-checked="${t}" tabindex="0">
+      const wait = !t && !peelDone[i.product_id];   // עוד לא קולף: אי אפשר לארוז
+      return `<li class="chk${t ? " ticked" : ""}${wait ? " unpeeled" : ""}" data-tick="${o.order_id}" data-name="${esc(i.product)}" role="checkbox" aria-checked="${t}" tabindex="0">
         <span class="box" aria-hidden="true">${t ? "✓" : ""}</span>
         ${thumb(i.product)}
-        <span class="p">${esc(i.product)}</span>
+        <span class="p">${esc(i.product)}${wait ? `<small class="wait-tag">עוד לא קולף</small>` : ""}</span>
         <span class="qty">${num(i.quantity)} <small>${esc(i.unit || "")}</small></span>
       </li>`;
     }).join("");
@@ -233,14 +235,24 @@
     (state.peel || []).forEach(r => { m[r.product_id] = Number(r.kg); });
     return m;
   }
+  /* האם כל הכמות של מוצר כבר קולפה (לפי "סה״כ לקילוף")? מוצר שעוד לא קולף מופיע באדמדם בכרטיסי ההזמנות */
+  function peelDoneMap() {
+    const need = {};
+    state.orders.forEach(o => (o.items || []).forEach(i => {
+      need[i.product_id] = (need[i.product_id] || 0) + Number(i.quantity) * kgPerPack(i.product, i.unit);
+    }));
+    const peeled = peeledMap(), done = {};
+    Object.keys(need).forEach(pid => { done[pid] = peeled[pid] != null && need[pid] <= peeled[pid] + 0.001; });
+    return done;
+  }
   async function setPeeled(pid, kg) {
     if (!navigator.onLine) { toast("אין חיבור לאינטרנט", true); return; }
     const before = state.peel;
     state.peel = (state.peel || []).filter(r => r.product_id !== pid);
     if (kg != null) state.peel.push({ product_id: pid, kg, done_at: new Date().toISOString() });
-    renderPeel();
+    render();
     const { error } = await db.rpc("set_peeled", { p_product_id: pid, p_kg: kg });
-    if (error) { state.peel = before; renderPeel(); toast("הסימון לא נשמר: " + error.message, true); }
+    if (error) { state.peel = before; render(); toast("הסימון לא נשמר: " + error.message, true); }
   }
 
   /* סה"כ לקילוף: כל הכמות מכל מוצר בכל ההזמנות שבטאבלט (חדשות + בתהליך).
@@ -251,7 +263,7 @@
       const k = i.product;
       const r = map.get(k) || { name: k, pid: i.product_id, unit: i.unit, packs: 0, kg: 0, splitKg: 0, orders: [] };
       const q = Number(i.quantity), kg = q * kgPerPack(k, i.unit);
-      const split = !!o.started_at && isTicked(o.order_id, k);
+      const split = isTicked(o.order_id, k);
       r.packs += q; r.kg += kg; if (split) r.splitKg += kg;
       r.orders.push({ id: o.order_id, customer: o.customer_name, q, split });
       map.set(k, r);
