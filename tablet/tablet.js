@@ -230,6 +230,20 @@
     </article>`;
   }
 
+  /* מוצרים שסומנו "בוצע" בלשונית הקילוף: { "2026-10-04": { "צ׳יפס": 60 } } (כמה ק"ג היו כשסימנו) */
+  const peelKey = () => new Date().toLocaleDateString("en-CA");
+  function peeledMap() {
+    const all = store.get("mkPeeled", {}), today = peelKey();
+    Object.keys(all).forEach(k => { if (k !== today) delete all[k]; });   // רק היום
+    return all[today] || {};
+  }
+  function setPeeled(name, kg) {
+    const all = store.get("mkPeeled", {}), today = peelKey();
+    const m = all[today] || {};
+    if (kg == null) delete m[name]; else m[name] = kg;
+    store.set("mkPeeled", { [today]: m });
+  }
+
   /* סה"כ לקילוף: כל הכמות מכל מוצר בכל ההזמנות שבטאבלט (חדשות + בתהליך).
      עד 12:00 מתחילים לקלף את הכמות כולה, ואחר כך מחלקים להזמנות. */
   function renderPeel() {
@@ -243,7 +257,10 @@
       r.orders.push({ id: o.order_id, customer: o.customer_name, q, split });
       map.set(k, r);
     }));
-    const rows = [...map.values()].sort((a, b) => b.kg - a.kg);
+    const peeled = peeledMap();
+    // "בוצע" חל רק אם לא נוספה כמות מאז הסימון; כרטיסים שבוצעו יורדים לסוף
+    const isPeeled = r => peeled[r.name] != null && r.kg <= peeled[r.name] + 0.001;
+    const rows = [...map.values()].sort((a, b) => (isPeeled(a) - isPeeled(b)) || (b.kg - a.kg));
     const totKg = rows.reduce((s, r) => s + r.kg, 0), totPacks = rows.reduce((s, r) => s + r.packs, 0);
     $("#cntPeel").textContent = rows.length;
     $("#emptyPeel").hidden = rows.length > 0;
@@ -257,7 +274,9 @@
     $("#peelGrid").innerHTML = rows.map(r => {
       const per = kgPerPack(r.name, r.unit);
       const pct = r.kg ? Math.round(100 * r.splitKg / r.kg) : 0;
-      return `<article class="peel-card${pct === 100 ? " is-done" : ""}">
+      const done = isPeeled(r);
+      const added = !done && peeled[r.name] != null ? r.kg - peeled[r.name] : 0;
+      return `<article class="peel-card${done ? " is-peeled" : pct === 100 ? " is-done" : ""}" data-name="${esc(r.name)}" data-kg="${r.kg}">
         <div class="peel-top">
           ${thumb(r.name).replace('width="56" height="56"', 'width="84" height="84"')}
           <div class="peel-name"><strong>${esc(r.name)}</strong><span>${num(r.packs)} מארזים${per ? ` × ${kgFmt(per)} ק״ג` : ""}</span></div>
@@ -266,6 +285,10 @@
         <div class="peel-bar" title="כמה כבר חולק להזמנות"><span style="width:${pct}%"></span></div>
         <p class="peel-split">חולק להזמנות: ${kgFmt(r.splitKg)} מתוך ${kgFmt(r.kg)} ק״ג</p>
         <ul class="peel-orders">${r.orders.map(x => `<li class="${x.split ? "split" : ""}"><span>${x.split ? "✓ " : ""}${esc(x.customer)} <small>#${x.id}</small></span><b>${num(x.q)} מארזים · ${kgFmt(x.q * per)} ק״ג</b></li>`).join("")}</ul>
+        ${added > 0 ? `<p class="peel-added">נוספו ${kgFmt(added)} ק״ג מאז שסומן "בוצע"</p>` : ""}
+        ${done
+          ? `<div class="peel-donebar"><span class="peel-done-label">✓ בוצע</span><button type="button" class="peel-undo" data-unpeel>החזרה</button></div>`
+          : `<button type="button" class="btn btn-peel-ok btn-xl" data-peel>OK · קולף</button>`}
       </article>`;
     }).join("");
   }
@@ -284,6 +307,13 @@
   }
 
   /* ----- לשוניות ----- */
+  /* OK בכרטיס קילוף, והחזרה (כפתור קטן ולא בולט) */
+  $("#peelGrid").addEventListener("click", e => {
+    const card = e.target.closest(".peel-card"); if (!card) return;
+    if (e.target.closest("[data-peel]")) { setPeeled(card.dataset.name, Number(card.dataset.kg)); toast(`${card.dataset.name}: סומן כבוצע`); renderPeel(); }
+    else if (e.target.closest("[data-unpeel]")) { setPeeled(card.dataset.name, null); renderPeel(); }
+  });
+
   function setView(v) {
     state.view = v;
     try { localStorage.setItem("mkTabletView", v); } catch (_) {}

@@ -236,3 +236,21 @@ button { font: inherit; touch-action: manipulation; }
 .peel-orders b { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .peel-orders li.split { color: var(--green-d); }
 .vtabs { flex-wrap: wrap; }
+
+/* כרטיס קילוף: OK ירוק, ואחרי הלחיצה הכרטיס אפור עם "בוצע" */
+.btn-peel-ok { width: 100%; background: var(--green); border-color: var(--green); color: #fff; margin-top: 2px; }
+.btn-peel-ok:active { background: var(--green-d); }
+.peel-card.is-peeled { background: #eceef0; box-shadow: 0 0 0 2px #d6dade; }
+.peel-card.is-peeled .ph { filter: grayscale(1); opacity: .5; }
+.peel-card.is-peeled .peel-name strong,
+.peel-card.is-peeled .peel-kg strong,
+.peel-card.is-peeled .peel-kg span,
+.peel-card.is-peeled .peel-orders b,
+.peel-card.is-peeled .peel-orders li { color: #9aa1a8; }
+.peel-card.is-peeled .peel-kg { background: #e0e3e6; }
+.peel-card.is-peeled .peel-bar span { background: #b8bec4; }
+.peel-donebar { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; }
+.peel-done-label { font-family: var(--f-head); font-size: 1.4rem; font-weight: 800; color: #8f979f; }
+.peel-undo { font: inherit; font-size: .85rem; color: #a3aab1; background: none; border: none; text-decoration: underline; padding: 10px 6px; cursor: pointer; }
+.peel-added { margin: 0; padding: 8px 12px; border-radius: 10px; background: #fff7d6; color: #6b4a00; font-weight: 700; }
+.btn-peel-ok, .peel-donebar { margin-top: auto; }
