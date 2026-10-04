@@ -212,7 +212,7 @@
     const lis = items.map(i => {
       const t = isTicked(o.order_id, i.product);
       const wait = !t && !peelDone[i.product_id];   // עוד לא קולף: אי אפשר לארוז
-      return `<li class="chk${t ? " ticked" : ""}${wait ? " unpeeled" : ""}" data-tick="${o.order_id}" data-name="${esc(i.product)}" role="checkbox" aria-checked="${t}" tabindex="0">
+      return `<li class="chk${t ? " ticked" : ""}${wait ? " unpeeled" : ""}" data-tick="${o.order_id}" data-name="${esc(i.product)}" role="checkbox" aria-checked="${t}"${wait ? ` aria-disabled="true" title="עוד לא קולף: אי אפשר לסמן עד שמסמנים אותו 'קולף' בסה״כ לקילוף"` : ""} tabindex="0">
         <span class="box" aria-hidden="true">${t ? "✓" : ""}</span>
         ${thumb(i.product)}
         <span class="p">${esc(i.product)}${wait ? `<small class="wait-tag">עוד לא קולף</small>` : ""}</span>
@@ -366,6 +366,11 @@
     const li = e.target.closest("[data-tick]"); if (!li || li.closest(".is-undo")) return;
     const id = Number(li.dataset.tick), it = findItem(id, li.dataset.name);
     if (!it) return;
+    // מוצר שעוד לא קולף נעול: קודם מקלפים ומסמנים "OK · קולף" בסה"כ לקילוף
+    if (li.classList.contains("unpeeled") && !it.prepared) {
+      toast(`${li.dataset.name} עוד לא קולף. קודם מסמנים אותו "קולף" בסה״כ לקילוף`, true);
+      return;
+    }
     if (!navigator.onLine) { toast("אין חיבור לאינטרנט", true); return; }
     const want = !it.prepared;
     it.prepared = want; render();                       // מיד על המסך

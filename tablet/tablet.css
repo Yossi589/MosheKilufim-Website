@@ -278,3 +278,7 @@ button { font: inherit; touch-action: manipulation; }
 .stock-list li { display: flex; align-items: center; gap: 10px; background: var(--cream); border-radius: 12px; padding: 8px 10px; }
 .stock-list li span { flex: 1; font-weight: 700; }
 .stock-list li b { font-family: var(--f-head); color: var(--brown); }
+
+/* מוצר שעוד לא קולף: הצ'קבוקס נעול */
+.items.chks li.unpeeled { cursor: not-allowed; }
+.items.chks li.unpeeled .box { border-style: dashed; background: #f3dcd6; opacity: .75; }
