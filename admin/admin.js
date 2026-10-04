@@ -400,7 +400,7 @@
       <td>${esc(c.adress || "")}</td>
       <td class="hash-key${c.hash_key ? "" : " fallback"}">${c.hash_key ? esc(c.hash_key) : "—"}</td>
       <td class="num muted">${c.created_at ? esc(new Date(c.created_at).toLocaleDateString("he-IL")) : ""}</td>
-      <td><button type="button" class="btn btn-sm" data-edit="${c.customer_id}">עריכה</button></td>
+      <td><div class="row-btns"><button type="button" class="btn btn-sm" data-edit="${c.customer_id}">עריכה</button><button type="button" class="btn btn-sm" data-new-order="${c.customer_id}">+ הזמנה</button></div></td>
     </tr>`).join("");
   }
   ["#custSearch", "#custFilter"].forEach(s => $(s).addEventListener("input", renderCustomers));
@@ -949,6 +949,8 @@
       id: o.order_id, status: o.status,
       lines: (o.order_lines || []).map(l => ({ pid: l.product_id, name: l.product?.name, unit: l.product?.unit, qty: Number(l.quantity), orig: Number(l.quantity), price: Number(l.unit_price), isNew: false }))
     };
+    $("#oNewBox").hidden = true; $("#oApproveWrap").hidden = true;
+    $("#orderSave").textContent = "שמירת שינויים";
     $("#orderTitle").textContent = `עריכת הזמנה ${o.order_id}`;
     $("#orderSub").textContent = `${o.customers?.name || ""} · ${o.status}`;
     const warn = $("#orderWarn");
@@ -962,6 +964,43 @@
     renderEditor();
     $("#orderModal").hidden = false;
   }
+
+  /* ----- הזמנה חדשה ללקוח קיים (טלפון / וואטסאפ) ----- */
+  const custLabel = c => `${c.name} · ${c.phone_number || ""} (#${c.customer_id})`;
+  async function openNewOrder(customerId) {
+    if (!state.customers.length) {
+      loading(true);
+      const { data } = await db.from("customers").select("customer_id, name, customer_category, adress, phone_number, hash_key, created_at").order("name");
+      loading(false);
+      state.customers = data || [];
+    }
+    state.edit = { mode: "new", id: null, status: null, customerId: null, lines: [] };
+    $("#orderTitle").textContent = "הזמנה חדשה";
+    $("#orderSub").textContent = "ללקוח קיים, למשל הזמנה שהגיעה בטלפון או בוואטסאפ. המנהל פטור מחוק 12:00.";
+    $("#orderWarn").hidden = true;
+    $("#oNewBox").hidden = false; $("#oApproveWrap").hidden = false; $("#oApprove").checked = true;
+    $("#oCustList").innerHTML = state.customers.map(c => `<option value="${esc(custLabel(c))}"></option>`).join("");
+    $("#oCust").value = ""; $("#oCustInfo").textContent = "";
+    $("#oSource").value = "טלפון";
+    $("#oDate").value = nextDeliveryDay();
+    $("#oNotes").value = "";
+    $("#orderSave").textContent = "יצירת הזמנה";
+    $("#orderError").textContent = "";
+    if (customerId) {
+      const c = state.customers.find(x => x.customer_id === Number(customerId));
+      if (c) { $("#oCust").value = custLabel(c); pickCustomer(); }
+    }
+    renderEditor();
+    $("#orderModal").hidden = false;
+    (customerId ? $("#oAddProduct") : $("#oCust")).focus();
+  }
+  function pickCustomer() {
+    const m = $("#oCust").value.match(/\(#(\d+)\)\s*$/);
+    const c = m && state.customers.find(x => x.customer_id === Number(m[1]));
+    state.edit.customerId = c ? c.customer_id : null;
+    $("#oCustInfo").textContent = c ? `כתובת אספקה: ${c.adress || "—"} · ${c.customer_category || ""}` : ($("#oCust").value ? "בחרו לקוח מהרשימה" : "");
+  }
+  $("#oCust").addEventListener("input", () => { if (state.edit && state.edit.mode === "new") pickCustomer(); });
 
   function renderEditor() {
     const e = state.edit; if (!e) return;
@@ -978,7 +1017,11 @@
         .map(p => `<option value="${p.product_id}">${esc(p.name)}</option>`).join("");
     const known = e.lines.filter(l => !l.isNew).reduce((s, l) => s + l.price * l.qty, 0);
     const hasNew = e.lines.some(l => l.isNew);
-    $("#oTotal").textContent = `סה״כ לפני מע״מ: ${money(known)}${hasNew ? " + מוצרים חדשים (המחיר נקבע לפי המחירון של הלקוח)" : ""}`;
+    $("#oTotal").textContent = e.mode === "new"
+      ? (e.lines.length ? "המחירים ייקבעו בשמירה לפי המחירון של הלקוח (מחיר מיוחד אם יש)" : "")
+      : `סה״כ לפני מע״מ: ${money(known)}${hasNew ? " + מוצרים חדשים (המחיר נקבע לפי המחירון של הלקוח)" : ""}`;
+    $("#orderError").textContent = "";
+    $("#oLines").classList.toggle("no-new-tag", e.mode === "new");
   }
 
   $("#oLines").addEventListener("input", ev => {
@@ -988,7 +1031,7 @@
     const tr = inp.closest("tr");
     if (!l.isNew) tr.cells[3].textContent = money(l.price * l.qty);
     const known = state.edit.lines.filter(x => !x.isNew).reduce((s, x) => s + x.price * x.qty, 0);
-    $("#oTotal").textContent = $("#oTotal").textContent.replace(/^סה״כ לפני מע״מ: [^+]*/, `סה״כ לפני מע״מ: ${money(known)}`);
+    if (state.edit.mode !== "new") $("#oTotal").textContent = $("#oTotal").textContent.replace(/^סה״כ לפני מע״מ: [^+]*/, `סה״כ לפני מע״מ: ${money(known)}`);
   });
   $("#oLines").addEventListener("click", ev => {
     const b = ev.target.closest("[data-rm]"); if (!b) return;
@@ -1010,6 +1053,22 @@
     const items = e.lines.map(l => ({ pid: l.pid, qty: l.qty }));
     if (!items.length) { $("#orderError").textContent = "צריך לפחות מוצר אחד"; return; }
     if (items.some(i => !(i.qty >= 1 && i.qty <= 1000))) { $("#orderError").textContent = "כמות צריכה להיות בין 1 ל-1000"; return; }
+    if (e.mode === "new") {
+      if (!e.customerId) { $("#orderError").textContent = "בחרו לקוח מהרשימה"; $("#oCust").focus(); return; }
+      if (!$("#oDate").value) { $("#orderError").textContent = "בחרו תאריך אספקה"; return; }
+      $("#orderSave").disabled = true; $("#orderError").textContent = "";
+      const approve = $("#oApprove").checked;
+      const { data: res, error: err } = await db.rpc("admin_create_order", {
+        p_customer_id: e.customerId, p_delivery_date: $("#oDate").value, p_notes: $("#oNotes").value,
+        p_items: items, p_source: $("#oSource").value, p_approve: approve
+      });
+      $("#orderSave").disabled = false;
+      if (err) { $("#orderError").textContent = "ההזמנה לא נוצרה: " + err.message; return; }
+      closeOrderEditor();
+      toast(`נוצרה הזמנה ${res.order_id}` + (approve ? " ונשלחה לייצור" : " · ממתינה לאישור"));
+      loadCounts(); refreshTab();
+      return;
+    }
     $("#orderSave").disabled = true; $("#orderError").textContent = "";
     const { error } = await db.rpc("update_order", {
       p_order_id: e.id, p_delivery_date: $("#oDate").value || null, p_notes: $("#oNotes").value, p_items: items
@@ -1022,6 +1081,8 @@
   });
 
   document.addEventListener("click", ev => {
+    const n = ev.target.closest("[data-new-order]");
+    if (n) { openNewOrder(n.dataset.newOrder ? Number(n.dataset.newOrder) : null); return; }
     const b = ev.target.closest("[data-edit-order]"); if (!b) return;
     openOrderEditor(Number(b.dataset.editOrder));
   });
@@ -1032,7 +1093,7 @@
   /* ---------- אירועים ---------- */
   document.addEventListener("click", async e => {
     if (e.target.closest("[data-logout]")) { stopRealtime(); await db.auth.signOut(); return; }
-    const t = e.target.closest(".tab"); if (t && !t.hidden) setTab(t.dataset.tab);
+    const t = e.target.closest(".tab:not(.tab-action)"); if (t && !t.hidden) setTab(t.dataset.tab);
   });
   $("#statusFilter").innerHTML += STATUSES.map(s => `<option>${s}</option>`).join("");
   ["#searchInput", "#statusFilter", "#driverFilter"].forEach(s => $(s).addEventListener("input", renderDay));

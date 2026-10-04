@@ -97,6 +97,7 @@
     <button type="button" class="tab" role="tab" data-mod="orders" data-tab="day" id="tab-day">הזמנות לפי יום</button>
     <button type="button" class="tab" role="tab" data-mod="orders" data-tab="stats" id="tab-stats">גרפים</button>
     <button type="button" class="tab" role="tab" data-mod="orders" data-tab="hash" id="tab-hash">חשבשבת</button>
+    <button type="button" class="tab tab-action" data-mod="orders" data-new-order="">+ הזמנה חדשה</button>
     <button type="button" class="tab" role="tab" data-mod="customers" data-tab="requests" id="tab-requests">לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
     <button type="button" class="tab" role="tab" data-mod="customers" data-tab="customers" id="tab-customers">כל הלקוחות</button>
   </nav>
@@ -333,6 +334,24 @@
     <h2 id="orderTitle">עריכת הזמנה</h2>
     <p class="muted small" id="orderSub"></p>
     <p class="order-warn" id="orderWarn" hidden></p>
+    <div class="order-new" id="oNewBox" hidden>
+      <div class="order-grid">
+        <div>
+          <label for="oCust">לקוח *</label>
+          <input id="oCust" list="oCustList" placeholder="הקלידו שם או טלפון" autocomplete="off">
+          <datalist id="oCustList"></datalist>
+          <small class="muted" id="oCustInfo"></small>
+        </div>
+        <div>
+          <label for="oSource">איך ההזמנה הגיעה</label>
+          <select id="oSource">
+            <option value="טלפון">טלפון</option>
+            <option value="וואטסאפ">וואטסאפ</option>
+            <option value="ידני">אחר</option>
+          </select>
+        </div>
+      </div>
+    </div>
     <div class="order-grid">
       <div><label for="oDate">תאריך אספקה</label><input type="date" id="oDate"></div>
       <div><label for="oNotes">הערות</label><input id="oNotes" placeholder="הערות להזמנה"></div>
@@ -346,6 +365,7 @@
       <button type="button" class="btn btn-sm" id="oAddBtn">+ הוספת מוצר</button>
     </div>
     <p class="order-total" id="oTotal"></p>
+    <label class="check order-approve" id="oApproveWrap" hidden><input type="checkbox" id="oApprove" checked> לאשר מיד ולשלוח לייצור (ההזמנה תופיע בטאבלט)</label>
     <p class="form-error" id="orderError" role="alert"></p>
     <div class="modal-actions">
       <button type="submit" class="btn btn-primary" id="orderSave">שמירת שינויים</button>

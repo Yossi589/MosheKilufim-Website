@@ -281,3 +281,13 @@ a.btn { text-decoration: none; display: inline-block; }
 
 @media (max-width: 1000px) { .prod-cols { grid-template-columns: 1fr; } .prod-kpis { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .order-grid { grid-template-columns: 1fr; } }
+
+/* הזמנה חדשה */
+.tab-action { margin-inline-start: auto; color: var(--orange); border-bottom-color: transparent !important; }
+.tab-action:hover { color: #8f4013; }
+.order-new { background: var(--cream); border-radius: 12px; padding: 10px 12px; margin: 6px 0 4px; }
+.order-new input, .order-new select { font: inherit; padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); }
+.order-grid input#oDate, .order-grid input#oNotes { font: inherit; padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 10px; }
+.order-approve { margin-top: 10px !important; font-weight: 600; }
+.order-new .order-grid { grid-template-columns: 1.4fr 1fr; }
+.no-new-tag tr.is-new td:first-child::after { content: none; }
