@@ -5,6 +5,7 @@
    2. בתהליך ייצור   - מסמנים כל מוצר שהוכן (צ'קבוקס). כשהכול מסומן, OK נצבע בירוק
                         -> mark_prepared(order_id), עם כמה שניות לביטול
    3. הוכנו          - לשונית נפרדת: production_done() עם תאריך ושעת ההכנה
+   + סה"כ לקילוף     - לשונית: כמה מארזים וכמה ק"ג מכל מוצר בכל ההזמנות, ולמי זה מתחלק
    - כניסה עם משתמש מנהל הייצור (production_staff) או מנהל
    - בלי מחירים ובלי טלפונים
    - עדכון בזמן אמת: ערוץ production, ורענון גיבוי כל 30 שניות
@@ -24,12 +25,17 @@
 
   // תמונות המוצרים: אותו קטלוג של האתר (js/products.js), לפי שם המוצר
   const IMG = new Map((window.MK_PRODUCTS || []).map(p => [p.name, p.image]));
+  // משקל מארז בק"ג: מהקטלוג (kg), ואם אין - מתוך תיאור היחידה ("מארז 10 ק״ג")
+  const KG = new Map((window.MK_PRODUCTS || []).map(p => [p.name, Number(p.kg) || 0]));
+  const kgPerPack = (name, unit) => KG.get(name) || Number((String(unit || "").match(/(\d+(?:\.\d+)?)\s*ק/) || [])[1]) || 0;
+  const kgFmt = n => new Intl.NumberFormat("he-IL", { maximumFractionDigits: 1 }).format(n);
   const thumb = name => IMG.has(name)
     ? `<img class="ph" src="../img/thumbs/${esc(IMG.get(name))}" alt="" width="56" height="56" loading="lazy">`
     : `<span class="ph"></span>`;
 
   const state = { orders: [], done: [], first: true, channel: null, busy: false, wake: null,
                   view: "work", undo: new Map(), starting: new Set() };
+  try { state.view = localStorage.getItem("mkTabletView") || "peel"; } catch (_) { state.view = "peel"; }
 
   /* ---------- זיכרון מקומי: אילו מוצרים סומנו כמוכנים בכל הזמנה ---------- */
   const store = {
@@ -174,7 +180,7 @@
 
     $("#queueNew").innerHTML = fresh.map(o => newTicket(o, freshIds)).join("");
     $("#queueProd").innerHTML = prod.map(prodTicket).join("");
-    renderPick();
+    renderPeel();
     renderDone();
   }
 
@@ -224,15 +230,44 @@
     </article>`;
   }
 
-  /* סה"כ להכנה: כל מה שעוד לא סומן */
-  function renderPick() {
-    const pick = new Map();
-    state.orders.filter(o => !state.undo.has(o.order_id)).forEach(o => (o.items || []).forEach(i => {
-      if (o.started_at && isTicked(o.order_id, i.product)) return;
-      const cur = pick.get(i.product) || 0; pick.set(i.product, cur + Number(i.quantity));
+  /* סה"כ לקילוף: כל הכמות מכל מוצר בכל ההזמנות שבטאבלט (חדשות + בתהליך).
+     עד 12:00 מתחילים לקלף את הכמות כולה, ואחר כך מחלקים להזמנות. */
+  function renderPeel() {
+    const map = new Map();
+    state.orders.forEach(o => (o.items || []).forEach(i => {
+      const k = i.product;
+      const r = map.get(k) || { name: k, unit: i.unit, packs: 0, kg: 0, splitKg: 0, orders: [] };
+      const q = Number(i.quantity), kg = q * kgPerPack(k, i.unit);
+      const split = !!o.started_at && isTicked(o.order_id, k);
+      r.packs += q; r.kg += kg; if (split) r.splitKg += kg;
+      r.orders.push({ id: o.order_id, customer: o.customer_name, q, split });
+      map.set(k, r);
     }));
-    $("#pickBody").innerHTML = [...pick.entries()].sort((a, b) => b[1] - a[1])
-      .map(([p, q]) => `<tr><td><span class="pk">${thumb(p)}${esc(p)}</span></td><td class="q">${num(q)}</td></tr>`).join("") || `<tr><td class="muted">הכול מוכן</td></tr>`;
+    const rows = [...map.values()].sort((a, b) => b.kg - a.kg);
+    const totKg = rows.reduce((s, r) => s + r.kg, 0), totPacks = rows.reduce((s, r) => s + r.packs, 0);
+    $("#cntPeel").textContent = rows.length;
+    $("#emptyPeel").hidden = rows.length > 0;
+    $("#peelSub").textContent = `${state.orders.length} הזמנות · ${rows.length} מוצרים · ממוין מהכמות הגדולה לקטנה`;
+    $("#peelTotal").innerHTML = rows.length ? `<strong>${kgFmt(totKg)}</strong><span>ק״ג בסך הכול · ${num(totPacks)} מארזים</span>` : "";
+    const h = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", hour: "2-digit", hourCycle: "h23" }).format(new Date()));
+    $("#peelCutoff").textContent = h < 12
+      ? "הזמנות למחר נכנסות עד 12:00, אז הכמויות עוד יכולות לגדול. הרשימה מתעדכנת לבד."
+      : "עברה השעה 12:00: הרשימה למחר סגורה (חוץ מהזמנה שהמנהל מוסיף ידנית).";
+    $("#peelCutoff").classList.toggle("closed", h >= 12);
+    $("#peelGrid").innerHTML = rows.map(r => {
+      const per = kgPerPack(r.name, r.unit);
+      const pct = r.kg ? Math.round(100 * r.splitKg / r.kg) : 0;
+      return `<article class="peel-card${pct === 100 ? " is-done" : ""}">
+        <div class="peel-top">
+          ${thumb(r.name).replace('width="56" height="56"', 'width="84" height="84"')}
+          <div class="peel-name"><strong>${esc(r.name)}</strong><span>${num(r.packs)} מארזים${per ? ` × ${kgFmt(per)} ק״ג` : ""}</span></div>
+          <div class="peel-kg"><strong>${per ? kgFmt(r.kg) : "?"}</strong><span>ק״ג</span></div>
+        </div>
+        <div class="peel-bar" title="כמה כבר חולק להזמנות"><span style="width:${pct}%"></span></div>
+        <p class="peel-split">חולק להזמנות: ${kgFmt(r.splitKg)} מתוך ${kgFmt(r.kg)} ק״ג</p>
+        <ul class="peel-orders">${r.orders.map(x => `<li class="${x.split ? "split" : ""}"><span>${x.split ? "✓ " : ""}${esc(x.customer)} <small>#${x.id}</small></span><b>${num(x.q)} מארזים · ${kgFmt(x.q * per)} ק״ג</b></li>`).join("")}</ul>
+      </article>`;
+    }).join("");
   }
 
   /* שלב 3: הוכנו */
@@ -249,13 +284,17 @@
   }
 
   /* ----- לשוניות ----- */
-  $$(".vtab").forEach(b => b.addEventListener("click", () => {
-    state.view = b.dataset.view;
-    $$(".vtab").forEach(x => x.classList.toggle("is-active", x === b));
-    $("#workView").hidden = state.view !== "work";
-    $("#doneView").hidden = state.view !== "done";
+  function setView(v) {
+    state.view = v;
+    try { localStorage.setItem("mkTabletView", v); } catch (_) {}
+    $$(".vtab").forEach(x => x.classList.toggle("is-active", x.dataset.view === v));
+    $("#peelView").hidden = v !== "peel";
+    $("#workView").hidden = v !== "work";
+    $("#doneView").hidden = v !== "done";
     window.scrollTo(0, 0);
-  }));
+  }
+  $$(".vtab").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+  setView(["peel", "work", "done"].includes(state.view) ? state.view : "peel");
 
   /* ----- שלב 1 -> 2: "נקלטה" ----- */
   $("#queueNew").addEventListener("click", async e => {

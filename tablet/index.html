@@ -64,7 +64,8 @@
 
   <!-- לשוניות: עבודה / הוכנו -->
   <nav class="vtabs" role="tablist">
-    <button type="button" class="vtab is-active" role="tab" data-view="work">להכנה <span class="vcount" id="cntWork">0</span></button>
+    <button type="button" class="vtab" role="tab" data-view="peel">סה״כ לקילוף <span class="vcount" id="cntPeel">0</span></button>
+    <button type="button" class="vtab is-active" role="tab" data-view="work">הזמנות להכנה <span class="vcount" id="cntWork">0</span></button>
     <button type="button" class="vtab" role="tab" data-view="done">הוכנו <span class="vcount" id="cntDone">0</span></button>
   </nav>
 
@@ -84,11 +85,20 @@
       </section>
     </div>
 
-    <aside class="pick">
-      <h2>סה״כ להכנה</h2>
-      <p class="muted pick-sub">מה שנשאר, בלי מוצרים שכבר סומנו</p>
-      <table><tbody id="pickBody"></tbody></table>
-    </aside>
+  </main>
+
+  <!-- סה"כ לקילוף: כל הכמות מכל מוצר, לפני החלוקה להזמנות -->
+  <main class="peel-view" id="peelView" hidden>
+    <div class="peel-head">
+      <div>
+        <h2>סה״כ לקילוף</h2>
+        <p class="muted" id="peelSub"></p>
+      </div>
+      <div class="peel-total" id="peelTotal"></div>
+    </div>
+    <p class="peel-cutoff" id="peelCutoff"></p>
+    <div class="peel-grid" id="peelGrid"></div>
+    <p class="stage-empty" id="emptyPeel" hidden>אין כרגע מה לקלף</p>
   </main>
 
   <main class="done-view" id="doneView" hidden>
