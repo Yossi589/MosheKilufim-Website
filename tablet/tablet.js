@@ -186,7 +186,7 @@
   function header(o, extra = "") {
     const d = due(o.delivery_date);
     return `<header>
-        <div class="who"><strong>${esc(o.customer_name)}</strong><span>הזמנה ${o.order_id}</span></div>
+        <div class="who"><strong>${esc(o.customer_name)}</strong><span>הזמנה ${o.order_id}${o.standing ? ` <em class="standing-tag">הזמנה קבועה</em>` : ""}</span></div>
         <div class="when">${d.text ? `<span class="due${d.urgent ? " urgent" : ""}">${esc(d.text)}</span>` : ""}${extra}</div>
       </header>`;
   }
@@ -196,7 +196,7 @@
     const isNew = freshIds.has(o.order_id) || (o.approved_at && Date.now() - new Date(o.approved_at) < NEW_MS);
     const items = (o.items || []).map(i => `<li><span class="q">${num(i.quantity)}</span>${thumb(i.product)}<span class="p">${esc(i.product)}</span><span class="u">${esc(i.unit || "")}</span></li>`).join("");
     const busy = state.starting.has(o.order_id);
-    return `<article class="ticket t-new${isNew ? " is-new" : ""}${due(o.delivery_date).urgent ? " is-urgent" : ""}" data-id="${o.order_id}">
+    return `<article class="ticket t-new${o.standing ? " is-standing" : ""}${isNew ? " is-new" : ""}${due(o.delivery_date).urgent ? " is-urgent" : ""}" data-id="${o.order_id}">
       ${header(o, `<span class="muted">אושרה ${esc(ago(o.approved_at))}</span>`)}
       ${isNew ? `<span class="new-flag">חדשה</span>` : ""}
       <ul class="items">${items}</ul>
@@ -220,7 +220,7 @@
         <span class="qty">${num(i.quantity)} <small>${esc(i.unit || "")}</small></span>
       </li>`;
     }).join("");
-    return `<article class="ticket t-prod${all ? " all-ticked" : ""}${u ? " is-undo" : ""}" data-id="${o.order_id}">
+    return `<article class="ticket t-prod${o.standing ? " is-standing" : ""}${all ? " all-ticked" : ""}${u ? " is-undo" : ""}" data-id="${o.order_id}">
       ${header(o, `<span class="tick-count">${n}/${items.length} הוכנו</span><span class="muted">נקלטה ${esc(ago(o.started_at))}</span>`)}
       <ul class="items chks">${lis}</ul>
       ${o.notes ? `<p class="notes">${esc(o.notes)}</p>` : ""}

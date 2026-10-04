@@ -114,7 +114,7 @@
     <!-- סיכום -->
     <section class="flow cards" data-mod="orders" aria-label="מסלול ההזמנה">
       <button type="button" class="flow-step" data-go="pending" id="flowPending">
-        <span class="flow-k">1</span><strong id="sumPending">–</strong><span class="flow-l">מחכות לאישור</span><span class="flow-h">לבדוק ולשלוח לייצור</span>
+        <span class="flow-k">1</span><strong id="sumPending">–</strong><span class="flow-l">מחכות לאישור</span><span class="flow-h" id="flowPendingHint">לבדוק ולאשר</span>
       </button>
       <span class="flow-arrow" aria-hidden="true">←</span>
       <button type="button" class="flow-step" data-go="production">
@@ -141,12 +141,30 @@
       <div class="panel-head">
         <div>
           <h2>מחכות לאישור</h2>
-          <p class="muted small">מהישנה לחדשה. "אשר" שולח את ההזמנה לטאבלט בפס הייצור.</p>
+          <p class="muted small">מהישנה לחדשה. "אשר" מעביר את ההזמנה לרשימת המאושרות שלמטה. משם היא יורדת לטאבלט בלחיצה על "העבר לייצור".</p>
         </div>
         <button type="button" class="btn btn-sm" id="approveAll" hidden>אשר את כולן</button>
       </div>
       <div id="pendingList" class="cardlist"></div>
       <div class="empty" id="pendingEmpty" hidden><p>אין הזמנות שממתינות לאישור.</p></div>
+
+      <!-- מאושרות: מחכות לכפתור "העבר לייצור" -->
+      <div class="approved-block">
+        <div class="panel-head approved-head">
+          <div>
+            <h2>מאושרות · ממתינות לייצור <span class="muted small" id="approvedCount"></span></h2>
+            <p class="muted small" id="approvedHint"></p>
+          </div>
+          <button type="button" class="btn btn-primary btn-lg" id="releaseBtn" disabled>העבר לייצור</button>
+        </div>
+        <div class="table-wrap">
+          <table class="orders approved-table">
+            <thead><tr><th>#</th><th>לקוח</th><th>אספקה</th><th>מוצרים</th><th>מארזים</th><th>אושרה</th><th></th></tr></thead>
+            <tbody id="approvedBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="approvedEmpty" hidden><p>אין הזמנות מאושרות שממתינות לייצור.</p></div>
+      </div>
     </section>
 
     <!-- ===== לשונית: לקוחות חדשים ===== -->
@@ -220,7 +238,7 @@
       <div class="panel-head">
         <h2>כל הלקוחות <span class="muted small" id="custCount"></span></h2>
         <div class="filters">
-          <input type="search" id="custSearch" placeholder="חיפוש לפי שם, טלפון או כתובת">
+          <input type="search" id="custSearch" placeholder="הקלידו שם לקוח או מספר לקוח (גם טלפון / כתובת)" autocomplete="off">
           <select id="custFilter" aria-label="סינון">
             <option value="">כל הלקוחות</option>
             <option value="nokey">בלי מפתח חשבשבת</option>
@@ -372,8 +390,24 @@
         </div>
       </div>
     </div>
+    <div class="order-stand" id="oStandBox" hidden>
+      <div class="stand-pick" id="oStandPickWrap" hidden>
+        <label for="oStandPick">איזו הזמנה קבועה</label>
+        <select id="oStandPick"></select>
+      </div>
+      <fieldset class="weekdays" id="oWeekdays">
+        <legend>ימי אספקה</legend>
+        <label><input type="checkbox" value="0"><span>א׳</span></label>
+        <label><input type="checkbox" value="1"><span>ב׳</span></label>
+        <label><input type="checkbox" value="2"><span>ג׳</span></label>
+        <label><input type="checkbox" value="3"><span>ד׳</span></label>
+        <label><input type="checkbox" value="4"><span>ה׳</span></label>
+        <label><input type="checkbox" value="5"><span>ו׳</span></label>
+      </fieldset>
+      <label class="check"><input type="checkbox" id="oStandActive" checked> פעילה</label>
+    </div>
     <div class="order-grid">
-      <div><label for="oDate">תאריך אספקה</label><input type="date" id="oDate"></div>
+      <div id="oDateWrap"><label for="oDate">תאריך אספקה</label><input type="date" id="oDate"></div>
       <div><label for="oNotes">הערות</label><input id="oNotes" placeholder="הערות להזמנה"></div>
     </div>
     <table class="order-lines">
@@ -385,11 +419,12 @@
       <button type="button" class="btn btn-sm" id="oAddBtn">+ הוספת מוצר</button>
     </div>
     <p class="order-total" id="oTotal"></p>
-    <label class="check order-approve" id="oApproveWrap" hidden><input type="checkbox" id="oApprove" checked> לאשר מיד ולשלוח לייצור (ההזמנה תופיע בטאבלט)</label>
+    <label class="check order-approve" id="oApproveWrap" hidden><input type="checkbox" id="oApprove" checked> לאשר מיד (ההזמנה תיכנס למאושרות ותרד לייצור עם הכפתור "העבר לייצור")</label>
     <p class="form-error" id="orderError" role="alert"></p>
     <div class="modal-actions">
       <button type="submit" class="btn btn-primary" id="orderSave">שמירת שינויים</button>
       <button type="button" class="btn" data-close-order>ביטול</button>
+      <button type="button" class="btn btn-link-danger" id="orderDelete" hidden>מחיקת ההזמנה הקבועה</button>
     </div>
   </form>
 </div>

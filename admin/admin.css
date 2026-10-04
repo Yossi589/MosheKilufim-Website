@@ -348,3 +348,34 @@ a.btn { text-decoration: none; display: inline-block; }
 }
 .flow-step.is-current { box-shadow: 0 0 0 2px var(--brown); }
 .flow-step.hot.is-current { box-shadow: 0 0 0 3px var(--orange); }
+
+/* ===== מאושרות · ממתינות לייצור (שורות) ===== */
+.approved-block { margin-top: 26px; padding-top: 18px; border-top: 2px dashed var(--line); }
+.approved-head h2 { display: flex; align-items: baseline; gap: 8px; }
+#releaseBtn { font-size: 1.05rem; padding: 12px 26px; }
+#releaseBtn:disabled { opacity: .45; cursor: default; }
+.approved-table td { vertical-align: middle; }
+.approved-table .items-cell { font-size: .9rem; line-height: 1.45; max-width: 360px; }
+.approved-table tr.group-row td { background: var(--sand); font-weight: 700; color: var(--brown); font-size: .88rem; padding: 6px 10px; }
+.approved-table tr.later td { opacity: .62; }
+.approved-table tr.is-standing td { background: #f3f7ff; }
+.approved-table tr.is-standing td:first-child { box-shadow: inset -4px 0 0 #2f6fd6; }
+.approved-table tr.is-standing { outline: 1.5px solid #2f6fd6; outline-offset: -1.5px; }
+.tag-standing { background: #e8f0fe; color: #1f56b3; }
+
+/* ===== הזמנה קבועה: ימים בשבוע ===== */
+.order-stand { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 4px 0 12px; }
+.stand-pick { display: flex; flex-direction: column; gap: 4px; min-width: 220px; }
+.weekdays { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.weekdays legend { font-weight: 600; margin-bottom: 4px; padding: 0; width: 100%; }
+.weekdays label { cursor: pointer; }
+.weekdays input { position: absolute; opacity: 0; pointer-events: none; }
+.weekdays span { display: inline-grid; place-items: center; width: 42px; height: 38px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--white); font-weight: 700; color: var(--brown); }
+.weekdays input:checked + span { background: #2f6fd6; border-color: #2f6fd6; color: #fff; }
+.weekdays input:focus-visible + span { outline: 3px solid var(--orange); outline-offset: 2px; }
+.btn-standing { border-color: #2f6fd6; color: #1f56b3; }
+.btn-standing.has { background: #e8f0fe; }
+#custSearch { min-width: min(360px, 100%); font-size: 1rem; }
+.approved-table .row-btns, #custBody .row-btns { flex-wrap: nowrap; align-items: center; }
+.approved-table .row-btns .btn, #custBody .row-btns .btn { white-space: nowrap; }
+.approved-table .btn-link-danger { margin: 0; }

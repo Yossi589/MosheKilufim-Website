@@ -254,3 +254,7 @@ button { font: inherit; touch-action: manipulation; }
 .peel-undo { font: inherit; font-size: .85rem; color: #a3aab1; background: none; border: none; text-decoration: underline; padding: 10px 6px; cursor: pointer; }
 .peel-added { margin: 0; padding: 8px 12px; border-radius: 10px; background: #fff7d6; color: #6b4a00; font-weight: 700; }
 .btn-peel-ok, .peel-donebar { margin-top: auto; }
+
+/* הזמנה קבועה: מסגרת כחולה + תגית קטנה */
+.ticket.is-standing { border: 2px solid #2f6fd6; box-shadow: 0 0 0 1px rgba(47,111,214,.15); }
+.standing-tag { display: inline-block; font-style: normal; font-size: .78em; font-weight: 600; color: #1f56b3; background: #e8f0fe; border-radius: 999px; padding: 1px 8px; margin-inline-start: 6px; vertical-align: middle; }
