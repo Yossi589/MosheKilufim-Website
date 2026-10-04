@@ -45,11 +45,13 @@
       <span class="live" id="liveDot" title="חיבור להתראות בזמן אמת">מנותק</span>
     </div>
     <nav class="mainnav" aria-label="ניווט במערכת">
-      <button type="button" class="nav-back" id="navBack" title="חזרה למסך הקודם" aria-label="חזרה">→ חזרה</button>
-      <a href="#" data-nav="home">מסך ראשי</a>
-      <a href="#orders" data-nav="orders">הזמנות</a>
-      <a href="#customers" data-nav="customers">לקוחות</a>
-      <a href="#reports" data-nav="reports">דוחות</a>
+      <button type="button" class="nav-back" id="navBack" title="חזרה למסך הקודם"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span>חזרה</span></button>
+      <div class="nav-seg">
+        <a href="#" data-nav="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>מסך ראשי</span></a>
+        <a href="#orders" data-nav="orders"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v16.5l-3-2-2 2-2-2-2 2-2-2-3 2V4a1 1 0 0 1 1-1z"/><path d="M9 8h6M9 12h6"/></svg><span>הזמנות</span></a>
+        <a href="#customers" data-nav="customers"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.7-3.6 3.3-5.5 6.5-5.5s5.8 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.6c2 .6 3.2 2.4 3.5 5.4"/></svg><span>לקוחות</span></a>
+        <a href="#reports" data-nav="reports"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-6M2 20h20"/></svg><span>דוחות</span></a>
+      </div>
     </nav>
     <div class="user">
       <a href="#" class="btn btn-sm" id="homeBtn" hidden aria-hidden="true" tabindex="-1">מסך ראשי</a>

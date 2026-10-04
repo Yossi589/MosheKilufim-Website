@@ -532,3 +532,22 @@ a.btn { text-decoration: none; display: inline-block; }
   .order-kind, .newcust { grid-template-columns: 1fr; }
   .zone { padding: 14px 12px 16px; }
 }
+
+/* ===== ניווט קבוע: כפתור חזרה עגול + בורר מודולים ===== */
+.mainnav { gap: 10px; }
+.mainnav svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.mainnav .nav-back { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px 0 10px; margin: 0; border: 1.5px solid var(--line); border-radius: 999px; background: var(--white); color: var(--brown); font-weight: 700; transition: background .15s, border-color .15s, transform .15s; }
+.mainnav .nav-back:hover { background: var(--sand); border-color: #d9c9ae; }
+.mainnav .nav-back:hover svg { transform: translateX(2px); }
+.mainnav .nav-back svg { transition: transform .15s; }
+.nav-seg { display: inline-flex; align-items: center; gap: 2px; padding: 4px; background: var(--sand); border-radius: 12px; }
+.mainnav .nav-seg a { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px; border-radius: 9px; color: var(--muted); font-weight: 700; text-decoration: none; transition: background .15s, color .15s; }
+.mainnav .nav-seg a:hover { background: rgba(255,255,255,.6); color: var(--brown); }
+.mainnav .nav-seg a.is-current { background: var(--white); color: var(--brown); box-shadow: 0 1px 2px rgba(59,35,20,.12), 0 2px 8px rgba(59,35,20,.08); }
+.mainnav .nav-seg a.is-current svg { color: var(--orange); }
+.mainnav a:focus-visible, .mainnav button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+@media (max-width: 760px) {
+  .mainnav .nav-seg a { padding: 0 10px; gap: 5px; font-size: .9rem; }
+  .mainnav .nav-back span { display: none; }
+  .mainnav .nav-back { padding: 0 10px; }
+}
