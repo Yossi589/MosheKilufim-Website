@@ -896,7 +896,9 @@
   async function loadProduction() {
     const [q, d, pl] = await Promise.all([db.rpc("production_queue"), db.rpc("production_done", { p_days: 1 }), db.rpc("peel_status")]);
     if (q.error) { toast("שגיאה בטעינת פס הייצור: " + q.error.message, true); return; }
-    const orders = q.data || [], done = (d.data || []).filter(o => isTodayTs(o.prepared_at)), peel = pl.data || [];
+    const orders = q.data || [];
+    orders.forEach(o => (o.items || []).forEach(i => { if (Number(i.kg) > 0) KG.set(i.product, Number(i.kg)); }));
+    const done = (d.data || []).filter(o => isTodayTs(o.prepared_at)), peel = pl.data || [];
     const fresh = orders.filter(o => !o.started_at), prod = orders.filter(o => o.started_at);
 
     // סה"כ לקילוף

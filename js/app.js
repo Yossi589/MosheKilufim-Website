@@ -1000,6 +1000,57 @@
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
   }
 
+  /* ---------- קטלוג מהשרת ----------
+     טבלת product בבסיס הנתונים היא המקור: שם, אריזה, משקל, קטגוריה, תיאור ושם קובץ התמונה.
+     js/products.js נשאר כגיבוי — האתר מוצג ממנו מיד, ומתעדכן כשהתשובה מהשרת מגיעה (או נשאר כך אם אין חיבור).
+     התמונות עצמן נשארות בתיקיית img; בשרת נשמר רק שם הקובץ. */
+  function syncCatalogFromDb() {
+    if (!DB) return;
+    DB.from("product").select("product_id,name,unit,category,kg,image,description").eq("is_active", true)
+      .then(({ data, error }) => {
+        if (error || !Array.isArray(data) || !data.length) return;
+        const oldByPid = new Map(PRODUCTS.map(p => [p.pid, p]));
+        const nameToPid = new Map(PRODUCTS.map(p => [p.name, p.pid]));
+        const catImg = new Map(CATEGORIES.map(c => [c.name, c.image]));
+        const order = new Map(PRODUCTS.map((p, i) => [p.pid, i]));
+        const rank = p => order.has(p.pid) ? order.get(p.pid) : 1e6 + p.pid;
+        const next = data.map(r => {
+          const pid = Number(r.product_id), f = oldByPid.get(pid) || {};
+          const category = r.category || f.category || "";
+          return {
+            id: f.id || "p" + pid, pid, name: r.name || f.name || "", pack: r.unit || f.pack || "",
+            kg: Number(r.kg) || f.kg || 0, category, desc: r.description || f.desc || "",
+            image: r.image || f.image || catImg.get(category) || ""
+          };
+        }).sort((a, b) => rank(a) - rank(b));
+        if (JSON.stringify(next) === JSON.stringify(PRODUCTS)) return; // אין שינוי
+
+        // העגלה שמורה לפי שם — אם מוצר שינה שם, מעבירים לפי מספר המוצר; מוצר שהוסר יוצא מהעגלה
+        const newByPid = new Map(next.map(p => [p.pid, p]));
+        state.cart = state.cart.map(i => {
+          const p = newByPid.get(nameToPid.get(i.name));
+          return p ? { name: p.name, qty: i.qty } : null;
+        }).filter(Boolean);
+
+        PRODUCTS.splice(0, PRODUCTS.length, ...next);
+        byName.clear(); PRODUCTS.forEach(p => byName.set(p.name, p));
+        byId.clear(); PRODUCTS.forEach(p => byId.set(p.id, p));
+        // קטגוריה חדשה מהשרת נוספת בסוף; קטגוריה בלי מוצרים פעילים יורדת
+        PRODUCTS.forEach(p => {
+          if (p.category && !CATEGORIES.some(c => c.name === p.category)) CATEGORIES.push({ name: p.category, image: p.image });
+        });
+        const live = CATEGORIES.filter(c => PRODUCTS.some(p => p.category === c.name));
+        CATEGORIES.splice(0, CATEGORIES.length, ...live);
+        if (state.category !== "all" && !CATEGORIES.some(c => c.name === state.category)) state.category = "all";
+
+        saveCart();
+        renderCategoryNav();
+        renderProducts();
+        refreshCartUI();
+      })
+      .catch(err => console.warn("catalog:", err));
+  }
+
   /* ==========================================================
      הפעלה
      ========================================================== */
@@ -1012,6 +1063,7 @@
     setHeaderH();
     onScroll();
     const y = $("#year"); if (y) y.textContent = new Date().getFullYear();
+    syncCatalogFromDb();
 
     if (isPWA()) document.body.classList.add("is-pwa");
     // פתיחה ראשונה של האפליקציה המותקנת בלי פרטים — מציעים הרשמה

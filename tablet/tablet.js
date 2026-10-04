@@ -23,11 +23,16 @@
   const NEW_MS = 10 * 60 * 1000;   // הזמנה "חדשה" = אושרה ב-10 הדקות האחרונות
   const UNDO_SEC = 6;
 
-  // תמונות המוצרים: אותו קטלוג של האתר (js/products.js), לפי שם המוצר
+  // תמונות ומשקלים: מגיעים מהשרת (טבלת product, בתוך items של production_queue).
+  // js/products.js משמש רק גיבוי אם השרת עוד לא החזיר ערך.
   const IMG = new Map((window.MK_PRODUCTS || []).map(p => [p.name, p.image]));
   // משקל מארז בק"ג: מהקטלוג (kg), ואם אין - מתוך תיאור היחידה ("מארז 10 ק״ג")
   const KG = new Map((window.MK_PRODUCTS || []).map(p => [p.name, Number(p.kg) || 0]));
   const kgPerPack = (name, unit) => KG.get(name) || Number((String(unit || "").match(/(\d+(?:\.\d+)?)\s*ק/) || [])[1]) || 0;
+  const learnCatalog = orders => orders.forEach(o => (o.items || []).forEach(i => {
+    if (Number(i.kg) > 0) KG.set(i.product, Number(i.kg));
+    if (i.image) IMG.set(i.product, i.image);
+  }));
   const kgFmt = n => new Intl.NumberFormat("he-IL", { maximumFractionDigits: 1 }).format(n);
   const thumb = name => IMG.has(name)
     ? `<img class="ph" src="../img/thumbs/${esc(IMG.get(name))}" alt="" width="56" height="56" loading="lazy">`
@@ -142,6 +147,7 @@
     if (q.error) { setStatus(false, "שגיאה בטעינה"); return; }
     const before = new Set(state.orders.map(o => o.order_id));
     state.orders = q.data || [];
+    learnCatalog(state.orders);
     if (!d.error) state.done = d.data || [];
     if (!pl.error) state.peel = pl.data || [];
     const fresh = state.orders.filter(o => !before.has(o.order_id));
