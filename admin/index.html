@@ -163,7 +163,21 @@
             <tbody id="approvedBody"></tbody>
           </table>
         </div>
-        <div class="empty" id="approvedEmpty" hidden><p>אין הזמנות מאושרות שממתינות לייצור.</p></div>
+        <div class="empty" id="approvedEmpty" hidden><p>אין הזמנות מאושרות ליום האספקה הקרוב.</p></div>
+      </div>
+
+      <!-- לימים הבאים: מופרד ועמום. לא יורדות לייצור עכשיו -->
+      <div class="later-block" id="laterBlock" hidden>
+        <div class="later-head">
+          <h3>לימים הבאים <span class="muted small" id="laterCount"></span></h3>
+          <p class="muted small">מאושרות, אבל לא יורדות לייצור בלחיצה היום. כל אחת תעלה לרשימה העליונה ביום שלפני האספקה שלה.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="orders approved-table later-table">
+            <thead><tr><th>#</th><th>לקוח</th><th>אספקה</th><th>מוצרים</th><th>מארזים</th><th>אושרה</th><th></th></tr></thead>
+            <tbody id="laterBody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 

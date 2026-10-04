@@ -321,10 +321,14 @@
         </div></td>
       </tr>`;
     };
-    $("#approvedBody").innerHTML =
-      (nowSorted.length ? `<tr class="group-row"><td colspan="7">לאספקה ב${esc(fmtDate(next))} · יורדות לייצור בלחיצה על "העבר לייצור"</td></tr>` + nowSorted.map(o => row(o, "")).join("") : "") +
-      (later.length ? `<tr class="group-row"><td colspan="7">לימים הבאים · יירדו לייצור ביום שלפני האספקה</td></tr>` + later.map(o => row(o, "later")).join("") : "");
-    $("#approvedEmpty").hidden = data.length > 0;
+    $("#approvedBody").innerHTML = nowSorted.length
+      ? `<tr class="group-row"><td colspan="7">לאספקה ב${esc(fmtDate(next))} · יורדות לייצור בלחיצה על "העבר לייצור"</td></tr>` + nowSorted.map(o => row(o, "")).join("")
+      : "";
+    $("#approvedEmpty").hidden = nowSorted.length > 0;
+    // לימים הבאים: טבלה נפרדת, עמומה, מתחת לקו מפריד
+    $("#laterBlock").hidden = !later.length;
+    $("#laterCount").textContent = later.length ? `(${later.length})` : "";
+    $("#laterBody").innerHTML = later.map(o => row(o, "later")).join("");
     $("#approvedCount").textContent = data.length ? `(${now.length} ל${fmtDate(next)}${later.length ? ` · ${later.length} לימים הבאים` : ""})` : "";
     const nStanding = now.filter(isStanding).length;
     const rb = $("#releaseBtn");
@@ -346,7 +350,7 @@
     await Promise.all([loadCounts(), loadPending()]);
   });
 
-  $("#approvedBody").addEventListener("click", async e => {
+  async function onApprovedClick(e) {
     const u = e.target.closest("[data-unapprove]"), c = e.target.closest("[data-cancel-approved]");
     if (!u && !c) return;
     const id = Number(u ? u.dataset.unapprove : c.dataset.cancelApproved);
@@ -357,7 +361,9 @@
     const ok = await setStatus(id, u ? PENDING : "בוטלה");
     if (ok) toast(u ? `הזמנה ${id} חזרה לאישור` : standing ? `דילגנו על הזמנה ${id}` : `הזמנה ${id} בוטלה`);
     await Promise.all([loadCounts(), loadPending()]);
-  });
+  }
+  $("#approvedBody").addEventListener("click", onApprovedClick);
+  $("#laterBody").addEventListener("click", onApprovedClick);
 
   $("#approveAll").addEventListener("click", async () => {
     const ids = state.pending.map(o => o.order_id);

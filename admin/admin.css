@@ -379,3 +379,11 @@ a.btn { text-decoration: none; display: inline-block; }
 .approved-table .row-btns, #custBody .row-btns { flex-wrap: nowrap; align-items: center; }
 .approved-table .row-btns .btn, #custBody .row-btns .btn { white-space: nowrap; }
 .approved-table .btn-link-danger { margin: 0; }
+
+/* ===== לימים הבאים: מופרד לגמרי ועמום ===== */
+.later-block { margin-top: 34px; padding: 16px 16px 6px; border-top: 3px double var(--line); background: repeating-linear-gradient(-45deg, #f4f1ec, #f4f1ec 10px, #efebe4 10px, #efebe4 20px); border-radius: 0 0 12px 12px; filter: grayscale(1); opacity: .55; transition: opacity .2s, filter .2s; }
+.later-block:hover, .later-block:focus-within { opacity: .9; filter: grayscale(.4); }
+.later-head h3 { margin: 0; font-family: var(--f-head); font-size: 1rem; color: var(--muted); }
+.later-head p { margin: 2px 0 10px; }
+.later-table { background: transparent; }
+.later-table tr.later td { opacity: 1; }
