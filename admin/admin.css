@@ -291,3 +291,60 @@ a.btn { text-decoration: none; display: inline-block; }
 .order-approve { margin-top: 10px !important; font-weight: 600; }
 .order-new .order-grid { grid-template-columns: 1.4fr 1fr; }
 .no-new-tag tr.is-new td:first-child::after { content: none; }
+
+/* ===== גרסה 6: מודול הזמנות מסודר ===== */
+.mod-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px 6px; max-width: 1400px; margin: 0 auto; }
+.mod-head h1 { font-size: 1.6rem; }
+.mod-head p { margin: 2px 0 0; }
+.tabs { padding-top: 4px; }
+
+/* מסלול ההזמנה: 4 שלבים לחיצים */
+.flow.cards { display: flex; align-items: stretch; gap: 8px; margin-bottom: 18px; grid-template-columns: none; }
+.flow-step { flex: 1; font: inherit; text-align: start; cursor: pointer; background: var(--white); border: none; border-radius: 16px;
+  box-shadow: 0 0 0 1px var(--line); padding: 12px 16px; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; transition: box-shadow .15s, transform .15s; }
+.flow-step:hover { box-shadow: 0 0 0 2px var(--orange); transform: translateY(-1px); }
+.flow-step strong { grid-row: span 2; font-family: var(--f-head); font-size: 2rem; color: var(--brown); min-width: 44px; text-align: center; }
+.flow-k { display: none; }
+.flow-l { font-weight: 700; color: var(--ink); }
+.flow-h { font-size: .8rem; color: var(--muted); }
+.flow-step.hot { background: #fff4ec; box-shadow: 0 0 0 2px var(--orange); }
+.flow-step.hot strong { color: var(--orange); }
+.flow-arrow { align-self: center; color: #c9b8a6; font-size: 1.3rem; }
+
+/* כרטיס הזמנה לאישור */
+.ocard { padding: 0; }
+.ocard header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.oc-who strong { display: block; font-family: var(--f-head); font-size: 1.2rem; color: var(--brown); }
+.oc-who .muted { font-size: .85rem; }
+.oc-due { text-align: end; background: var(--cream); border-radius: 10px; padding: 4px 10px; white-space: nowrap; }
+.oc-due span { display: block; font-size: .72rem; }
+.oc-due strong { color: var(--brown); }
+.oc-items { list-style: none; margin: 0; padding: 10px 16px 4px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.oc-items li { display: grid; grid-template-columns: 36px 1fr; align-items: baseline; }
+.oc-items b { font-family: var(--f-head); font-size: 1.15rem; color: var(--orange); }
+.oc-note { margin: 6px 16px 0; padding: 6px 10px; background: #fff7d6; border-radius: 8px; color: #6b4a00; font-weight: 600; font-size: .9rem; }
+.oc-meta { margin: 8px 16px 0; }
+.ocard footer { padding: 12px 16px 14px; align-items: center; }
+.btn-link-danger { background: none; border: none; color: var(--danger); text-decoration: underline; margin-inline-start: auto; padding: 6px 4px; }
+.btn-link-danger:hover { border: none; }
+.panel-head > div { flex: 1; }
+
+/* כל ההזמנות */
+.day-mode { margin-inline-start: auto; }
+.dm-btn { font: inherit; font-size: .88rem; font-weight: 600; border: 0; background: none; color: var(--muted); padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+.dm-btn.is-active { background: var(--brown); color: var(--cream); }
+.st-sub { display: block; font-size: .75rem; color: var(--muted); margin-top: 3px; }
+.orders td:last-child { width: 1%; white-space: nowrap; }
+
+/* בייצור עכשיו */
+.prod-summary { background: var(--white); border-radius: 12px; padding: 10px 14px; box-shadow: 0 0 0 1px var(--line); margin: 0 0 4px; }
+.prod-summary b { color: var(--brown); }
+
+@media (max-width: 900px) {
+  .flow.cards { flex-wrap: wrap; }
+  .flow-step { flex: 1 1 45%; }
+  .flow-arrow { display: none; }
+  .mod-head { flex-wrap: wrap; }
+}
+.flow-step.is-current { box-shadow: 0 0 0 2px var(--brown); }
+.flow-step.hot.is-current { box-shadow: 0 0 0 3px var(--orange); }

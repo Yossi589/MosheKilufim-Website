@@ -23,13 +23,13 @@
 
   /* מודולים: כל מודול והלשוניות שלו. מלאי ועובדים יתווספו בהמשך */
   const MODULES = {
-    orders:    { title: "ניהול הזמנות", tabs: ["pending", "production", "day", "stats", "hash"] },
-    customers: { title: "ניהול לקוחות", tabs: ["requests", "customers"] }
+    orders:    { title: "ניהול הזמנות", sub: "מההזמנה ועד הייצור: מה מחכה לך, מה בפס, ומה יוצא לחשבשבת", tabs: ["pending", "production", "day", "hash", "stats"] },
+    customers: { title: "ניהול לקוחות", sub: "לקוחות חדשים לאישור, כרטיסי לקוח ומפתחות חשבשבת", tabs: ["requests", "customers"] }
   };
   const ALL_VIEWS = ["pending", "production", "requests", "day", "stats", "hash", "customers"];
 
   const state = {
-    module: "home", tab: "pending", day: todayISO(), customers: [], editing: null,
+    module: "home", tab: "pending", day: nextDeliveryDay(), dayMode: "delivery", customers: [], editing: null,
     orders: [], drivers: [], products: new Map(),
     pending: [], requests: [], counts: { pending: 0, requests: 0 },
     channel: null, currentRequest: null
@@ -98,8 +98,7 @@
     state.tab = tab;
     $$(".tab").forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle("is-active", on); b.setAttribute("aria-selected", on); });
     ALL_VIEWS.forEach(t => { $("#view-" + t).hidden = t !== tab; });
-    // בלשונית "פס ייצור" יש כרטיסי סיכום משלה
-    if (state.module === "orders") $(".cards[data-mod=\"orders\"]").hidden = tab === "production";
+    $$(".flow-step").forEach(b => b.classList.toggle("is-current", b.dataset.go === tab));
     refreshTab();
   }
 
@@ -110,6 +109,9 @@
     state.module = mod;
     $("#homeView").hidden = true; $("#moduleView").hidden = false; $("#homeBtn").hidden = false;
     $("#moduleTitle").textContent = MODULES[mod].title;
+    $("#modTitle").textContent = MODULES[mod].title;
+    $("#modSub").textContent = MODULES[mod].sub;
+    $$(".mod-head [data-mod]").forEach(b => { b.hidden = b.dataset.mod !== mod; });
     $$(".tab").forEach(b => { b.hidden = b.dataset.mod !== mod; });
     $$(".cards[data-mod]").forEach(c => { c.hidden = c.dataset.mod !== mod; });
     let tab = MODULES[mod].tabs.includes(state.tab) ? state.tab : MODULES[mod].tabs[0];
@@ -206,12 +208,14 @@
       count("orders", q => q.eq("status", "בייצור")),
       count("orders", q => q.gte("prepared_at", from)),
       count("customer_requests", q => q.eq("status", "חדשה")),
-      count("orders", q => q.gte("hash_exported_at", from)),
+      count("orders", q => q.eq("delivery_date", nextDeliveryDay()).in("status", ["בייצור", "הוכנה", "בדרך", "נמסרה"]).is("hash_exported_at", null)),
       count("customers", q => q),
       count("customers", q => q.gte("created_at", monthStart.toISOString())),
       count("customers", q => q.is("hash_key", null))
     ]);
-    $("#sumExported").textContent = exported ?? "–";
+    $("#sumToExport").textContent = exported ?? "–";
+    $("#sumToExportHint").textContent = `לאספקה ב${fmtDate(nextDeliveryDay())}`;
+    $("#flowPending").classList.toggle("hot", !!pending);
     $("#sumCustomers").textContent = customers ?? "–";
     $("#sumCustMonth").textContent = custMonth ?? "–";
     $("#sumNoKey").textContent = noKey ?? "–";
@@ -250,31 +254,37 @@
     if (error) { toast("שגיאה בטעינה: " + error.message, true); return; }
     state.pending = data;
     $("#pendingEmpty").hidden = data.length > 0;
-    $("#pendingList").innerHTML = data.map(o => `
-      <article class="ocard" data-id="${o.order_id}">
+    $("#approveAll").hidden = data.length < 2;
+    $("#approveAll").textContent = `אשר את כל ה-${data.length}`;
+    $("#pendingList").innerHTML = data.map(o => {
+      const c = o.customers || {};
+      return `<article class="ocard" data-id="${o.order_id}">
         <header>
-          <strong>#${o.order_id} · ${esc(o.customers?.name)}</strong>
-          ${sourceTag(o.source)}
-          <span class="muted small">${ago(o.order_date)}</span>
+          <div class="oc-who"><strong>${esc(c.name)}</strong><span class="muted">הזמנה ${o.order_id} · ${sourceTag(o.source)} · ${ago(o.order_date)}</span></div>
+          <div class="oc-due"><span class="muted">אספקה</span><strong>${o.delivery_date ? esc(fmtDate(o.delivery_date)) : "לא צוין"}</strong></div>
         </header>
-        <div class="ocard-body">
-          <div class="items">${itemsText(o.order_lines)}</div>
-          <div class="meta">
-            <div><span class="muted">אספקה:</span> ${o.delivery_date ? esc(fmtDate(o.delivery_date)) : "לא צוין"}</div>
-            <div><span class="muted">בטאבלט:</span> ${esc(tabletFrom(o.delivery_date))}</div>
-            <div><span class="muted">כתובת:</span> ${esc(o.customers?.adress || "")}</div>
-            <div><span class="muted">טלפון:</span> <bdi>${esc(o.customers?.phone_number || "")}</bdi></div>
-            ${o.notes ? `<div class="note"><span class="muted">הערות:</span> ${esc(o.notes)}</div>` : ""}
-            <div class="muted small">${num(orderTotalPacks(o))} מארזים</div>
-          </div>
-        </div>
+        <ul class="oc-items">${(o.order_lines || []).map(l => `<li><b>${num(l.quantity)}</b><span>${esc(l.product?.name)}</span></li>`).join("")}</ul>
+        ${o.notes ? `<p class="oc-note">${esc(o.notes)}</p>` : ""}
+        <p class="oc-meta muted small"><bdi>${esc(c.phone_number || "")}</bdi> · ${esc(c.adress || "")} · בטאבלט: ${esc(tabletFrom(o.delivery_date))}</p>
         <footer>
           <button type="button" class="btn btn-primary" data-approve="${o.order_id}">אשר ושלח לייצור</button>
-          <button type="button" class="btn btn-danger" data-cancel="${o.order_id}">ביטול הזמנה</button>
-          <button type="button" class="btn btn-ghost btn-edit" data-edit-order="${o.order_id}">עריכה</button>
+          <button type="button" class="btn" data-edit-order="${o.order_id}">עריכה</button>
+          <button type="button" class="btn btn-link-danger" data-cancel="${o.order_id}">ביטול</button>
         </footer>
-      </article>`).join("");
+      </article>`;
+    }).join("");
   }
+
+  $("#approveAll").addEventListener("click", async () => {
+    const ids = state.pending.map(o => o.order_id);
+    if (!ids.length || !confirm(`לאשר ולשלוח לייצור ${ids.length} הזמנות?`)) return;
+    $("#approveAll").disabled = true;
+    const { data, error } = await db.from("orders").update({ status: "בייצור" }).in("order_id", ids).eq("status", PENDING).select("order_id");
+    $("#approveAll").disabled = false;
+    if (error) { toast("האישור נכשל: " + error.message, true); return; }
+    toast(`${(data || []).length} הזמנות נשלחו לייצור`);
+    await Promise.all([loadCounts(), loadPending()]);
+  });
 
   async function setStatus(id, status) {
     const { data, error } = await db.from("orders").update({ status }).eq("order_id", id).select("order_id");
@@ -476,16 +486,19 @@
      ========================================================== */
   async function loadDay() {
     $("#dayInput").value = state.day;
-    $("#dayLabel").textContent = new Date(state.day + "T12:00:00").toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    const dl = new Date(state.day + "T12:00:00").toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long" });
+    $("#dayLabel").textContent = state.dayMode === "delivery" ? `אספקה ב${dl}` : `התקבלו ב${dl}`;
+    $("#dayDateCol").textContent = state.dayMode === "delivery" ? "התקבלה" : "אספקה";
+    $$(".dm-btn").forEach(b => b.classList.toggle("is-active", b.dataset.mode === state.dayMode));
     loading(true);
     const [from, to] = dayRange(state.day);
-    const { data, error } = await db.from("orders")
+    let q = db.from("orders")
       .select(`order_id, order_date, delivery_date, status, source, adress, driver_id, notes, started_at,
                customers ( name, phone_number ),
                drivers ( name ),
-               order_lines ( quantity, product ( name ) )`)
-      .gte("order_date", from).lt("order_date", to)
-      .order("order_date");
+               order_lines ( quantity, product ( name ) )`);
+    q = state.dayMode === "delivery" ? q.eq("delivery_date", state.day) : q.gte("order_date", from).lt("order_date", to);
+    const { data, error } = await q.order("order_date");
     loading(false);
     if (error) { toast("שגיאה בטעינת הזמנות: " + error.message, true); return; }
     state.orders = data;
@@ -493,9 +506,12 @@
   }
 
   async function jumpToLastDay() {
-    const { data, error } = await db.from("orders").select("order_date").order("order_date", { ascending: false }).limit(1);
+    const col = state.dayMode === "delivery" ? "delivery_date" : "order_date";
+    let q = db.from("orders").select(col);
+    if (col === "delivery_date") q = q.not("delivery_date", "is", null);
+    const { data, error } = await q.order(col, { ascending: false }).limit(1);
     if (error || !data.length) { toast("לא נמצאו הזמנות", true); return; }
-    state.day = toISO(new Date(data[0].order_date));
+    state.day = col === "delivery_date" ? data[0].delivery_date : toISO(new Date(data[0].order_date));
     loadDay();
   }
 
@@ -523,20 +539,25 @@
 
     $("#emptyState").hidden = state.orders.length > 0;
     $("#ordersBody").innerHTML = filtered().map(o => {
-      const time = new Date(o.order_date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+      const when = state.dayMode === "delivery"
+        ? new Date(o.order_date).toLocaleString("he-IL", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" })
+        : (o.delivery_date ? fmtDate(o.delivery_date) : "—");
       const driverOpts = `<option value="">—</option>` + state.drivers.map(d =>
         `<option value="${d.driver_id}" ${d.driver_id === o.driver_id ? "selected" : ""}>${esc(d.name)}</option>`).join("");
       const statusOpts = STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("");
+      const stage = o.status === "בייצור" ? `<small class="st-sub">${o.started_at ? "בקילוף" : "ממתינה בטאבלט"}</small>` : "";
+      const editable = ["ממתינה לאישור", "בייצור"].includes(o.status);
       return `<tr data-id="${o.order_id}" class="${o.status === "בוטלה" ? "cancelled" : ""}">
-        <td class="num">${o.order_id}${["ממתינה לאישור", "בייצור"].includes(o.status) ? `<br><button type="button" class="btn btn-sm btn-ghost" data-edit-order="${o.order_id}">עריכה</button>` : ""}</td>
-        <td class="num">${time}</td>
+        <td class="num muted">${o.order_id}</td>
         <td class="cust"><strong>${esc(o.customers?.name)}</strong>${sourceTag(o.source)}<small>${esc(o.adress || "")}</small>${o.notes ? `<small class="note">${esc(o.notes)}</small>` : ""}</td>
         <td class="items">${itemsText(o.order_lines)}</td>
-        <td class="num">${o.delivery_date ? esc(fmtDate(o.delivery_date)) : ""}</td>
+        <td class="num"><bdi>${esc(when)}</bdi></td>
         <td><select data-field="driver_id" aria-label="נהג להזמנה ${o.order_id}">${driverOpts}</select></td>
-        <td><select data-field="status" class="st" data-st="${esc(o.status)}" aria-label="סטטוס להזמנה ${o.order_id}">${statusOpts}</select>${o.status === "בייצור" ? (o.started_at ? `<span class="tag tag-hot">בקילוף</span>` : `<span class="tag">ממתינה בטאבלט</span>`) : ""}</td>
+        <td><select data-field="status" class="st" data-st="${esc(o.status)}" aria-label="סטטוס להזמנה ${o.order_id}">${statusOpts}</select>${stage}</td>
+        <td>${editable ? `<button type="button" class="btn btn-sm" data-edit-order="${o.order_id}">עריכה</button>` : ""}</td>
       </tr>`;
     }).join("");
+    $("#emptyState").querySelector("p").textContent = state.dayMode === "delivery" ? "אין הזמנות לאספקה ביום הזה." : "לא התקבלו הזמנות ביום הזה.";
   }
 
   $("#ordersBody").addEventListener("change", async e => {
@@ -660,8 +681,8 @@
   document.addEventListener("focusin", e => { const el = e.target.closest("#view-stats [data-tip]"); if (el) { const r = el.getBoundingClientRect(); showTip(el, r.left + r.width / 2, r.top); } });
   document.addEventListener("focusout", () => { $("#chartTip").hidden = true; });
 
-  $$(".seg-btn").forEach(b => b.addEventListener("click", () => {
-    $$(".seg-btn").forEach(x => x.classList.toggle("is-active", x === b));
+  $$("#view-stats .seg-btn").forEach(b => b.addEventListener("click", () => {
+    $$("#view-stats .seg-btn").forEach(x => x.classList.toggle("is-active", x === b));
     state.statDays = Number(b.dataset.days); loadStats();
   }));
 
@@ -891,10 +912,7 @@
     const totKg = rows.reduce((s, r) => s + r.kg, 0);
     const peeledKg = rows.reduce((s, r) => { const p = peeled.get(Number(r.pid)); return s + (p && r.kg <= Number(p.kg) + 0.001 ? r.kg : 0); }, 0);
 
-    $("#pkNew").textContent = fresh.length;
-    $("#pkProd").textContent = prod.length;
-    $("#pkDone").textContent = done.length;
-    $("#pkKg").textContent = `${num(totKg)} · ${num(peeledKg)}`;
+    $("#prodSummary").innerHTML = `<b>${fresh.length}</b> ממתינות בטאבלט · <b>${prod.length}</b> בקילוף · <b>${done.length}</b> הוכנו היום · לקילוף <b>${num(totKg)} ק״ג</b>, מתוכם קולפו <b>${num(peeledKg)} ק״ג</b>`;
     $("#prodLive").textContent = prod.length || "";
     $("#prodUpdated").textContent = "עודכן " + hm(Date.now()) + " · מתעדכן לבד כשמשהו משתנה בטאבלט";
 
@@ -1091,6 +1109,12 @@
   setInterval(() => { if (!$("#appView").hidden && state.module === "orders" && state.tab === "production" && !document.hidden) loadProduction(); }, 30000);
 
   /* ---------- אירועים ---------- */
+  $$(".flow-step").forEach(b => b.addEventListener("click", () => setTab(b.dataset.go)));
+  $$(".dm-btn").forEach(b => b.addEventListener("click", () => {
+    state.dayMode = b.dataset.mode;
+    if (state.dayMode === "delivery" && state.day === todayISO()) state.day = nextDeliveryDay();
+    loadDay();
+  }));
   document.addEventListener("click", async e => {
     if (e.target.closest("[data-logout]")) { stopRealtime(); await db.auth.signOut(); return; }
     const t = e.target.closest(".tab:not(.tab-action)"); if (t && !t.hidden) setTab(t.dataset.tab);

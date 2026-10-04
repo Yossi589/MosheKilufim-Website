@@ -90,25 +90,44 @@
 
   <!-- ============ מודול (הזמנות / לקוחות) ============ -->
   <div id="moduleView" hidden>
+  <!-- כותרת המודול -->
+  <div class="mod-head">
+    <div>
+      <h1 id="modTitle"></h1>
+      <p class="muted" id="modSub"></p>
+    </div>
+    <button type="button" class="btn btn-primary btn-lg" data-new-order="" data-mod="orders">+ הזמנה חדשה</button>
+  </div>
+
   <!-- לשוניות -->
   <nav class="tabs" role="tablist" aria-label="תצוגות">
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="pending" id="tab-pending">ממתינות לאישור <span class="badge" id="badgePending" hidden></span></button>
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="production" id="tab-production">פס ייצור <span class="live-pill" id="prodLive"></span></button>
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="day" id="tab-day">הזמנות לפי יום</button>
-    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="stats" id="tab-stats">גרפים</button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="pending" id="tab-pending">לאישור <span class="badge" id="badgePending" hidden></span></button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="production" id="tab-production">בייצור עכשיו <span class="live-pill" id="prodLive"></span></button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="day" id="tab-day">כל ההזמנות</button>
     <button type="button" class="tab" role="tab" data-mod="orders" data-tab="hash" id="tab-hash">חשבשבת</button>
-    <button type="button" class="tab tab-action" data-mod="orders" data-new-order="">+ הזמנה חדשה</button>
+    <button type="button" class="tab" role="tab" data-mod="orders" data-tab="stats" id="tab-stats">גרפים</button>
     <button type="button" class="tab" role="tab" data-mod="customers" data-tab="requests" id="tab-requests">לקוחות חדשים <span class="badge" id="badgeRequests" hidden></span></button>
     <button type="button" class="tab" role="tab" data-mod="customers" data-tab="customers" id="tab-customers">כל הלקוחות</button>
   </nav>
 
   <main class="wrap">
     <!-- סיכום -->
-    <section class="cards" data-mod="orders" aria-label="סיכום הזמנות">
-      <div class="card hot"><span>ממתינות לאישור</span><strong id="sumPending">–</strong></div>
-      <div class="card"><span>בייצור</span><strong id="sumProduction">–</strong></div>
-      <div class="card"><span>הוכנו היום</span><strong id="sumPrepared">–</strong></div>
-      <div class="card"><span>יוצאו לחשבשבת היום</span><strong id="sumExported">–</strong></div>
+    <section class="flow cards" data-mod="orders" aria-label="מסלול ההזמנה">
+      <button type="button" class="flow-step" data-go="pending" id="flowPending">
+        <span class="flow-k">1</span><strong id="sumPending">–</strong><span class="flow-l">מחכות לאישור</span><span class="flow-h">לבדוק ולשלוח לייצור</span>
+      </button>
+      <span class="flow-arrow" aria-hidden="true">←</span>
+      <button type="button" class="flow-step" data-go="production">
+        <span class="flow-k">2</span><strong id="sumProduction">–</strong><span class="flow-l">בייצור</span><span class="flow-h">בטאבלט ובקילוף</span>
+      </button>
+      <span class="flow-arrow" aria-hidden="true">←</span>
+      <button type="button" class="flow-step" data-go="production">
+        <span class="flow-k">3</span><strong id="sumPrepared">–</strong><span class="flow-l">הוכנו היום</span><span class="flow-h">מוכנות למשלוח</span>
+      </button>
+      <span class="flow-arrow" aria-hidden="true">←</span>
+      <button type="button" class="flow-step" data-go="hash">
+        <span class="flow-k">4</span><strong id="sumToExport">–</strong><span class="flow-l">לחשבשבת</span><span class="flow-h" id="sumToExportHint">לאספקה הקרובה</span>
+      </button>
     </section>
     <section class="cards" data-mod="customers" aria-label="סיכום לקוחות">
       <div class="card hot"><span>לקוחות חדשים לאישור</span><strong id="sumRequests">–</strong></div>
@@ -120,8 +139,11 @@
     <!-- ===== לשונית: ממתינות לאישור ===== -->
     <section class="panel" id="view-pending" hidden>
       <div class="panel-head">
-        <h2>ממתינות לאישור</h2>
-        <p class="muted small">כל ההזמנות שנכנסו ועוד לא אושרו, מהישנה לחדשה. אישור שולח את ההזמנה לפס הייצור.</p>
+        <div>
+          <h2>מחכות לאישור</h2>
+          <p class="muted small">מהישנה לחדשה. "אשר" שולח את ההזמנה לטאבלט בפס הייצור.</p>
+        </div>
+        <button type="button" class="btn btn-sm" id="approveAll" hidden>אשר את כולן</button>
       </div>
       <div id="pendingList" class="cardlist"></div>
       <div class="empty" id="pendingEmpty" hidden><p>אין הזמנות שממתינות לאישור.</p></div>
@@ -145,6 +167,10 @@
         <button type="button" class="btn btn-sm" id="nextDay" aria-label="יום הבא">יום הבא ←</button>
         <button type="button" class="btn btn-sm" id="todayBtn">היום</button>
         <span class="day-label" id="dayLabel"></span>
+        <div class="seg day-mode" role="radiogroup" aria-label="לפי איזה תאריך">
+          <button type="button" class="dm-btn is-active" data-mode="delivery">לפי תאריך אספקה</button>
+          <button type="button" class="dm-btn" data-mode="order">לפי תאריך הזמנה</button>
+        </div>
       </section>
 
       <div class="cols">
@@ -165,7 +191,7 @@
           <div class="table-wrap">
             <table class="orders">
               <thead>
-                <tr><th>#</th><th>שעה</th><th>לקוח</th><th>מוצרים</th><th>אספקה</th><th>נהג</th><th>סטטוס</th></tr>
+                <tr><th>#</th><th>לקוח</th><th>מוצרים</th><th id="dayDateCol">התקבלה</th><th>נהג</th><th>סטטוס</th><th></th></tr>
               </thead>
               <tbody id="ordersBody"></tbody>
             </table>
@@ -214,13 +240,7 @@
 
     <!-- ===== לשונית: פס ייצור (מה שקורה עכשיו בטאבלט) ===== -->
     <section id="view-production" hidden>
-      <div class="prod-kpis">
-        <div class="card"><span>ממתינות בטאבלט</span><strong id="pkNew">–</strong></div>
-        <div class="card"><span>בקילוף עכשיו</span><strong id="pkProd">–</strong></div>
-        <div class="card"><span>הוכנו היום</span><strong id="pkDone">–</strong></div>
-        <div class="card hot"><span>ק״ג לקילוף · קולפו</span><strong id="pkKg">–</strong></div>
-      </div>
-      <p class="muted small" id="prodUpdated"></p>
+      <p class="prod-summary"><span id="prodSummary"></span> <span class="muted small" id="prodUpdated"></span></p>
       <div class="prod-cols">
         <section class="panel">
           <h2>ממתינות בטאבלט <span class="muted small">אושרו, עוד לא נקלטו</span></h2>
