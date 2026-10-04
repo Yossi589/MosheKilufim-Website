@@ -600,3 +600,11 @@ a.btn { text-decoration: none; display: inline-block; }
 /* מסך הבית: אריחים באותה שפה */
 .tile { border: 2px solid #e2d6c2; box-shadow: none; transition: border-color .15s, transform .15s; }
 .tile:not(.is-soon):hover { border-color: var(--orange); transform: translateY(-2px); }
+
+/* חשבשבת: בדיקת מוכנות */
+.hash-key.missing { color: #a3261b; font-weight: 800; }
+.hash-ok { display: inline-block; font-weight: 800; color: #177a41; background: #e3f3e6; border-radius: 999px; padding: 2px 10px; }
+.hash-probs { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.hash-prob { display: inline-block; font-weight: 700; font-size: .9em; color: #8a2e22; background: #fbe1dc; border: 1.5px solid #e3a89d; border-radius: 8px; padding: 2px 8px; }
+.hash-prob .link-btn { font-weight: 800; }
+.hash-ready-note { margin: 0 0 10px; font-weight: 700; color: #8a2e22; background: #fbf0ed; border: 2px solid #d69a8f; border-radius: 8px; padding: 8px 12px; }

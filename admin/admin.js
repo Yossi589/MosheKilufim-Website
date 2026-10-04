@@ -827,8 +827,32 @@
   state.hashDate = "";
   state.hashOrders = [];
 
-  const custKey = c => (c?.hash_key || String(c?.customer_id ?? "")).trim();
-  const itemKey = p => (p?.hash_key || String(p?.product_id ?? "")).trim();
+  // בקובץ הקליטה רק מפתח חשבשבת אמיתי; בלי מפתח ההזמנה נחסמת (ראו hashProblems)
+  const custKey = c => String(c?.hash_key || "").trim();
+  const itemKey = p => String(p?.hash_key || "").trim();
+  const CUST_KEY_MAX = 15, ITEM_KEY_MAX = 20;   // לפי הרוחב בקובץ ה-PRM
+
+  // בדיקת מוכנות לפני הקליטה: כל מה שחשבשבת עלולה לדחות או לקלוט לא נכון.
+  // dup = מפתחות שמשותפים לכמה לקוחות / פריטים (נטען ב-loadHash)
+  function hashProblems(o, dup) {
+    const out = [], c = o.customers || {}, ck = custKey(c);
+    if (!ck) out.push({ msg: "ללקוח אין מפתח חשבשבת", fix: "cust", id: c.customer_id, name: c.name });
+    else if (ck.length > CUST_KEY_MAX) out.push({ msg: `מפתח הלקוח ארוך מ-${CUST_KEY_MAX} תווים`, fix: "cust", id: c.customer_id, name: c.name, key: ck });
+    else if (dup.cust.has(ck)) out.push({ msg: `המפתח ${ck} רשום אצלנו גם ללקוח אחר`, fix: "cust", id: c.customer_id, name: c.name, key: ck });
+    if (!String(c.name || "").trim()) out.push({ msg: "חסר שם לקוח" });
+    const lines = o.order_lines || [];
+    if (!lines.length) out.push({ msg: "אין בהזמנה פריטים" });
+    lines.forEach(l => {
+      const p = l.product || {}, ik = itemKey(p);
+      if (!ik) out.push({ msg: `לפריט "${p.name}" אין מפתח חשבשבת`, fix: "item", id: p.product_id, name: p.name });
+      else if (ik.length > ITEM_KEY_MAX) out.push({ msg: `מפתח הפריט "${p.name}" ארוך מ-${ITEM_KEY_MAX} תווים`, fix: "item", id: p.product_id, name: p.name, key: ik });
+      else if (dup.item.has(ik)) out.push({ msg: `המפתח ${ik} רשום אצלנו לכמה פריטים`, fix: "item", id: p.product_id, name: p.name, key: ik });
+      if (!(Number(l.quantity) > 0)) out.push({ msg: `כמות לא תקינה ב"${p.name}"` });
+      if (!(Number(l.unit_price) > 0)) out.push({ msg: `חסר מחיר ל"${p.name}"` });
+    });
+    // אותה בעיה פעם אחת
+    return out.filter((x, i) => out.findIndex(y => y.msg === x.msg) === i);
+  }
   const lineTotal = l => Number(l.quantity) * Number(l.unit_price || 0);
   const orderNet = o => (o.order_lines || []).reduce((s, l) => s + lineTotal(l), 0);
   const money = n => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", minimumFractionDigits: 2 }).format(n || 0);
@@ -852,19 +876,36 @@
     const changed = o => o.hash_exported_at && o.edited_at && o.edited_at > o.hash_exported_at;
     const todo = data.filter(o => !o.hash_exported_at || changed(o));
     const done = data.filter(o => o.hash_exported_at && !changed(o));
-    state.hashOrders = todo; state.hashDone = done;
+    // מפתחות כפולים (שני לקוחות / שני פריטים עם אותו מפתח = חיוב ללקוח הלא נכון)
+    const dup = { cust: new Set(), item: new Set() };
+    const cKeys = [...new Set(todo.map(o => custKey(o.customers)).filter(Boolean))];
+    const iKeys = [...new Set(todo.flatMap(o => (o.order_lines || []).map(l => itemKey(l.product))).filter(Boolean))];
+    const [cr, pr] = await Promise.all([
+      cKeys.length ? db.from("customers").select("customer_id, hash_key").in("hash_key", cKeys) : { data: [] },
+      iKeys.length ? db.from("product").select("product_id, hash_key").in("hash_key", iKeys) : { data: [] }
+    ]);
+    const countBy = rows => rows.reduce((m, r) => m.set(r.hash_key, (m.get(r.hash_key) || 0) + 1), new Map());
+    countBy(cr.data || []).forEach((n, k) => { if (n > 1) dup.cust.add(k); });
+    countBy(pr.data || []).forEach((n, k) => { if (n > 1) dup.item.add(k); });
+    todo.forEach(o => { o._problems = hashProblems(o, dup); });
+    const ready = todo.filter(o => !o._problems.length);
+    state.hashOrders = todo; state.hashReady = ready; state.hashDone = done;
     const row = (o, isDone) => {
       const c = o.customers || {};
       return `<tr data-id="${o.order_id}">
         <td class="num">${o.order_id}</td>
         <td class="cust"><strong>${esc(c.name)}</strong><small>${esc(o.adress || c.adress || "")}</small></td>
-        <td class="hash-key${c.hash_key ? "" : " fallback"}" title="${c.hash_key ? "" : "אין מפתח חשבשבת ללקוח, משתמשים במספר הלקוח שלנו"}">${esc(custKey(c))}</td>
+        <td class="hash-key${c.hash_key ? "" : " missing"}">${c.hash_key ? esc(custKey(c)) : "חסר"}</td>
         <td class="items">${itemsText(o.order_lines)}</td>
         <td class="num">${money(orderNet(o))}</td>
         ${isDone
           ? `<td><span class="exp-yes">✓ ${esc(fmtTime(o.hash_exported_at))}</span></td>
              <td><button type="button" class="link-btn" data-hundo="${o.order_id}" title="החזרה לאדום, למשל אם הקליטה בחשבשבת נכשלה">החזר לאדום</button></td>`
-          : `<td>${changed(o) ? `<span class="exp-changed" title="יוצא ${esc(fmtTime(o.hash_exported_at))}, נערך ${esc(fmtTime(o.edited_at))}">שונתה אחרי הייצוא</span>` : esc(o.status)}</td>
+          : `<td>${o._problems.length
+                ? `<div class="hash-probs">${o._problems.map(p => `<span class="hash-prob">⚠ ${esc(p.msg)}${p.fix
+                    ? ` <button type="button" class="link-btn" data-hfix="${p.fix}" data-fid="${p.id}" data-fname="${esc(p.name || "")}" data-fkey="${esc(p.key || "")}">תקן</button>` : ""}</span>`).join("")}</div>`
+                : `<span class="hash-ok">✓ מוכנה</span>`}
+              ${changed(o) ? `<span class="exp-changed" title="יוצא ${esc(fmtTime(o.hash_exported_at))}, נערך ${esc(fmtTime(o.edited_at))}">שונתה אחרי הייצוא</span>` : ""}</td>
              <td><button type="button" class="btn btn-sm" data-hmanual="${o.order_id}" title="הקלדתם את ההזמנה בחשבשבת בעצמכם? מסמנים והיא עוברת לירוק">✓ הקלדה ידנית</button></td>`}
       </tr>`;
     };
@@ -877,8 +918,13 @@
     const sum = list => list.reduce((s, o) => s + orderNet(o), 0);
     $("#hashTodoSum").textContent = todo.length ? `לפני מע״מ ${money(sum(todo))}` : "";
     $("#hashDoneSum").textContent = done.length ? `לפני מע״מ ${money(sum(done))}` : "";
-    $("#hashDoc").textContent = todo.length ? `ייצא לקליטה (${todo.length})` : "ייצא לקליטה";
-    $("#hashDoc").disabled = !todo.length;
+    $("#hashDoc").textContent = ready.length ? `ייצא לקליטה (${ready.length})` : "ייצא לקליטה";
+    $("#hashDoc").disabled = !ready.length;
+    const bad = todo.length - ready.length;
+    $("#hashReadyNote").hidden = !bad;
+    $("#hashReadyNote").textContent = bad
+      ? `${bad} ${bad === 1 ? "הזמנה לא מוכנה" : "הזמנות לא מוכנות"} לקליטה ולא ${bad === 1 ? "תיכנס" : "ייכנסו"} לקובץ. לוחצים "תקן" ליד הבעיה, וההזמנה תצורף.`
+      : "";
     const net = sum(data);
     $("#hashTotals").textContent = data.length
       ? `כל היום: ${data.length} הזמנות · לפני מע״מ ${money(net)} · מע״מ ${VAT}% ${money(net * VAT / 100)} · כולל מע״מ ${money(net * (1 + VAT / 100))}`
@@ -926,7 +972,7 @@
       ["2. מפתח לקוח ותאריך אספקה מגיליון 'הזמנות'. את 'אסמכתא' חשבשבת ממלאת לבד (מספר המסמך שלה)."],
       ["3. את מספר ההזמנה שלנו רושמים בשדה 'אסמכתא 2' (ואם אין כזה בטופס: בשדה 'פרטים')."],
       ["4. את הפריטים מקלידים מגיליון 'שורות' (מסננים לפי מספר ההזמנה), בודקים סה״כ, ולוחצים הפקה."],
-      ["המחירים לפני מע״מ. מפתח לקוח/פריט אפור במערכת = עוד לא הוגדר מפתח חשבשבת, ומופיע המספר שלנו."]
+      ["המחירים לפני מע״מ. מפתח ריק = עוד לא הוגדר מפתח חשבשבת במערכת (מתקנים בלשונית חשבשבת, 'תקן')."]
     ];
     const wb = X.utils.book_new();
     wb.Workbook = { Views: [{ RTL: true }] };
@@ -992,8 +1038,67 @@
     });
     return rows.join("\r\n") + "\r\n";
   }
+  // בדיקה עצמית: קוראים את הקובץ שנבנה בעזרת ה-PRM ומוודאים שכל שדה במקום
+  function verifyDoc(orders, bytes) {
+    const widths = IMOVEIN_FIELDS.filter(f => f[1]);
+    const rec = widths.reduce((s, f) => s + f[1], 0);
+    const lines = []; let start = 0;
+    for (let i = 0; i < bytes.length - 1; i++) if (bytes[i] === 13 && bytes[i + 1] === 10) { lines.push(bytes.slice(start, i)); start = i + 2; i++; }
+    const expected = orders.reduce((n, o) => n + (o.order_lines || []).length, 0);
+    if (lines.length !== expected) throw new Error(`בדיקת הקובץ נכשלה: ${lines.length} שורות במקום ${expected}`);
+    const ascii = (b, from, w) => String.fromCharCode(...b.slice(from, from + w)).trim();
+    const off = k => { let p = 0; for (const f of widths) { if (f[0] === k) return [p, f[1]]; p += f[1]; } };
+    let i = 0;
+    orders.forEach(o => (o.order_lines || []).forEach(l => {
+      const b = lines[i++];
+      if (b.length !== rec) throw new Error(`בדיקת הקובץ נכשלה: אורך שורה ${b.length} במקום ${rec}`);
+      const chk = (k, want) => { const [p, w] = off(k); if (ascii(b, p, w) !== String(want)) throw new Error(`בדיקת הקובץ נכשלה בהזמנה ${o.order_id} (${k})`); };
+      chk("ref", o.order_id); chk("docType", HASH_DOC_TYPE);
+      chk("qty", Number(l.quantity).toFixed(3)); chk("price", Number(l.unit_price).toFixed(3));
+    }));
+  }
+
+  // ZIP פשוט (בלי דחיסה) כדי ששני הקבצים יגיעו תמיד יחד
+  const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_T[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function makeZip(files) {
+    const enc = new TextEncoder(), parts = [], central = []; let offset = 0;
+    const now = new Date();
+    const dosT = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+    const dosD = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+    files.forEach(({ name, data }) => {
+      const nm = enc.encode(name), crc = crc32(data);
+      const h = new DataView(new ArrayBuffer(30));
+      [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [8, 0, 2], [10, dosT, 2], [12, dosD, 2], [14, crc, 4], [18, data.length, 4], [22, data.length, 4], [26, nm.length, 2], [28, 0, 2]]
+        .forEach(([o, v, n]) => n === 4 ? h.setUint32(o, v, true) : h.setUint16(o, v, true));
+      const c = new DataView(new ArrayBuffer(46));
+      [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [10, 0, 2], [12, dosT, 2], [14, dosD, 2], [16, crc, 4], [20, data.length, 4], [24, data.length, 4], [28, nm.length, 2], [42, offset, 4]]
+        .forEach(([o, v, n]) => n === 4 ? c.setUint32(o, v, true) : c.setUint16(o, v, true));
+      parts.push(new Uint8Array(h.buffer), nm, data); central.push(new Uint8Array(c.buffer), nm);
+      offset += 30 + nm.length + data.length;
+    });
+    const csize = central.reduce((s, b) => s + b.length, 0);
+    const e = new DataView(new ArrayBuffer(22));
+    [[0, 0x06054b50, 4], [8, files.length, 2], [10, files.length, 2], [12, csize, 4], [16, offset, 4]]
+      .forEach(([o, v, n]) => n === 4 ? e.setUint32(o, v, true) : e.setUint16(o, v, true));
+    return new Blob([...parts, ...central, new Uint8Array(e.buffer)], { type: "application/zip" });
+  }
+  function howtoText(orders) {
+    return "\uFEFF" + [
+      "קליטת הזמנות לחשבשבת - משה קילופים",
+      `תאריך אספקה: ${ddmmyyyy(state.hashDate)} · ${orders.length === 1 ? "הזמנה אחת" : orders.length + " הזמנות"} · נוצר ${new Date().toLocaleString("he-IL")}`,
+      "",
+      "1. מעתיקים את שני הקבצים IMOVEIN.DOC ו-IMOVEIN.PRM לתיקיית הקליטה במחשב של חשבשבת (מחליפים את הקודמים).",
+      "2. בחשבשבת: ממשקים / קליטה ← קליטת תנועות מלאי (מסמכים).",
+      "3. בוחרים את IMOVEIN.PRM מהתיקייה, מריצים בדיקה, ואז קליטה.",
+      `4. ${orders.length === 1 ? "נוצרת הזמנה אחת" : `נוצרות ${orders.length} הזמנות`} מסוג "הזמנה מלקוח" (${HASH_DOC_TYPE}). מספר ההזמנה שלנו נמצא בשדה אסמכתא 2.`,
+      "",
+      "ההזמנות בקובץ: " + orders.map(o => o.order_id).join(", ")
+    ].join("\r\n") + "\r\n";
+  }
+
   function download(bytes, name) {
-    const url = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
+    const url = URL.createObjectURL(bytes instanceof Blob ? bytes : new Blob([bytes], { type: "application/octet-stream" }));
     const a = Object.assign(document.createElement("a"), { href: url, download: name });
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
@@ -1020,10 +1125,25 @@
       toast(`האקסל ירד (${list.length} הזמנות${todo.length ? ", האדומות" : ""})`);
       return;
     }
-    if (!todo.length) { toast("אין הזמנות אדומות לייצוא", true); return; }
-    try { download(cp1255(docText(todo)), "IMOVEIN.DOC"); }
+    const ready = state.hashReady || [];
+    if (!ready.length) { toast("אין הזמנות מוכנות לקליטה", true); return; }
+    const bad = todo.length - ready.length;
+    if (bad && !confirm(`${bad === 1 ? "הזמנה אחת לא מוכנה ולא תיכנס" : bad + " הזמנות לא מוכנות ולא ייכנסו"} לקובץ (נשארות באדום).\nלהמשיך עם ${ready.length === 1 ? "ההזמנה המוכנה" : ready.length + " ההזמנות המוכנות"}?`)) return;
+    const again = ready.filter(o => o.hash_exported_at);
+    if (again.length && !confirm(`שימו לב: ${again.map(o => o.order_id).join(", ")} כבר נקלטו בחשבשבת ונערכו אחר כך.\n`
+      + "לפני הקליטה מבטלים בחשבשבת את המסמך הקודם שלהן (מחפשים לפי אסמכתא 2), אחרת ההזמנה תופיע פעמיים.\n\nלהמשיך?")) return;
+    try {
+      const doc = cp1255(docText(ready));
+      verifyDoc(ready, doc);
+      const zip = makeZip([
+        { name: "IMOVEIN.DOC", data: doc },
+        { name: "IMOVEIN.PRM", data: cp1255(prmText()) },
+        { name: "README.txt", data: new TextEncoder().encode(howtoText(ready)) }
+      ]);
+      download(zip, `Hashavshevet_${state.hashDate}.zip`);   // שם באנגלית: שמות בעברית נשברים בחלק מהדפדפנים
+    }
     catch (err) { toast(err.message || "הייצוא נכשל", true); return; }
-    if (await markExported(todo)) toast(`קובץ הקליטה ירד: ${todo.length} הזמנות עברו לירוק`);
+    if (await markExported(ready)) toast(`קובץ הקליטה ירד: ${ready.length} הזמנות עברו לירוק`);
     loadHash(); loadCounts();
   }
 
@@ -1031,8 +1151,24 @@
   $("#hashXlsx").addEventListener("click", () => runExport("xlsx"));
   $("#hashDoc").addEventListener("click", () => runExport("doc"));
   $("#hashPrm").addEventListener("click", () => download(cp1255(prmText()), "IMOVEIN.PRM"));
-  // הקלדה ידנית: ההזמנה הוקלדה בחשבשבת ביד → ירוק
+  // הקלדה ידנית: ההזמנה הוקלדה בחשבשבת ביד → ירוק.  "תקן": קביעת מפתח חשבשבת ללקוח / לפריט
   $("#hashBody").addEventListener("click", async e => {
+    const f = e.target.closest("[data-hfix]");
+    if (f) {
+      const isCust = f.dataset.hfix === "cust", max = isCust ? CUST_KEY_MAX : ITEM_KEY_MAX;
+      const v = prompt(`מפתח ${isCust ? "הלקוח" : "הפריט"} "${f.dataset.fname}" בחשבשבת (בדיוק כמו שהוא רשום שם, עד ${max} תווים):`, f.dataset.fkey || "");
+      if (v === null) return;
+      const key = v.trim();
+      if (!key || key.length > max) { toast(`מפתח לא תקין (1 עד ${max} תווים)`, true); return; }
+      const table = isCust ? "customers" : "product", idCol = isCust ? "customer_id" : "product_id";
+      const { data: other } = await db.from(table).select(idCol).eq("hash_key", key).neq(idCol, Number(f.dataset.fid)).limit(1);
+      if (other && other.length) { toast(`המפתח ${key} כבר שייך ל${isCust ? "לקוח" : "פריט"} אחר`, true); return; }
+      const { data, error } = await db.from(table).update({ hash_key: key }).eq(idCol, Number(f.dataset.fid)).select(idCol);
+      if (error || !data?.length) { toast("השמירה נכשלה" + (error ? ": " + error.message : ""), true); return; }
+      const c = isCust && state.customers.find(x => x.customer_id === Number(f.dataset.fid)); if (c) c.hash_key = key;
+      toast(`המפתח נשמר: ${key}`); loadHash(); loadCounts();
+      return;
+    }
     const b = e.target.closest("[data-hmanual]"); if (!b) return;
     const o = (state.hashOrders || []).find(x => x.order_id === Number(b.dataset.hmanual)); if (!o) return;
     b.disabled = true;
