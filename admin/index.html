@@ -378,12 +378,11 @@
         <button type="button" class="btn-stamp-go btn-stamp-sm" id="hashDoc">ייצא לקליטה</button>
         <button type="button" class="btn" id="hashXlsx">אקסל</button>
       </div>
-      <p class="muted small hash-hint">כאן מופיעות רק הזמנות שהמנהל אישר ושנשלחו לקילוף. <b class="t-red">באדום</b>: עוד לא נכנסו לחשבשבת. <b class="t-green">בירוק</b>: כבר נכנסו. "ייצא לקליטה" מוריד קובץ ZIP אחד עם כל מה שחשבשבת צריכה (IMOVEIN.DOC, IMOVEIN.PRM והוראות), רק להזמנות שעברו את בדיקת המוכנות, ומעביר אותן לירוק. "הקלדה ידנית" מעביר הזמנה אחת לירוק אחרי שהקלדתם אותה בעצמכם.</p>
-      <p class="hash-ready-note" id="hashReadyNote" role="status" hidden></p>
+      <p class="muted small hash-hint">כאן מופיעות רק הזמנות שאושרו ונשלחו לקילוף. <b class="t-red">באדום</b>: מוכנות לחשבשבת. "ייצא לקליטה" מוריד קובץ ZIP אחד עם כל מה שחשבשבת צריכה ומעביר אותן לירוק. <b class="t-orange">בכתום</b>: חסר בהן משהו ולכן לא ייכנסו לקובץ; מתקנים ("תקן"), והן עוברות לבד לאדום. <b class="t-green">בירוק</b>: כבר בחשבשבת.</p>
 
       <div class="zone zone-pending">
         <div class="zone-head">
-          <h2>עוד לא בחשבשבת <span class="zone-count" id="hashTodoCount"></span></h2>
+          <h2>מוכנות לחשבשבת <span class="zone-count" id="hashTodoCount"></span></h2>
           <span class="muted small" id="hashTodoSum"></span>
         </div>
         <div class="table-wrap">
@@ -392,7 +391,21 @@
             <tbody id="hashBody"></tbody>
           </table>
         </div>
-        <div class="empty" id="hashEmpty" hidden><p>הכול כבר בחשבשבת ✓</p></div>
+        <div class="empty" id="hashEmpty" hidden><p>אין הזמנות שמחכות לייצוא.</p></div>
+      </div>
+
+      <div class="zone zone-issue" id="hashIssueZone" hidden>
+        <div class="zone-head">
+          <h2>צריך תיקון לפני הייצוא <span class="zone-count" id="hashIssueCount"></span></h2>
+          <span class="muted small" id="hashIssueSum"></span>
+        </div>
+        <p class="muted small zone-sub">חסר בהן משהו, ולכן הן לא ייכנסו לקובץ. לוחצים "תקן" ליד הבעיה, וההזמנה עוברת לבד לאדום ותיכנס לייצוא הבא.</p>
+        <div class="table-wrap">
+          <table class="orders hash-table">
+            <thead><tr><th>#</th><th>לקוח</th><th>מפתח בחשבשבת</th><th>פריטים</th><th>סה״כ לפני מע״מ</th><th>הבעיה</th><th></th></tr></thead>
+            <tbody id="hashIssueBody"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="zone zone-approved">

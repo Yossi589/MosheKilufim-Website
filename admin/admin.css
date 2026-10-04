@@ -608,3 +608,12 @@ a.btn { text-decoration: none; display: inline-block; }
 .hash-prob { display: inline-block; font-weight: 700; font-size: .9em; color: #8a2e22; background: #fbe1dc; border: 1.5px solid #e3a89d; border-radius: 8px; padding: 2px 8px; }
 .hash-prob .link-btn { font-weight: 800; }
 .hash-ready-note { margin: 0 0 10px; font-weight: 700; color: #8a2e22; background: #fbf0ed; border: 2px solid #d69a8f; border-radius: 8px; padding: 8px 12px; }
+
+/* חשבשבת: מסגרת כתומה = חסר משהו, לא ייכנס לקובץ עד שמתקנים */
+.zone-issue { border: 2.5px solid #e3a565; background: #fdf1e6; }
+.zone-issue .zone-head h2 { color: #8a3d0e; }
+.zone-issue .zone-sub { margin: -6px 0 12px; }
+.zone-issue .table-wrap { background: var(--white); border-radius: 8px; }
+.zone-issue .hash-table tbody tr td:first-child { box-shadow: inset -4px 0 0 #b5541a; }
+.hash-acts { white-space: nowrap; }
+.t-orange { color: #b5541a; }

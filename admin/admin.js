@@ -858,21 +858,27 @@
   const money = n => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", minimumFractionDigits: 2 }).format(n || 0);
   const ddmmyyyy = v => { const d = new Date(v.length === 10 ? v + "T12:00:00" : v); return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`; };
 
+  // עמודות שנוספו במיגרציות; אם מיגרציה עוד לא רצה, טוענים בלעדיהן
+  state.hashCols = ["edited_at"];
   async function loadHash() {
     if (!state.hashDate) state.hashDate = nextDeliveryDay();
     $("#hashDate").value = state.hashDate;
     loading(true);
-    const cols = edited => `order_id, order_date, delivery_date, status, adress, notes, hash_exported_at,${edited ? " edited_at," : ""}
+    const run = () => db.from("orders").select(`order_id, order_date, delivery_date, status, adress, notes, hash_exported_at,
+               ${state.hashCols.map(c => c + ",").join(" ")}
                customers ( customer_id, name, phone_number, adress, hash_key ),
                drivers ( name ),
-               order_lines ( quantity, unit_price, product ( product_id, name, unit, hash_key ) )`;
-    const run = edited => db.from("orders").select(cols(edited))
+               order_lines ( quantity, unit_price, product ( product_id, name, unit, hash_key ) )`)
       .eq("delivery_date", state.hashDate).in("status", APPROVED).order("order_id");
-    let { data, error } = await run(true);
-    if (error && /edited_at/.test(error.message)) ({ data, error } = await run(false)); // לפני מיגרציה 25
+    let { data, error } = await run();
+    for (const c of [...state.hashCols]) {           // edited_at לפני מיגרציה 25
+      if (!error || !error.message.includes(c)) continue;
+      state.hashCols = state.hashCols.filter(x => x !== c);
+      ({ data, error } = await run());
+    }
     loading(false);
     if (error) { toast("שגיאה בטעינה: " + error.message, true); return; }
-    // אדום = עוד לא בחשבשבת (כולל "שונתה אחרי הייצוא"); ירוק = כבר בחשבשבת
+    // אדום = מוכנה לייצוא · כתום = יש בעיה שהבדיקה מצאה (לא תיכנס לקובץ עד שמתקנים) · ירוק = כבר בחשבשבת
     const changed = o => o.hash_exported_at && o.edited_at && o.edited_at > o.hash_exported_at;
     const todo = data.filter(o => !o.hash_exported_at || changed(o));
     const done = data.filter(o => o.hash_exported_at && !changed(o));
@@ -888,49 +894,53 @@
     countBy(cr.data || []).forEach((n, k) => { if (n > 1) dup.cust.add(k); });
     countBy(pr.data || []).forEach((n, k) => { if (n > 1) dup.item.add(k); });
     todo.forEach(o => { o._problems = hashProblems(o, dup); });
+    const issue = todo.filter(o => o._problems.length);
     const ready = todo.filter(o => !o._problems.length);
     state.hashOrders = todo; state.hashReady = ready; state.hashDone = done;
-    const row = (o, isDone) => {
+
+    const head = o => {
       const c = o.customers || {};
-      return `<tr data-id="${o.order_id}">
-        <td class="num">${o.order_id}</td>
+      return `<td class="num">${o.order_id}</td>
         <td class="cust"><strong>${esc(c.name)}</strong><small>${esc(o.adress || c.adress || "")}</small></td>
         <td class="hash-key${c.hash_key ? "" : " missing"}">${c.hash_key ? esc(custKey(c)) : "חסר"}</td>
         <td class="items">${itemsText(o.order_lines)}</td>
-        <td class="num">${money(orderNet(o))}</td>
-        ${isDone
-          ? `<td><span class="exp-yes">✓ ${esc(fmtTime(o.hash_exported_at))}</span></td>
-             <td><button type="button" class="link-btn" data-hundo="${o.order_id}" title="החזרה לאדום, למשל אם הקליטה בחשבשבת נכשלה">החזר לאדום</button></td>`
-          : `<td>${o._problems.length
-                ? `<div class="hash-probs">${o._problems.map(p => `<span class="hash-prob">⚠ ${esc(p.msg)}${p.fix
-                    ? ` <button type="button" class="link-btn" data-hfix="${p.fix}" data-fid="${p.id}" data-fname="${esc(p.name || "")}" data-fkey="${esc(p.key || "")}">תקן</button>` : ""}</span>`).join("")}</div>`
-                : `<span class="hash-ok">✓ מוכנה</span>`}
-              ${changed(o) ? `<span class="exp-changed" title="יוצא ${esc(fmtTime(o.hash_exported_at))}, נערך ${esc(fmtTime(o.edited_at))}">שונתה אחרי הייצוא</span>` : ""}</td>
-             <td><button type="button" class="btn btn-sm" data-hmanual="${o.order_id}" title="הקלדתם את ההזמנה בחשבשבת בעצמכם? מסמנים והיא עוברת לירוק">✓ הקלדה ידנית</button></td>`}
-      </tr>`;
+        <td class="num">${money(orderNet(o))}</td>`;
     };
-    $("#hashBody").innerHTML = todo.map(o => row(o, false)).join("");
-    $("#hashDoneBody").innerHTML = done.map(o => row(o, true)).join("");
-    $("#hashEmpty").hidden = todo.length > 0;
+    const changedChip = o => changed(o) ? `<span class="exp-changed" title="יוצא ${esc(fmtTime(o.hash_exported_at))}, נערך ${esc(fmtTime(o.edited_at))}">שונתה אחרי הייצוא</span>` : "";
+    const manualBtn = o => `<button type="button" class="btn btn-sm" data-hmanual="${o.order_id}" title="הקלדתם את ההזמנה בחשבשבת בעצמכם? מסמנים והיא עוברת לירוק">✓ הקלדה ידנית</button>`;
+    const readyRow = o => `<tr data-id="${o.order_id}">${head(o)}
+        <td><span class="hash-ok">✓ מוכנה</span> ${changedChip(o)}</td>
+        <td>${manualBtn(o)}</td></tr>`;
+    const issueRow = o => `<tr data-id="${o.order_id}">${head(o)}
+        <td><div class="hash-probs">
+          ${o._problems.map(p => `<span class="hash-prob">⚠ ${esc(p.msg)}${p.fix
+            ? ` <button type="button" class="link-btn" data-hfix="${p.fix}" data-fid="${p.id}" data-fname="${esc(p.name || "")}" data-fkey="${esc(p.key || "")}">תקן</button>` : ""}</span>`).join("")}
+          ${changedChip(o)}</div></td>
+        <td class="hash-acts">${manualBtn(o)}</td></tr>`;
+    const doneRow = o => `<tr data-id="${o.order_id}">${head(o)}
+        <td><span class="exp-yes">✓ ${esc(fmtTime(o.hash_exported_at))}</span></td>
+        <td></td></tr>`;
+
+    $("#hashBody").innerHTML = ready.map(readyRow).join("");
+    $("#hashIssueBody").innerHTML = issue.map(issueRow).join("");
+    $("#hashDoneBody").innerHTML = done.map(doneRow).join("");
+    $("#hashEmpty").hidden = ready.length > 0;
+    $("#hashIssueZone").hidden = !issue.length;
     $("#hashDoneEmpty").hidden = done.length > 0;
-    $("#hashTodoCount").textContent = `(${todo.length})`;
+    $("#hashTodoCount").textContent = `(${ready.length})`;
+    $("#hashIssueCount").textContent = `(${issue.length})`;
     $("#hashDoneCount").textContent = `(${done.length})`;
     const sum = list => list.reduce((s, o) => s + orderNet(o), 0);
-    $("#hashTodoSum").textContent = todo.length ? `לפני מע״מ ${money(sum(todo))}` : "";
+    $("#hashTodoSum").textContent = ready.length ? `לפני מע״מ ${money(sum(ready))}` : "";
+    $("#hashIssueSum").textContent = issue.length ? `לפני מע״מ ${money(sum(issue))}` : "";
     $("#hashDoneSum").textContent = done.length ? `לפני מע״מ ${money(sum(done))}` : "";
     $("#hashDoc").textContent = ready.length ? `ייצא לקליטה (${ready.length})` : "ייצא לקליטה";
     $("#hashDoc").disabled = !ready.length;
-    const bad = todo.length - ready.length;
-    $("#hashReadyNote").hidden = !bad;
-    $("#hashReadyNote").textContent = bad
-      ? `${bad} ${bad === 1 ? "הזמנה לא מוכנה" : "הזמנות לא מוכנות"} לקליטה ולא ${bad === 1 ? "תיכנס" : "ייכנסו"} לקובץ. לוחצים "תקן" ליד הבעיה, וההזמנה תצורף.`
-      : "";
     const net = sum(data);
     $("#hashTotals").textContent = data.length
       ? `כל היום: ${data.length} הזמנות · לפני מע״מ ${money(net)} · מע״מ ${VAT}% ${money(net * VAT / 100)} · כולל מע״מ ${money(net * (1 + VAT / 100))}`
       : "";
   }
-
   /* ---------- אקסל (SheetJS נטען רק כשצריך) ---------- */
   let xlsxReady;
   function loadXlsx() {
@@ -1127,8 +1137,6 @@
     }
     const ready = state.hashReady || [];
     if (!ready.length) { toast("אין הזמנות מוכנות לקליטה", true); return; }
-    const bad = todo.length - ready.length;
-    if (bad && !confirm(`${bad === 1 ? "הזמנה אחת לא מוכנה ולא תיכנס" : bad + " הזמנות לא מוכנות ולא ייכנסו"} לקובץ (נשארות באדום).\nלהמשיך עם ${ready.length === 1 ? "ההזמנה המוכנה" : ready.length + " ההזמנות המוכנות"}?`)) return;
     const again = ready.filter(o => o.hash_exported_at);
     if (again.length && !confirm(`שימו לב: ${again.map(o => o.order_id).join(", ")} כבר נקלטו בחשבשבת ונערכו אחר כך.\n`
       + "לפני הקליטה מבטלים בחשבשבת את המסמך הקודם שלהן (מחפשים לפי אסמכתא 2), אחרת ההזמנה תופיע פעמיים.\n\nלהמשיך?")) return;
@@ -1152,7 +1160,7 @@
   $("#hashDoc").addEventListener("click", () => runExport("doc"));
   $("#hashPrm").addEventListener("click", () => download(cp1255(prmText()), "IMOVEIN.PRM"));
   // הקלדה ידנית: ההזמנה הוקלדה בחשבשבת ביד → ירוק.  "תקן": קביעת מפתח חשבשבת ללקוח / לפריט
-  $("#hashBody").addEventListener("click", async e => {
+  async function onHashRowClick(e) {
     const f = e.target.closest("[data-hfix]");
     if (f) {
       const isCust = f.dataset.hfix === "cust", max = isCust ? CUST_KEY_MAX : ITEM_KEY_MAX;
@@ -1174,16 +1182,9 @@
     b.disabled = true;
     if (await markExported([o])) toast(`הזמנה ${o.order_id} סומנה כנכנסה לחשבשבת`);
     loadHash(); loadCounts();
-  });
-  // החזרה לאדום (למשל אם הקליטה בחשבשבת נכשלה)
-  $("#hashDoneBody").addEventListener("click", async e => {
-    const b = e.target.closest("[data-hundo]"); if (!b) return;
-    const id = Number(b.dataset.hundo);
-    if (!confirm(`להחזיר את הזמנה ${id} לאדום (עוד לא בחשבשבת)?`)) return;
-    const { error } = await db.from("orders").update({ hash_exported_at: null }).eq("order_id", id);
-    if (error) { toast("ההחזרה נכשלה: " + error.message, true); return; }
-    toast(`הזמנה ${id} חזרה לאדום`); loadHash(); loadCounts();
-  });
+  }
+  $("#hashBody").addEventListener("click", onHashRowClick);
+  $("#hashIssueBody").addEventListener("click", onHashRowClick);
 
   /* ==========================================================
      לשונית: פס ייצור - מה שקורה בטאבלט, בזמן אמת
