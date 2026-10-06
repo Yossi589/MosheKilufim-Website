@@ -916,7 +916,7 @@
         <td><div class="hash-probs">
           ${o._problems.map(p => `<span class="hash-prob">⚠ ${esc(p.msg)}</span>`).join("")}
           ${changedChip(o)}</div></td>
-        <td class="hash-acts"><button type="button" class="btn btn-sm btn-fix" data-hfixorder="${o.order_id}">✎ תקן</button> ${manualBtn(o)}</td></tr>`;
+        <td class="hash-acts"><button type="button" class="btn btn-sm btn-fix" data-hfixorder="${o.order_id}">✎ תקן</button></td></tr>`;
     const doneRow = o => `<tr data-id="${o.order_id}">${head(o)}
         <td><span class="exp-yes">✓ ${esc(fmtTime(o.hash_exported_at))}</span></td>
         <td></td></tr>`;
@@ -1160,6 +1160,9 @@
     }
     const ready = state.hashReady || [];
     if (!ready.length) { toast("אין הזמנות מוכנות לקליטה", true); return; }
+    const sum = ready.reduce((t, o) => t + orderNet(o), 0);
+    if (!confirm(`לייצא לקליטה בחשבשבת ${ready.length === 1 ? "הזמנה אחת" : ready.length + " הזמנות"} (לפני מע״מ ${money(sum)})?\n\n`
+      + "ודא שכל הפרטים תקינים: לקוחות, מוצרים, כמויות ומחירים.\nאחרי הייצוא ההזמנות עוברות לירוק (כבר בחשבשבת).")) return;
     const again = ready.filter(o => o.hash_exported_at);
     if (again.length && !confirm(`שימו לב: ${again.map(o => o.order_id).join(", ")} כבר נקלטו בחשבשבת ונערכו אחר כך.\n`
       + "לפני הקליטה מבטלים בחשבשבת את המסמך הקודם שלהן (מחפשים לפי אסמכתא 2), אחרת ההזמנה תופיע פעמיים.\n\nלהמשיך?")) return;
@@ -1188,6 +1191,9 @@
     if (f) { openHashFix(Number(f.dataset.hfixorder)); return; }
     const b = e.target.closest("[data-hmanual]"); if (!b) return;
     const o = (state.hashOrders || []).find(x => x.order_id === Number(b.dataset.hmanual)); if (!o) return;
+    if (o._problems && o._problems.length) { toast(`בהזמנה ${o.order_id} חסר משהו. קודם לוחצים "תקן"`, true); return; }
+    if (!confirm(`לסמן את הזמנה ${o.order_id} (${o.customers?.name || ""}) כהוקלדה ידנית בחשבשבת?\n\n`
+      + "ודא שהקלדת אותה בחשבשבת ושכל הפרטים תקינים: לקוח, מוצרים, כמויות ומחירים.\nההזמנה תעבור לירוק ולא תיכנס לקובץ הקליטה.")) return;
     b.disabled = true;
     if (await markExported([o])) toast(`הזמנה ${o.order_id} סומנה כנכנסה לחשבשבת`);
     loadHash(); loadCounts();
