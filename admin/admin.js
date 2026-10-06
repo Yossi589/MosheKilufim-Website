@@ -868,7 +868,7 @@
                ${state.hashCols.map(c => c + ",").join(" ")}
                customers ( customer_id, name, phone_number, adress, hash_key ),
                drivers ( name ),
-               order_lines ( quantity, unit_price, product ( product_id, name, unit, hash_key ) )`)
+               order_lines ( line_id, quantity, unit_price, product ( product_id, name, unit, hash_key ) )`)
       .eq("delivery_date", state.hashDate).in("status", APPROVED).order("order_id");
     let { data, error } = await run();
     for (const c of [...state.hashCols]) {           // edited_at לפני מיגרציה 25
@@ -894,6 +894,7 @@
     countBy(cr.data || []).forEach((n, k) => { if (n > 1) dup.cust.add(k); });
     countBy(pr.data || []).forEach((n, k) => { if (n > 1) dup.item.add(k); });
     todo.forEach(o => { o._problems = hashProblems(o, dup); });
+    state.hashDup = dup;
     const issue = todo.filter(o => o._problems.length);
     const ready = todo.filter(o => !o._problems.length);
     state.hashOrders = todo; state.hashReady = ready; state.hashDone = done;
@@ -913,10 +914,9 @@
         <td>${manualBtn(o)}</td></tr>`;
     const issueRow = o => `<tr data-id="${o.order_id}">${head(o)}
         <td><div class="hash-probs">
-          ${o._problems.map(p => `<span class="hash-prob">⚠ ${esc(p.msg)}${p.fix
-            ? ` <button type="button" class="link-btn" data-hfix="${p.fix}" data-fid="${p.id}" data-fname="${esc(p.name || "")}" data-fkey="${esc(p.key || "")}">תקן</button>` : ""}</span>`).join("")}
+          ${o._problems.map(p => `<span class="hash-prob">⚠ ${esc(p.msg)}</span>`).join("")}
           ${changedChip(o)}</div></td>
-        <td class="hash-acts">${manualBtn(o)}</td></tr>`;
+        <td class="hash-acts"><button type="button" class="btn btn-sm btn-fix" data-hfixorder="${o.order_id}">✎ תקן</button> ${manualBtn(o)}</td></tr>`;
     const doneRow = o => `<tr data-id="${o.order_id}">${head(o)}
         <td><span class="exp-yes">✓ ${esc(fmtTime(o.hash_exported_at))}</span></td>
         <td></td></tr>`;
@@ -1184,22 +1184,8 @@
   $("#hashPrm").addEventListener("click", () => download(cp1255(prmText()), "IMOVEIN.PRM"));
   // הקלדה ידנית: ההזמנה הוקלדה בחשבשבת ביד → ירוק.  "תקן": קביעת מפתח חשבשבת ללקוח / לפריט
   async function onHashRowClick(e) {
-    const f = e.target.closest("[data-hfix]");
-    if (f) {
-      const isCust = f.dataset.hfix === "cust", max = isCust ? CUST_KEY_MAX : ITEM_KEY_MAX;
-      const v = prompt(`מפתח ${isCust ? "הלקוח" : "הפריט"} "${f.dataset.fname}" בחשבשבת (בדיוק כמו שהוא רשום שם, עד ${max} תווים):`, f.dataset.fkey || "");
-      if (v === null) return;
-      const key = v.trim();
-      if (!key || key.length > max) { toast(`מפתח לא תקין (1 עד ${max} תווים)`, true); return; }
-      const table = isCust ? "customers" : "product", idCol = isCust ? "customer_id" : "product_id";
-      const { data: other } = await db.from(table).select(idCol).eq("hash_key", key).neq(idCol, Number(f.dataset.fid)).limit(1);
-      if (other && other.length) { toast(`המפתח ${key} כבר שייך ל${isCust ? "לקוח" : "פריט"} אחר`, true); return; }
-      const { data, error } = await db.from(table).update({ hash_key: key }).eq(idCol, Number(f.dataset.fid)).select(idCol);
-      if (error || !data?.length) { toast("השמירה נכשלה" + (error ? ": " + error.message : ""), true); return; }
-      const c = isCust && state.customers.find(x => x.customer_id === Number(f.dataset.fid)); if (c) c.hash_key = key;
-      toast(`המפתח נשמר: ${key}`); loadHash(); loadCounts();
-      return;
-    }
+    const f = e.target.closest("[data-hfixorder]");
+    if (f) { openHashFix(Number(f.dataset.hfixorder)); return; }
     const b = e.target.closest("[data-hmanual]"); if (!b) return;
     const o = (state.hashOrders || []).find(x => x.order_id === Number(b.dataset.hmanual)); if (!o) return;
     b.disabled = true;
@@ -1208,6 +1194,100 @@
   }
   $("#hashBody").addEventListener("click", onHashRowClick);
   $("#hashIssueBody").addEventListener("click", onHashRowClick);
+
+  /* ---------- חלון "תקן": כל מה שחסר להזמנה לפני חשבשבת, במקום אחד ----------
+     מפתח לקוח, מפתח לכל פריט, כמות ומחיר בכל שורה. שדה עם בעיה מסומן באדום. */
+  function openHashFix(id) {
+    const o = (state.hashOrders || []).find(x => x.order_id === id); if (!o) return;
+    state.hashFix = o;
+    const c = o.customers || {}, dup = state.hashDup || { cust: new Set(), item: new Set() };
+    const ck = custKey(c);
+    const custBad = !ck || ck.length > CUST_KEY_MAX || dup.cust.has(ck);
+    $("#hfTitle").textContent = `תיקון לפני חשבשבת · הזמנה ${o.order_id}`;
+    $("#hfSub").textContent = `${c.name || ""} · אספקה ${o.delivery_date ? fmtDate(o.delivery_date) : "—"}`;
+    $("#hfCustName").textContent = c.name || "";
+    const ci = $("#hfCustKey"); ci.value = ck; ci.classList.toggle("bad", custBad);
+    const lines = o.order_lines || [];
+    $("#hfNoLines").hidden = lines.length > 0;
+    $("#hfLinesWrap").hidden = !lines.length;
+    $("#hfLines").innerHTML = lines.map(l => {
+      const p = l.product || {}, ik = itemKey(p);
+      const keyBad = !ik || ik.length > ITEM_KEY_MAX || dup.item.has(ik);
+      const qtyBad = !(Number(l.quantity) > 0), priceBad = !(Number(l.unit_price) > 0);
+      return `<tr data-line="${l.line_id}" data-pid="${p.product_id}">
+        <td><strong>${esc(p.name)}</strong><small class="muted">${esc(p.unit || "")}</small></td>
+        <td><input class="hf-key${keyBad ? " bad" : ""}" dir="ltr" maxlength="${ITEM_KEY_MAX}" value="${esc(ik)}" aria-label="מפתח פריט ${esc(p.name)}"></td>
+        <td><input class="hf-qty${qtyBad ? " bad" : ""}" type="number" min="0.01" step="0.01" inputmode="decimal" value="${l.quantity ?? ""}" aria-label="כמות ${esc(p.name)}"></td>
+        <td><input class="hf-price${priceBad ? " bad" : ""}" type="number" min="0.01" step="0.01" inputmode="decimal" value="${l.unit_price ?? ""}" aria-label="מחיר ${esc(p.name)}"></td>
+      </tr>`;
+    }).join("");
+    $("#hfFullEdit").hidden = !["ממתינה לאישור", "מאושרת", "בייצור"].includes(o.status);
+    $("#hfFullEdit").dataset.editOrder = o.order_id;
+    $("#hfError").textContent = "";
+    $("#hashFixModal").hidden = false;
+    (document.querySelector("#hashFixModal input.bad") || ci).focus();
+  }
+  function closeHashFix() { $("#hashFixModal").hidden = true; state.hashFix = null; }
+  $("#hashFixModal").addEventListener("click", e => {
+    if (e.target.id === "hashFixModal" || e.target.closest("[data-close-hf]")) closeHashFix();
+    if (e.target.closest("#hfFullEdit")) closeHashFix();   // עריכה מלאה נפתחת דרך data-edit-order
+  });
+  $("#hashFixForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const o = state.hashFix; if (!o) return;
+    const err = m => { $("#hfError").textContent = m; };
+    const c = o.customers || {};
+    const newCk = $("#hfCustKey").value.trim();
+    if (!newCk || newCk.length > CUST_KEY_MAX) return err(`מפתח לקוח: 1 עד ${CUST_KEY_MAX} תווים`);
+    const rows = [...document.querySelectorAll("#hfLines tr")].map(tr => {
+      const l = (o.order_lines || []).find(x => String(x.line_id) === tr.dataset.line) || {};
+      return { tr, l, pid: Number(tr.dataset.pid), key: tr.querySelector(".hf-key").value.trim(),
+               qty: Number(tr.querySelector(".hf-qty").value), price: Number(tr.querySelector(".hf-price").value) };
+    });
+    for (const r of rows) {
+      const name = r.l.product?.name || "";
+      if (!r.key || r.key.length > ITEM_KEY_MAX) return err(`מפתח הפריט "${name}": 1 עד ${ITEM_KEY_MAX} תווים`);
+      if (!(r.qty > 0)) return err(`כמות לא תקינה ב"${name}"`);
+      if (!(r.price > 0)) return err(`מחיר לא תקין ב"${name}"`);
+    }
+    // אותו מפתח לשני פריטים שונים בתוך החלון
+    const seen = new Map();
+    for (const r of rows) { if (seen.has(r.key) && seen.get(r.key) !== r.pid) return err(`המפתח ${r.key} הוקלד לשני פריטים שונים`); seen.set(r.key, r.pid); }
+    $("#hfSave").disabled = true; err("");
+    try {
+      // מפתחות שכבר שייכים למישהו אחר
+      if (newCk !== custKey(c)) {
+        const { data: oc } = await db.from("customers").select("customer_id").eq("hash_key", newCk).neq("customer_id", c.customer_id).limit(1);
+        if (oc && oc.length) return err(`מפתח הלקוח ${newCk} כבר שייך ללקוח אחר`);
+      }
+      const keyChanges = [...seen].filter(([k, pid]) => k !== itemKey(rows.find(r => r.pid === pid).l.product));
+      for (const [k, pid] of keyChanges) {
+        const { data: op } = await db.from("product").select("product_id").eq("hash_key", k).neq("product_id", pid).limit(1);
+        if (op && op.length) return err(`מפתח הפריט ${k} כבר שייך לפריט אחר`);
+      }
+      // שמירה
+      if (newCk !== custKey(c)) {
+        const { error } = await db.from("customers").update({ hash_key: newCk }).eq("customer_id", c.customer_id);
+        if (error) return err("שמירת מפתח הלקוח נכשלה: " + error.message);
+        const sc = state.customers.find(x => x.customer_id === c.customer_id); if (sc) sc.hash_key = newCk;
+      }
+      for (const [k, pid] of keyChanges) {
+        const { error } = await db.from("product").update({ hash_key: k }).eq("product_id", pid);
+        if (error) return err("שמירת מפתח פריט נכשלה: " + error.message);
+      }
+      let linesChanged = 0;
+      for (const r of rows) {
+        if (r.qty === Number(r.l.quantity) && r.price === Number(r.l.unit_price)) continue;
+        const { error } = await db.from("order_lines").update({ quantity: r.qty, unit_price: r.price }).eq("line_id", r.l.line_id);
+        if (error) return err("שמירת שורה נכשלה: " + error.message);
+        linesChanged++;
+      }
+      if (linesChanged) await db.from("orders").update({ edited_at: new Date().toISOString() }).eq("order_id", o.order_id);
+      closeHashFix();
+      toast(`הזמנה ${o.order_id} עודכנה`);
+      loadHash(); loadCounts();
+    } finally { $("#hfSave").disabled = false; }
+  });
 
   /* ==========================================================
      לשונית: פס ייצור - מה שקורה בטאבלט, בזמן אמת

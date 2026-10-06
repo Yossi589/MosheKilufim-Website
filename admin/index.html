@@ -430,6 +430,30 @@
 </div>
 
 <!-- ============ חלון: עריכת לקוח ============ -->
+<div class="modal-wrap" id="hashFixModal" hidden>
+  <form class="modal modal-wide" id="hashFixForm" role="dialog" aria-modal="true" aria-labelledby="hfTitle" novalidate>
+    <h2 id="hfTitle">תיקון לפני חשבשבת</h2>
+    <p class="muted small" id="hfSub"></p>
+    <p class="muted small">שדה באדום = זה מה שחסר או לא תקין. המפתחות צריכים להיות בדיוק כמו בחשבשבת.</p>
+    <label for="hfCustKey">מפתח הלקוח <b id="hfCustName"></b> בחשבשבת (עד 15 תווים)</label>
+    <input id="hfCustKey" dir="ltr" maxlength="15">
+    <div id="hfLinesWrap" class="table-wrap">
+      <table class="hf-table">
+        <thead><tr><th>מוצר</th><th>מפתח פריט בחשבשבת</th><th>כמות</th><th>מחיר ליחידה ₪</th></tr></thead>
+        <tbody id="hfLines"></tbody>
+      </table>
+    </div>
+    <p class="muted small">מפתח פריט שמשנים כאן משתנה לאותו מוצר בכל ההזמנות.</p>
+    <p class="form-error" id="hfNoLines" hidden>אין בהזמנה מוצרים. מוסיפים מוצרים ב"עריכת ההזמנה".</p>
+    <p class="form-error" id="hfError" role="alert"></p>
+    <div class="modal-actions">
+      <button type="submit" class="btn btn-primary" id="hfSave">שמירה</button>
+      <button type="button" class="btn" id="hfFullEdit" data-edit-order="">עריכת ההזמנה</button>
+      <button type="button" class="btn" data-close-hf>ביטול</button>
+    </div>
+  </form>
+</div>
+
 <div class="modal-wrap" id="editModal" hidden>
   <form class="modal" id="editForm" role="dialog" aria-modal="true" aria-labelledby="editTitle" novalidate>
     <h2 id="editTitle">כרטיס לקוח</h2>
@@ -443,7 +467,7 @@
     <label for="ePhone">טלפון *</label>
     <input id="ePhone" dir="ltr" inputmode="tel">
     <label for="eHash">מפתח לקוח בחשבשבת</label>
-    <input id="eHash" dir="ltr" maxlength="15" placeholder="ריק = מספר הלקוח שלנו">
+    <input id="eHash" dir="ltr" maxlength="15" placeholder="חובה לייצוא לחשבשבת">
     <p class="form-error" id="editError" role="alert"></p>
     <div class="modal-actions">
       <button type="submit" class="btn btn-primary" id="editSave">שמירה</button>
@@ -563,7 +587,7 @@
     <label for="cPhone">טלפון</label>
     <input id="cPhone" dir="ltr" readonly>
     <label for="cHash">מפתח לקוח בחשבשבת <span class="muted">(אפשר גם אחר כך)</span></label>
-    <input id="cHash" dir="ltr" maxlength="15" placeholder="ריק = מספר הלקוח שלנו">
+    <input id="cHash" dir="ltr" maxlength="15" placeholder="חובה לייצוא לחשבשבת">
     <div id="cOrderBox" class="order-box" hidden>
       <label class="check"><input type="checkbox" id="cMakeOrder" checked> ליצור גם הזמנה מהמוצרים שביקש</label>
       <div class="muted small" id="cItems"></div>

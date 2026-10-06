@@ -625,3 +625,13 @@ a.btn { text-decoration: none; display: inline-block; }
 .hash-overdue .overdue-day:hover { background: #ffe5e5; }
 @keyframes overduePulse { 50% { box-shadow: 0 0 0 6px #f6c9c9; } }
 @media (prefers-reduced-motion: reduce) { .hash-overdue { animation: none; } }
+
+/* חלון "תקן" בחשבשבת */
+.hf-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.hf-table th { text-align: right; font-size: .85rem; color: var(--muted); padding: 6px 8px; border-bottom: 1.5px solid #e2d6c2; }
+.hf-table td { padding: 6px 8px; border-bottom: 1px solid #efe6d4; vertical-align: middle; }
+.hf-table td small { display: block; }
+.hf-table input { width: 100%; font: inherit; padding: 7px 9px; border: 1.5px solid #e2d6c2; border-radius: 8px; }
+.hf-table .hf-qty, .hf-table .hf-price { max-width: 110px; }
+#hashFixModal input.bad { border-color: #c4685a; background: #fbf0ed; box-shadow: 0 0 0 2px #f4d3cc; }
+.btn-fix { color: #8a3d0e; border-color: #e3a565; background: #fff6ee; font-weight: 800; }
