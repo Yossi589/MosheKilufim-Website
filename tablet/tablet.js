@@ -208,10 +208,10 @@
     const n = items.filter(i => isTicked(o.order_id, i.product)).length;
     const all = allTicked(o);
     const u = state.undo.get(o.order_id);
-    const peelDone = peelDoneMap();
+    const peelOk = peelOkMap();
     const lis = items.map(i => {
       const t = isTicked(o.order_id, i.product);
-      const wait = !t && !peelDone[i.product_id];   // עוד לא קולף: אי אפשר לארוז
+      const wait = !t && !peelOk[o.order_id + ":" + i.product_id];   // עוד לא קולף: אי אפשר לארוז
       return `<li class="chk${t ? " ticked" : ""}${wait ? " unpeeled" : ""}" data-tick="${o.order_id}" data-name="${esc(i.product)}" role="checkbox" aria-checked="${t}"${wait ? ` aria-disabled="true" title="עוד לא קולף: אי אפשר לסמן עד שמסמנים אותו 'קולף' בסה״כ לקילוף"` : ""} tabindex="0">
         <span class="box" aria-hidden="true">${t ? "✓" : ""}</span>
         ${thumb(i.product)}
@@ -235,17 +235,22 @@
     (state.peel || []).forEach(r => { m[r.product_id] = Number(r.kg); });
     return m;
   }
-  /* האם כל הכמות של מוצר כבר קולפה (לפי "סה״כ לקילוף")? מוצר שעוד לא קולף מופיע באדמדם בכרטיסי ההזמנות */
-  function peelDoneMap() {
-    const need = {};
-    state.orders.forEach(o => (o.items || []).forEach(i => {
-      need[i.product_id] = (need[i.product_id] || 0) + Number(i.quantity) * kgPerPack(i.product, i.unit);
+  /* לכל מוצר בכל הזמנה: האם יש לו כבר כמות מקולפת? { "order:product": true }
+     הכמות שסומנה "קולף" מתחלקת להזמנות לפי סדר האישור (הראשונה שאושרה מקבלת ראשונה).
+     כך, אם קולפו 400 ק״ג ונוספה הזמנה של 20 ק״ג, רק ההזמנה החדשה ננעלת עד שמקלפים את התוספת. */
+  function peelOkMap() {
+    const peeled = peeledMap(), ok = {}, used = {};
+    const byTime = [...state.orders].sort((a, b) =>
+      String(a.approved_at || "").localeCompare(String(b.approved_at || "")) || a.order_id - b.order_id);
+    byTime.forEach(o => (o.items || []).forEach(i => {
+      const key = o.order_id + ":" + i.product_id;
+      if (i.peel === false) { ok[key] = true; return; }          // מהמלאי (שום, סלק בוואקום): תמיד מוכן לאריזה
+      if (peeled[i.product_id] == null) { ok[key] = false; return; }
+      const kg = Number(i.quantity) * kgPerPack(i.product, i.unit);
+      used[i.product_id] = (used[i.product_id] || 0) + kg;
+      ok[key] = used[i.product_id] <= peeled[i.product_id] + 0.001;
     }));
-    const peeled = peeledMap(), done = {};
-    Object.keys(need).forEach(pid => { done[pid] = peeled[pid] != null && need[pid] <= peeled[pid] + 0.001; });
-    // מוצר מהמלאי (שום, סלק בוואקום…) לא צריך קילוף: תמיד מוכן לאריזה
-    state.orders.forEach(o => (o.items || []).forEach(i => { if (i.peel === false) done[i.product_id] = true; }));
-    return done;
+    return ok;
   }
   async function setPeeled(pid, kg) {
     if (!navigator.onLine) { toast("אין חיבור לאינטרנט", true); return; }
@@ -300,15 +305,17 @@
         <div class="peel-top">
           ${thumb(r.name).replace('width="56" height="56"', 'width="84" height="84"')}
           <div class="peel-name"><strong>${esc(r.name)}</strong><span>${num(r.packs)} מארזים${per ? ` × ${kgFmt(per)} ק״ג` : ""}</span></div>
-          <div class="peel-kg"><strong>${per ? kgFmt(r.kg) : "?"}</strong><span>ק״ג</span></div>
+          ${added > 0
+            ? `<div class="peel-kg is-extra"><strong>${kgFmt(added)}</strong><span>ק״ג עוד לקלף</span></div>`
+            : `<div class="peel-kg"><strong>${per ? kgFmt(r.kg) : "?"}</strong><span>ק״ג</span></div>`}
         </div>
         <div class="peel-bar" title="כמה כבר חולק להזמנות"><span style="width:${pct}%"></span></div>
         <p class="peel-split">חולק להזמנות: ${kgFmt(r.splitKg)} מתוך ${kgFmt(r.kg)} ק״ג</p>
         <ul class="peel-orders">${r.orders.map(x => `<li class="${x.split ? "split" : ""}"><span>${x.split ? "✓ " : ""}${esc(x.customer)} <small>#${x.id}</small></span><b>${num(x.q)} מארזים · ${kgFmt(x.q * per)} ק״ג</b></li>`).join("")}</ul>
-        ${added > 0 ? `<p class="peel-added">נוספו ${kgFmt(added)} ק״ג מאז שסומן "בוצע"</p>` : ""}
+        ${added > 0 ? `<p class="peel-added">כבר קולפו ${kgFmt(peeled[r.pid])} ק״ג. נוספו ${kgFmt(added)} ק״ג בהזמנה חדשה, מקלפים רק אותם (סה״כ ${kgFmt(r.kg)} ק״ג)</p>` : ""}
         ${done
           ? `<div class="peel-donebar"><span class="peel-done-label">✓ בוצע</span><button type="button" class="peel-undo" data-unpeel>החזרה</button></div>`
-          : `<button type="button" class="btn btn-peel-ok btn-xl" data-peel>OK · קולף</button>`}
+          : `<button type="button" class="btn btn-peel-ok btn-xl" data-peel>${added > 0 ? `OK · קולפו עוד ${kgFmt(added)} ק״ג` : "OK · קולף"}</button>`}
       </article>`;
     }).join("");
   }

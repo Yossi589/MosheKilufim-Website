@@ -282,3 +282,8 @@ button { font: inherit; touch-action: manipulation; }
 /* מוצר שעוד לא קולף: הצ'קבוקס נעול */
 .items.chks li.unpeeled { cursor: not-allowed; }
 .items.chks li.unpeeled .box { border-style: dashed; background: #f3dcd6; opacity: .75; }
+
+/* נוספה כמות אחרי "בוצע": המספר הגדול הוא רק התוספת */
+.peel-kg.is-extra { background: #fff1c2; box-shadow: inset 0 0 0 2px #e0b23a; }
+.peel-kg.is-extra strong { color: #8a5a00; }
+.peel-kg.is-extra span { font-size: .85rem; }
