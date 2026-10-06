@@ -674,7 +674,7 @@
       const driverOpts = `<option value="">—</option>` + state.drivers.map(d =>
         `<option value="${d.driver_id}" ${d.driver_id === o.driver_id ? "selected" : ""}>${esc(d.name)}</option>`).join("");
       const statusOpts = STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("");
-      const stage = o.status === "בייצור" ? `<small class="st-sub">${o.started_at ? "בקילוף" : "ממתינה בטאבלט"}</small>` : o.status === APPROVED_ST ? `<small class="st-sub">ממתינה ל"שלח לקילוף"</small>` : "";
+      const stage = o.status === "בייצור" ? `<small class="st-sub">${o.started_at ? "בתהליך הרכבה" : "ממתינה לטיפול"}</small>` : o.status === APPROVED_ST ? `<small class="st-sub">ממתינה ל"שלח לקילוף"</small>` : "";
       const editable = EDITABLE.includes(o.status);
       return `<tr data-id="${o.order_id}" class="${o.status === "בוטלה" ? "cancelled" : ""}">
         <td class="num muted">${o.order_id}</td>
@@ -1240,7 +1240,7 @@
     const totKg = rows.reduce((s, r) => s + r.kg, 0);
     const peeledKg = rows.reduce((s, r) => { const p = peeled.get(Number(r.pid)); return s + (p && r.kg <= Number(p.kg) + 0.001 ? r.kg : 0); }, 0);
 
-    $("#prodSummary").innerHTML = `<b>${fresh.length}</b> ממתינות בטאבלט · <b>${prod.length}</b> בקילוף · <b>${done.length}</b> הוכנו היום · לקילוף <b>${num(totKg)} ק״ג</b>, מתוכם קולפו <b>${num(peeledKg)} ק״ג</b>`;
+    $("#prodSummary").innerHTML = `<b>${fresh.length}</b> ממתינות לטיפול · <b>${prod.length}</b> בתהליך הרכבה · <b>${done.length}</b> הוכנו היום · לקילוף <b>${num(totKg)} ק״ג</b>, מתוכם קולפו <b>${num(peeledKg)} ק״ג</b>`;
     $("#prodLive").textContent = prod.length || "";
     $("#prodUpdated").textContent = "עודכן " + hm(Date.now()) + " · מתעדכן לבד כשמשהו משתנה בטאבלט";
 
@@ -1257,7 +1257,7 @@
       const items = o.items || [], n = items.filter(i => i.prepared).length;
       return `<article class="prod-card">
         <header><strong>${esc(o.customer_name)}${stTag(o)}</strong><span class="muted">#${o.order_id}</span></header>
-        <div class="meta">נקלטה ב-${esc(hm(o.started_at))} · ${due(o)} · ${n}/${items.length} מוצרים מוכנים</div>
+        <div class="meta">התחילו ב-${esc(hm(o.started_at))} · ${due(o)} · ${n}/${items.length} מוצרים מוכנים</div>
         <div class="prod-bar"><span style="width:${items.length ? Math.round(100 * n / items.length) : 0}%"></span></div>
         <ul>${items.map(i => `<li class="${i.prepared ? "ok" : ""}"><span>${esc(i.product)}</span><b>${num(i.quantity)}</b></li>`).join("")}</ul>
         <div class="acts">${editBtn(o.order_id)}</div>
@@ -1265,7 +1265,7 @@
     }).join("") || `<p class="prod-empty">אין</p>`;
     $("#prodDone").innerHTML = done.map(o => `<article class="prod-card">
         <header><strong>${esc(o.customer_name)}</strong><span class="muted">#${o.order_id}</span></header>
-        <div class="meta">הוכנה ב-<b>${esc(hm(o.prepared_at))}</b>${o.started_at ? ` · נקלטה ${esc(hm(o.started_at))}` : ""} · ${esc(o.status)}</div>
+        <div class="meta">הוכנה ב-<b>${esc(hm(o.prepared_at))}</b>${o.started_at ? ` · התחילו ${esc(hm(o.started_at))}` : ""} · ${esc(o.status)}</div>
       </article>`).join("") || `<p class="prod-empty">עוד לא הוכנו הזמנות היום</p>`;
     $("#prodPeel").innerHTML = rows.map(r => {
       const p = peeled.get(Number(r.pid)), ok = p && r.kg <= Number(p.kg) + 0.001;
@@ -1303,8 +1303,8 @@
     const warn = $("#orderWarn");
     warn.hidden = o.status !== "בייצור";
     warn.textContent = o.started_at
-      ? "ההזמנה כבר בקילוף בפס הייצור. הטאבלט יקבל התראה, ומוצר שהכמות שלו משתנה יסומן מחדש כ'לא הוכן'."
-      : "ההזמנה כבר בטאבלט (עוד לא נקלטה). השינוי יופיע שם מיד.";
+      ? "ההזמנה כבר בתהליך הרכבה בפס הייצור. הטאבלט יקבל התראה, ומוצר שהכמות שלו משתנה יסומן מחדש כ'לא הוכן'."
+      : "ההזמנה כבר בטאבלט (ממתינה לטיפול). השינוי יופיע שם מיד.";
     $("#oDate").value = o.delivery_date || "";
     $("#oNotes").value = o.notes || "";
     $("#orderError").textContent = "";
